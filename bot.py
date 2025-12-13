@@ -66,10 +66,9 @@ def fetch_listings():
     return results
 
 def main():
-    send_message("🧪 TEST: Bot şu an çalışıyor.")
-
     now = datetime.now(TR_TZ)
     today_str = now.strftime("%Y-%m-%d")
+
 
     state = load_state()
 
