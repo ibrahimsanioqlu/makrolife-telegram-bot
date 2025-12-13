@@ -55,28 +55,24 @@ def save_state(state):
 def fetch_listings_playwright():
     """
     Tüm sayfalardaki ilanları çeker.
-    Sayfa sayısını otomatik algılar - ilan bitene kadar devam eder.
+    Sayfa sayısını otomatik algılar.
     """
     all_results = []
     seen_codes = set()
 
     with sync_playwright() as p:
-        browser = p.chromium.launch(headless=True)
-        page = browser.new_page()
-
-        # DEBUG: İlk sayfayı test et
-        try:
-            page.goto(URL, timeout=60000, wait_until="domcontentloaded")
-            page.wait_for_timeout(8000)
-            
-            # Sayfa HTML'ini kontrol et
-            html_length = len(page.content())
-            title = page.title()
-            send_message(f"🔍 DEBUG\nSayfa başlığı: {title}\nHTML uzunluğu: {html_length}")
-        except Exception as e:
-            send_message(f"❌ Sayfa yüklenemedi: {e}")
-            browser.close()
-            return []
+        # Daha gerçekçi browser ayarları
+        browser = p.chromium.launch(
+            headless=True,
+            args=['--no-sandbox', '--disable-setuid-sandbox']
+        )
+        
+        context = browser.new_context(
+            viewport={'width': 1920, 'height': 1080},
+            user_agent='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+        )
+        
+        page = context.new_page()
 
         page_num = 1
         
@@ -84,26 +80,41 @@ def fetch_listings_playwright():
             page_url = f"{URL}?&page={page_num}" if page_num > 1 else URL
 
             try:
-                if page_num > 1:
-                    page.goto(page_url, timeout=60000, wait_until="domcontentloaded")
-                    page.wait_for_timeout(6000)
+                page.goto(page_url, timeout=60000, wait_until="networkidle")
+                
+                # İlanların yüklenmesini bekle (max 30 saniye)
+                try:
+                    page.wait_for_selector('a[href*="ilandetay?ilan_kodu="]', timeout=30000)
+                except:
+                    # Selector bulunamadı, sayfada ilan yok
+                    if page_num == 1:
+                        html_len = len(page.content())
+                        send_message(f"⚠️ İlan bulunamadı!\nSayfa 1 HTML: {html_len}\nSelector beklendi ama bulunamadı.")
+                    break
+                    
             except Exception as e:
                 print(f"Sayfa {page_num} yüklenemedi: {e}")
+                if page_num == 1:
+                    send_message(f"❌ Sayfa yüklenemedi: {e}")
                 break
+
+            # DEBUG: İlk sayfada HTML uzunluğunu göster
+            if page_num == 1:
+                html_length = len(page.content())
+                link_count = page.evaluate('() => document.querySelectorAll(\'a[href*="ilandetay?ilan_kodu="]\').length')
+                send_message(f"🔍 DEBUG\nHTML: {html_length}\nBulunan link sayısı: {link_count}")
 
             # Her ilan kartını ayrı ayrı işle
             listings = page.evaluate('''() => {
                 const results = [];
                 const processedKods = new Set();
                 
-                // Tüm "Detayları Gör" linklerini bul
                 const links = document.querySelectorAll('a[href*="ilandetay?ilan_kodu="]');
                 
                 links.forEach(link => {
                     const href = link.getAttribute("href");
                     if (!href) return;
                     
-                    // İlan kodunu çıkar
                     const kodMatch = href.match(/ilan_kodu=([A-Z0-9-]+)/i);
                     if (!kodMatch) return;
                     
@@ -111,7 +122,7 @@ def fetch_listings_playwright():
                     if (processedKods.has(kod)) return;
                     processedKods.add(kod);
                     
-                    // Kartı bul (yukarı çık)
+                    // Kartı bul
                     let card = link;
                     for (let i = 0; i < 10; i++) {
                         if (!card.parentElement) break;
@@ -133,13 +144,12 @@ def fetch_listings_playwright():
                         }
                     }
                     
-                    // Başlığı bul (h3 veya büyük yazı)
+                    // Başlığı bul
                     let baslik = "";
                     const h3 = card.querySelector("h3");
                     if (h3) {
                         baslik = h3.innerText.trim();
                     } else {
-                        // h3 yoksa, en uzun satırı başlık kabul et
                         for (const line of lines) {
                             if (line.length > baslik.length && !line.includes("₺") && !line.includes("m²")) {
                                 baslik = line;
@@ -174,7 +184,7 @@ def fetch_listings_playwright():
                         "link": item["link"]
                     })
 
-            print(f"Sayfa {page_num}: {len(listings)} ilan bulundu (Toplam: {len(all_results)})")
+            print(f"Sayfa {page_num}: {len(listings)} ilan (Toplam: {len(all_results)})")
             page_num += 1
 
         browser.close()
@@ -227,7 +237,6 @@ def main():
         link = item["link"]
 
         if kod not in state["items"]:
-            # Yeni ilan
             new_count += 1
             state["items"][kod] = {
                 "fiyat": fiyat,
@@ -236,7 +245,6 @@ def main():
                 "link": link
             }
 
-            # İlk çalışmada spam yapma, sadece kaydet
             if not is_first_run:
                 send_message(
                     f"🆕 YENİ İLAN\n"
@@ -247,7 +255,6 @@ def main():
                     f"🔗 {link}"
                 )
         else:
-            # Mevcut ilan - fiyat değişimi kontrol et
             eski_fiyat = state["items"][kod]["fiyat"]
             if eski_fiyat != fiyat:
                 price_change_count += 1
@@ -262,7 +269,6 @@ def main():
                     f"🔗 {link}"
                 )
 
-    # İlk çalışma bildirimi
     if is_first_run:
         send_message(
             f"🚀 BOT BAŞLATILDI!\n"
