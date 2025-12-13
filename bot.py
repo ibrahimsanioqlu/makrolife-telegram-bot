@@ -12,13 +12,11 @@ CHAT_ID = os.getenv("CHAT_ID")
 URL = "https://www.makrolife.com.tr/tumilanlar"
 BASE = "https://www.makrolife.com.tr"
 DATA_FILE = "ilanlar.json"
-MAX_PAGES = 50
 
 TR_TZ = ZoneInfo("Europe/Istanbul")
 
 
 def send_message(text: str):
-    """Telegram mesajı gönder"""
     url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
     try:
         requests.post(
@@ -35,7 +33,6 @@ def send_message(text: str):
 
 
 def load_state():
-    """Kayıtlı durumu yükle"""
     if os.path.exists(DATA_FILE):
         with open(DATA_FILE, "r", encoding="utf-8") as f:
             return json.load(f)
@@ -43,102 +40,36 @@ def load_state():
         "cycle_start": datetime.now(TR_TZ).strftime("%Y-%m-%d"),
         "items": {},
         "reported_days": [],
-        "initialized": False,
-        "last_error": None
+        "initialized": False
     }
 
 
 def save_state(state):
-    """Durumu kaydet"""
     with open(DATA_FILE, "w", encoding="utf-8") as f:
         json.dump(state, f, ensure_ascii=False, indent=2)
 
 
-def fetch_listings_playwright():
+def fetch_listings_playwright(max_pages=10):
     """
-    Tüm sayfalardaki ilanları çeker.
-    Maksimum 50 sayfa tarar.
+    Sayfaları tarar ve ilanları çeker.
     """
     all_results = []
     seen_codes = set()
 
     with sync_playwright() as p:
-        browser = p.chromium.launch(
-            headless=True,
-            args=[
-                '--no-sandbox',
-                '--disable-setuid-sandbox',
-                '--disable-blink-features=AutomationControlled',
-                '--disable-infobars',
-                '--window-size=1920,1080',
-                '--start-maximized'
-            ]
-        )
-        
-        context = browser.new_context(
-            viewport={'width': 1920, 'height': 1080},
-            user_agent='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36',
-            locale='tr-TR',
-            timezone_id='Europe/Istanbul',
-            geolocation={'latitude': 37.9144, 'longitude': 40.2306},
-            permissions=['geolocation']
-        )
-        
-        # Stealth scripts
-        context.add_init_script("""
-            // Webdriver flag'ini gizle
-            Object.defineProperty(navigator, 'webdriver', {get: () => undefined});
-            
-            // Chrome özelliklerini ekle
-            window.chrome = { runtime: {} };
-            
-            // Permissions API'yi düzelt
-            const originalQuery = window.navigator.permissions.query;
-            window.navigator.permissions.query = (parameters) => (
-                parameters.name === 'notifications' ?
-                    Promise.resolve({ state: Notification.permission }) :
-                    originalQuery(parameters)
-            );
-            
-            // Plugin sayısını düzelt
-            Object.defineProperty(navigator, 'plugins', {
-                get: () => [1, 2, 3, 4, 5]
-            });
-            
-            // Languages düzelt
-            Object.defineProperty(navigator, 'languages', {
-                get: () => ['tr-TR', 'tr', 'en-US', 'en']
-            });
-        """)
-        
-        page = context.new_page()
+        browser = p.chromium.launch(headless=True)
+        page = browser.new_page()
 
-        for page_num in range(1, MAX_PAGES + 1):
+        for page_num in range(1, max_pages + 1):
             page_url = f"{URL}?&page={page_num}" if page_num > 1 else URL
 
             try:
-                page.goto(page_url, timeout=60000, wait_until="networkidle")
-                page.wait_for_timeout(5000)
-                
-                # Site hata veriyor mu kontrol et
-                body_text = page.evaluate('() => document.body ? document.body.innerText : ""')
-                if "Fatal error" in body_text or "MySQL" in body_text or "mysqli" in body_text:
-                    return {"error": "site_db_error", "message": "Makrolife veritabanı hatası"}
-                
-                # İlanları bekle
-                try:
-                    page.wait_for_selector('a[href*="ilandetay?ilan_kodu="]', timeout=15000)
-                except:
-                    if page_num == 1:
-                        return {"error": "no_listings", "message": "İlan bulunamadı"}
-                    break
-                    
+                page.goto(page_url, timeout=60000, wait_until="domcontentloaded")
+                page.wait_for_timeout(8000)
             except Exception as e:
-                if page_num == 1:
-                    return {"error": "page_load", "message": str(e)}
+                print(f"Sayfa {page_num} yüklenemedi: {e}")
                 break
 
-            # İlanları çek
             listings = page.evaluate('''() => {
                 const results = [];
                 const processedKods = new Set();
@@ -200,7 +131,7 @@ def fetch_listings_playwright():
             }''')
 
             if not listings:
-                print(f"Sayfa {page_num}: ilan yok, tarama bitti.")
+                print(f"Sayfa {page_num}: ilan yok, durduruluyor.")
                 break
 
             for item in listings:
@@ -208,7 +139,7 @@ def fetch_listings_playwright():
                     seen_codes.add(item["kod"])
                     all_results.append(item)
 
-            print(f"Sayfa {page_num}/{MAX_PAGES}: {len(listings)} ilan (Toplam: {len(all_results)})")
+            print(f"Sayfa {page_num}: {len(listings)} ilan (Toplam: {len(all_results)})")
 
         browser.close()
 
@@ -221,52 +152,30 @@ def main():
 
     state = load_state()
 
-    # 15 günde bir tam sıfırlama
     cycle_start = datetime.strptime(state["cycle_start"], "%Y-%m-%d").replace(tzinfo=TR_TZ)
     if now - cycle_start >= timedelta(days=15):
         state = {
             "cycle_start": today,
             "items": {},
             "reported_days": [],
-            "initialized": False,
-            "last_error": None
+            "initialized": False
         }
 
-    # İlanları çek
     try:
-        result = fetch_listings_playwright()
+        listings = fetch_listings_playwright(max_pages=10)
     except Exception as e:
         send_message("⚠️ Playwright hata:\n" + str(e))
         save_state(state)
         return
 
-    # Hata kontrolü
-    if isinstance(result, dict) and "error" in result:
-        error_type = result["error"]
-        error_msg = result["message"]
-        
-        last_error = state.get("last_error")
-        if last_error != f"{today}_{error_type}":
-            if error_type == "site_db_error":
-                send_message(f"⚠️ SİTE HATASI\n\nMakrolife sitesi veritabanı hatası veriyor.\nSite düzelene kadar bot beklemede.\n\nHata: {error_msg}")
-            else:
-                send_message(f"⚠️ HATA: {error_msg}")
-            state["last_error"] = f"{today}_{error_type}"
-        
-        save_state(state)
-        return
-
-    listings = result
-
-    # ✅ TEST MESAJI (Sonra silinecek)
+    # ✅ TEST MESAJI
     send_message(
         "🧪 TEST SONUCU\n"
         f"Toplam bulunan ilan: {len(listings)}\n"
         f"Kayıtlı ilan: {len(state['items'])}\n"
-        f"İlk kurulum: {not state.get('initialized', False)}"
+        + ("\n".join([f"{item['kod']} | {item['fiyat']}" for item in listings[:5]]) if listings else "")
     )
 
-    state["last_error"] = None
     is_first_run = not state.get("initialized", False)
 
     new_count = 0
@@ -287,6 +196,7 @@ def main():
                 "link": link
             }
 
+            # İlk çalışmada tek tek mesaj ATMA
             if not is_first_run:
                 send_message(
                     f"🆕 YENİ İLAN\n"
@@ -311,6 +221,7 @@ def main():
                     f"🔗 {link}"
                 )
 
+    # İlk çalışma - TEK MESAJ ile bildir
     if is_first_run:
         send_message(
             f"🚀 BOT BAŞLATILDI!\n"
@@ -319,9 +230,6 @@ def main():
             f"✅ Artık sadece YENİ ilanlar ve FİYAT değişiklikleri bildirilecek."
         )
         state["initialized"] = True
-    else:
-        if new_count > 0 or price_change_count > 0:
-            print(f"Yeni: {new_count}, Fiyat değişimi: {price_change_count}")
 
     # 23:30 günlük özet
     if (now.hour == 23 and now.minute >= 30) and (today not in state["reported_days"]):
@@ -332,8 +240,6 @@ def main():
             for kod in todays[:50]:
                 item = state["items"][kod]
                 msg += f"• {kod} - {item.get('fiyat', '?')}\n"
-            if len(todays) > 50:
-                msg += f"\n... ve {len(todays) - 50} ilan daha"
         else:
             msg += "Bugün yeni ilan yok."
         send_message(msg)
