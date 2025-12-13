@@ -78,4 +78,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-send_message("✅ Bot başarıyla çalışıyor. Test mesajıdır.")
