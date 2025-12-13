@@ -12,7 +12,7 @@ CHAT_ID = os.getenv("CHAT_ID")
 URL = "https://www.makrolife.com.tr/tumilanlar"
 BASE = "https://www.makrolife.com.tr"
 DATA_FILE = "ilanlar.json"
-MAX_PAGES = 50  # Maksimum sayfa sayısı
+MAX_PAGES = 50
 
 TR_TZ = ZoneInfo("Europe/Istanbul")
 
@@ -63,22 +63,19 @@ def fetch_listings_playwright():
     seen_codes = set()
 
     with sync_playwright() as p:
-        browser = p.chromium.launch(
-            headless=False,
-            args=['--no-sandbox', '--disable-setuid-sandbox', '--disable-blink-features=AutomationControlled']
+        # Stealth mode için Firefox kullan (daha az tespit edilir)
+        browser = p.firefox.launch(
+            headless=True
         )
         
         context = browser.new_context(
             viewport={'width': 1920, 'height': 1080},
-            user_agent='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-            locale='tr-TR'
+            user_agent='Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:121.0) Gecko/20100101 Firefox/121.0',
+            locale='tr-TR',
+            timezone_id='Europe/Istanbul'
         )
         
         page = context.new_page()
-        
-        page.add_init_script("""
-            Object.defineProperty(navigator, 'webdriver', {get: () => undefined});
-        """)
 
         for page_num in range(1, MAX_PAGES + 1):
             page_url = f"{URL}?&page={page_num}" if page_num > 1 else URL
