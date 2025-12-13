@@ -42,7 +42,7 @@ def load_state():
         "cycle_start": datetime.now(TR_TZ).strftime("%Y-%m-%d"),
         "items": {},
         "reported_days": [],
-        "initialized": False  # İlk çalışma kontrolü
+        "initialized": False
     }
 
 
@@ -52,10 +52,10 @@ def save_state(state):
         json.dump(state, f, ensure_ascii=False, indent=2)
 
 
-def fetch_listings_playwright(max_pages=60):
+def fetch_listings_playwright():
     """
     Tüm sayfalardaki ilanları çeker.
-    Her ilan için: kod, fiyat, başlık, link
+    Sayfa sayısını otomatik algılar - ilan bitene kadar devam eder.
     """
     all_results = []
     seen_codes = set()
@@ -64,12 +64,14 @@ def fetch_listings_playwright(max_pages=60):
         browser = p.chromium.launch(headless=True)
         page = browser.new_page()
 
-        for page_num in range(1, max_pages + 1):
+        page_num = 1
+        
+        while True:
             page_url = f"{URL}?&page={page_num}" if page_num > 1 else URL
 
             try:
                 page.goto(page_url, timeout=60000, wait_until="domcontentloaded")
-                page.wait_for_timeout(5000)
+                page.wait_for_timeout(6000)
             except Exception as e:
                 print(f"Sayfa {page_num} yüklenemedi: {e}")
                 break
@@ -141,6 +143,11 @@ def fetch_listings_playwright(max_pages=60):
                 return results;
             }''')
 
+            # Bu sayfada ilan yoksa dur
+            if not listings:
+                print(f"Sayfa {page_num}: ilan yok, tarama bitti.")
+                break
+
             # Sonuçları ekle
             for item in listings:
                 if item["kod"] not in seen_codes:
@@ -152,12 +159,8 @@ def fetch_listings_playwright(max_pages=60):
                         "link": item["link"]
                     })
 
-            # Bu sayfada ilan yoksa dur
-            if not listings:
-                print(f"Sayfa {page_num}: ilan yok, durduruluyor.")
-                break
-            
-            print(f"Sayfa {page_num}: {len(listings)} ilan bulundu")
+            print(f"Sayfa {page_num}: {len(listings)} ilan bulundu (Toplam: {len(all_results)})")
+            page_num += 1
 
         browser.close()
 
@@ -182,7 +185,7 @@ def main():
 
     # İlanları çek
     try:
-        listings = fetch_listings_playwright(max_pages=60)
+        listings = fetch_listings_playwright()
     except Exception as e:
         send_message("⚠️ Playwright hata:\n" + str(e))
         save_state(state)
@@ -254,7 +257,6 @@ def main():
         )
         state["initialized"] = True
     else:
-        # Normal çalışma özeti (opsiyonel - isterseniz kapatın)
         if new_count > 0 or price_change_count > 0:
             print(f"Yeni: {new_count}, Fiyat değişimi: {price_change_count}")
 
@@ -264,7 +266,7 @@ def main():
         msg = f"📋 GÜNLÜK ÖZET\n📅 {today}\n\n"
         if todays:
             msg += f"Bugün {len(todays)} yeni ilan:\n\n"
-            for kod in todays[:50]:  # Max 50 ilan listele
+            for kod in todays[:50]:
                 item = state["items"][kod]
                 msg += f"• {kod} - {item.get('fiyat', '?')}\n"
             if len(todays) > 50:
