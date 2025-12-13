@@ -41,6 +41,11 @@ def save_state(state):
 
 def fetch_listings():
     r = requests.get(URL, timeout=30)
+
+    send_message(
+        "🧪 HTML uzunluğu: " + str(len(r.text))
+    )
+
     soup = BeautifulSoup(r.text, "html.parser")
 
     ilanlar = soup.select(".ilan-item")
