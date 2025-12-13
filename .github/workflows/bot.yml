@@ -2,7 +2,7 @@ name: Makrolife Telegram Bot
 
 on:
   schedule:
-    - cron: "*/5 * * * *"
+    - cron: "*/1 * * * *"
   workflow_dispatch:
 
 jobs:
