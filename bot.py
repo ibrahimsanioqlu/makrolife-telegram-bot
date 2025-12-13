@@ -2,7 +2,7 @@ import requests
 from bs4 import BeautifulSoup
 import os
 import json
-from datetime import datetime, timedelta, date
+from datetime import datetime, timedelta
 from zoneinfo import ZoneInfo
 
 BOT_TOKEN = os.getenv("BOT_TOKEN")
@@ -47,35 +47,16 @@ def fetch_listings():
     results = []
 
     for ilan in ilanlar:
+        kod = ilan.get("data-ilan-kodu")
+        a = ilan.select_one("a")
+        if not kod or not a:
+            continue
+
         baslik_el = ilan.select_one("h3, .ilan-title")
         fiyat_el = ilan.select_one(".ilan-price, .price")
 
-        kod = ilan.get("data-ilan-kodu")
-        a = ilan.select_one("a")
-        if not a or not kod:
-            continue
-
         href = a.get("href", "")
-        link = href if href.startswith("http") else (BASE + href)
-
-        baslik = baslik_el.text.strip() if baslik_el else "(Başlık yok)"
-        fiyat = fiyat_el.text.strip() if fiyat_el else "Fiyat belirtilmemiş"
-
-        results.append((kod, baslik, fiyat, link))
-
-    return results
-
-    for ilan in ilanlar:
-        baslik_el = ilan.select_one(".ilan-title")
-        fiyat_el = ilan.select_one(".ilan-price")
-
-        kod = ilan.get("data-ilan-kodu")
-        a = ilan.select_one("a")
-        if not a or not kod:
-            continue
-
-        href = a.get("href", "")
-        link = href if href.startswith("http") else (BASE + href)
+        link = href if href.startswith("http") else BASE + href
 
         baslik = baslik_el.text.strip() if baslik_el else "(Başlık yok)"
         fiyat = fiyat_el.text.strip() if fiyat_el else "Fiyat belirtilmemiş"
@@ -88,11 +69,13 @@ def main():
     now = datetime.now(TR_TZ)
     today_str = now.strftime("%Y-%m-%d")
 
-
     state = load_state()
 
-    # 15 günde bir sıfırlama
-    cycle_start = datetime.strptime(state["cycle_start"], "%Y-%m-%d").replace(tzinfo=TR_TZ)
+    # 🔄 15 günde bir TAM sıfırlama
+    cycle_start = datetime.strptime(
+        state["cycle_start"], "%Y-%m-%d"
+    ).replace(tzinfo=TR_TZ)
+
     if now - cycle_start >= timedelta(days=15):
         state = {
             "cycle_start": today_str,
@@ -107,7 +90,8 @@ def main():
     except:
         save_state(state)
         return
-    # 🧪 TEST: Şu an taranan ilan kodlarını gönder (ilk 20)
+
+    # 🧪 TEST: Şu an taranan ilan kodları (ilk 20)
     tum_kodlar = [kod for kod, _, _, _ in listings]
     send_message(
         "🧪 Şu an taranan ilan kodları:\n" +
@@ -116,7 +100,7 @@ def main():
 
     for kod, baslik, fiyat, link in listings:
         if kod not in items_by_code:
-            # YENİ İLAN
+            # 🆕 YENİ İLAN
             send_message(
                 f"🆕 YENİ İLAN\n\n"
                 f"Tarih: {now.strftime('%d.%m.%Y')}\n"
@@ -131,7 +115,7 @@ def main():
                 "fiyat": fiyat
             })
         else:
-            # FİYAT DEĞİŞİMİ KONTROLÜ
+            # 🔔 FİYAT DEĞİŞİMİ
             eski_fiyat = items_by_code[kod]["fiyat"]
             if eski_fiyat != fiyat:
                 send_message(
@@ -144,7 +128,7 @@ def main():
                 )
                 items_by_code[kod]["fiyat"] = fiyat
 
-    # Günlük 23:30 raporu (sadece BUGÜN gelen ilanlar)
+    # 📋 Günlük 23:30 raporu (SADECE o gün gelen ilanlar)
     if (now.hour == 23 and now.minute >= 30) and (today_str not in state["reported_days"]):
         todays = [i["kod"] for i in state["items"] if i["tarih"] == today_str]
         if todays:
