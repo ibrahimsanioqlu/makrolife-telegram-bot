@@ -58,33 +58,59 @@ def fetch_listings_playwright(limit=50):
         page.goto(URL, timeout=60000, wait_until="domcontentloaded")
         page.wait_for_timeout(8000)
 
-        # JavaScript ile tüm ilanları çek
+        # JavaScript ile tüm ilanları çek - düzeltilmiş versiyon
         listings = page.evaluate('''() => {
             const results = [];
-            const links = document.querySelectorAll('a[href*="ilandetay?ilan_kodu="]');
             const seen = new Set();
             
-            links.forEach(link => {
+            // "Detayları Gör" linklerini bul
+            const detayLinks = document.querySelectorAll('a[href*="ilandetay?ilan_kodu="]');
+            
+            detayLinks.forEach(link => {
                 const href = link.getAttribute("href");
-                if (!href) return;
+                if (!href || !href.includes("ilan_kodu=")) return;
                 
-                const match = href.match(/ilan_kodu=([A-Z0-9-]+)/);
+                const match = href.match(/ilan_kodu=([A-Z0-9-]+)/i);
                 if (!match) return;
                 
                 const kod = match[1];
                 if (seen.has(kod)) return;
                 seen.add(kod);
                 
-                // Üst kartı bul
-                let card = link;
-                for (let i = 0; i < 6; i++) {
-                    if (card.parentElement) card = card.parentElement;
+                // Kartı bul - en yakın büyük parent'a çık
+                let card = link.parentElement;
+                while (card && !card.innerText.includes("₺")) {
+                    card = card.parentElement;
+                    if (!card || card.tagName === "BODY") break;
                 }
                 
-                // Fiyatı bul
-                const text = card.innerText || "";
-                const fiyatMatch = text.match(/([\\d.,]+)\\s*₺/);
-                const fiyat = fiyatMatch ? fiyatMatch[0] : "Fiyat yok";
+                // Sadece bu kartın direkt text'inden fiyatı al
+                let fiyat = "Fiyat yok";
+                if (card) {
+                    // Kart içindeki tüm text node'larını tara
+                    const walker = document.createTreeWalker(card, NodeFilter.SHOW_TEXT, null, false);
+                    let node;
+                    while (node = walker.nextNode()) {
+                        const text = node.textContent.trim();
+                        const fiyatMatch = text.match(/^([\\d.,]+)\\s*₺$/);
+                        if (fiyatMatch) {
+                            fiyat = fiyatMatch[0];
+                            break;
+                        }
+                    }
+                    
+                    // Alternatif: innerText'ten çek
+                    if (fiyat === "Fiyat yok") {
+                        const lines = card.innerText.split("\\n");
+                        for (const line of lines) {
+                            const trimmed = line.trim();
+                            if (/^[\\d.,]+\\s*₺$/.test(trimmed)) {
+                                fiyat = trimmed;
+                                break;
+                            }
+                        }
+                    }
+                }
                 
                 results.push({
                     kod: kod,
