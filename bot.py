@@ -88,6 +88,12 @@ def main():
     except:
         save_state(state)
         return
+    # 🧪 TEST: Şu an taranan ilan kodlarını gönder (ilk 20)
+    tum_kodlar = [kod for kod, _, _, _ in listings]
+    send_message(
+        "🧪 Şu an taranan ilan kodları:\n" +
+        ("\n".join(tum_kodlar[:20]) if tum_kodlar else "İlan bulunamadı")
+    )
 
     for kod, baslik, fiyat, link in listings:
         if kod not in items_by_code:
