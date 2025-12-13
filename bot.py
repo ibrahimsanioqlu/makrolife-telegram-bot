@@ -63,17 +63,53 @@ def fetch_listings_playwright():
     seen_codes = set()
 
     with sync_playwright() as p:
-        # Stealth mode için Firefox kullan (daha az tespit edilir)
-        browser = p.firefox.launch(
-            headless=True
+        browser = p.chromium.launch(
+            headless=True,
+            args=[
+                '--no-sandbox',
+                '--disable-setuid-sandbox',
+                '--disable-blink-features=AutomationControlled',
+                '--disable-infobars',
+                '--window-size=1920,1080',
+                '--start-maximized'
+            ]
         )
         
         context = browser.new_context(
             viewport={'width': 1920, 'height': 1080},
-            user_agent='Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:121.0) Gecko/20100101 Firefox/121.0',
+            user_agent='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36',
             locale='tr-TR',
-            timezone_id='Europe/Istanbul'
+            timezone_id='Europe/Istanbul',
+            geolocation={'latitude': 37.9144, 'longitude': 40.2306},
+            permissions=['geolocation']
         )
+        
+        # Stealth scripts
+        context.add_init_script("""
+            // Webdriver flag'ini gizle
+            Object.defineProperty(navigator, 'webdriver', {get: () => undefined});
+            
+            // Chrome özelliklerini ekle
+            window.chrome = { runtime: {} };
+            
+            // Permissions API'yi düzelt
+            const originalQuery = window.navigator.permissions.query;
+            window.navigator.permissions.query = (parameters) => (
+                parameters.name === 'notifications' ?
+                    Promise.resolve({ state: Notification.permission }) :
+                    originalQuery(parameters)
+            );
+            
+            // Plugin sayısını düzelt
+            Object.defineProperty(navigator, 'plugins', {
+                get: () => [1, 2, 3, 4, 5]
+            });
+            
+            // Languages düzelt
+            Object.defineProperty(navigator, 'languages', {
+                get: () => ['tr-TR', 'tr', 'en-US', 'en']
+            });
+        """)
         
         page = context.new_page()
 
@@ -163,7 +199,6 @@ def fetch_listings_playwright():
                 return results;
             }''')
 
-            # Bu sayfada ilan yoksa dur
             if not listings:
                 print(f"Sayfa {page_num}: ilan yok, tarama bitti.")
                 break
@@ -231,9 +266,7 @@ def main():
         f"İlk kurulum: {not state.get('initialized', False)}"
     )
 
-    # Hata temizle
     state["last_error"] = None
-
     is_first_run = not state.get("initialized", False)
 
     new_count = 0
