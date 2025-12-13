@@ -41,15 +41,29 @@ def save_state(state):
 
 def fetch_listings():
     r = requests.get(URL, timeout=30)
-
-    send_message(
-        "🧪 HTML uzunluğu: " + str(len(r.text))
-    )
-
     soup = BeautifulSoup(r.text, "html.parser")
 
-    ilanlar = soup.select(".ilan-item")
+    ilanlar = soup.select("article[data-ilan-kodu]")
     results = []
+
+    for ilan in ilanlar:
+        baslik_el = ilan.select_one("h3, .ilan-title")
+        fiyat_el = ilan.select_one(".ilan-price, .price")
+
+        kod = ilan.get("data-ilan-kodu")
+        a = ilan.select_one("a")
+        if not a or not kod:
+            continue
+
+        href = a.get("href", "")
+        link = href if href.startswith("http") else (BASE + href)
+
+        baslik = baslik_el.text.strip() if baslik_el else "(Başlık yok)"
+        fiyat = fiyat_el.text.strip() if fiyat_el else "Fiyat belirtilmemiş"
+
+        results.append((kod, baslik, fiyat, link))
+
+    return results
 
     for ilan in ilanlar:
         baslik_el = ilan.select_one(".ilan-title")
