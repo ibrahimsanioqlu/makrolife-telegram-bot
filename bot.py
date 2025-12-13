@@ -64,14 +64,29 @@ def fetch_listings_playwright():
         browser = p.chromium.launch(headless=True)
         page = browser.new_page()
 
+        # DEBUG: İlk sayfayı test et
+        try:
+            page.goto(URL, timeout=60000, wait_until="domcontentloaded")
+            page.wait_for_timeout(8000)
+            
+            # Sayfa HTML'ini kontrol et
+            html_length = len(page.content())
+            title = page.title()
+            send_message(f"🔍 DEBUG\nSayfa başlığı: {title}\nHTML uzunluğu: {html_length}")
+        except Exception as e:
+            send_message(f"❌ Sayfa yüklenemedi: {e}")
+            browser.close()
+            return []
+
         page_num = 1
         
         while True:
             page_url = f"{URL}?&page={page_num}" if page_num > 1 else URL
 
             try:
-                page.goto(page_url, timeout=60000, wait_until="domcontentloaded")
-                page.wait_for_timeout(6000)
+                if page_num > 1:
+                    page.goto(page_url, timeout=60000, wait_until="domcontentloaded")
+                    page.wait_for_timeout(6000)
             except Exception as e:
                 print(f"Sayfa {page_num} yüklenemedi: {e}")
                 break
