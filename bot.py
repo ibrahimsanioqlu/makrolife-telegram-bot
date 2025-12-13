@@ -39,4 +39,3 @@ def save_state(state):
 
 def fetch_listings_playwright(limit=50):
     results = []
-    with
