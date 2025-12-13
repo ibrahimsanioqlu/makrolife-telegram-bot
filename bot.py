@@ -12,6 +12,7 @@ CHAT_ID = os.getenv("CHAT_ID")
 URL = "https://www.makrolife.com.tr/tumilanlar"
 BASE = "https://www.makrolife.com.tr"
 DATA_FILE = "ilanlar.json"
+MAX_PAGES = 50  # Maksimum sayfa sayısı
 
 TR_TZ = ZoneInfo("Europe/Istanbul")
 
@@ -56,7 +57,7 @@ def save_state(state):
 def fetch_listings_playwright():
     """
     Tüm sayfalardaki ilanları çeker.
-    Sayfa sayısını otomatik algılar.
+    Maksimum 50 sayfa tarar.
     """
     all_results = []
     seen_codes = set()
@@ -79,9 +80,7 @@ def fetch_listings_playwright():
             Object.defineProperty(navigator, 'webdriver', {get: () => undefined});
         """)
 
-        page_num = 1
-        
-        while True:
+        for page_num in range(1, MAX_PAGES + 1):
             page_url = f"{URL}?&page={page_num}" if page_num > 1 else URL
 
             try:
@@ -167,7 +166,9 @@ def fetch_listings_playwright():
                 return results;
             }''')
 
+            # Bu sayfada ilan yoksa dur
             if not listings:
+                print(f"Sayfa {page_num}: ilan yok, tarama bitti.")
                 break
 
             for item in listings:
@@ -175,8 +176,7 @@ def fetch_listings_playwright():
                     seen_codes.add(item["kod"])
                     all_results.append(item)
 
-            print(f"Sayfa {page_num}: {len(listings)} ilan (Toplam: {len(all_results)})")
-            page_num += 1
+            print(f"Sayfa {page_num}/{MAX_PAGES}: {len(listings)} ilan (Toplam: {len(all_results)})")
 
         browser.close()
 
@@ -213,7 +213,6 @@ def main():
         error_type = result["error"]
         error_msg = result["message"]
         
-        # Aynı hatayı tekrar tekrar bildirme (günde 1 kere)
         last_error = state.get("last_error")
         if last_error != f"{today}_{error_type}":
             if error_type == "site_db_error":
@@ -235,10 +234,9 @@ def main():
         f"İlk kurulum: {not state.get('initialized', False)}"
     )
 
-    # Hata temizle (site düzeldi)
+    # Hata temizle
     state["last_error"] = None
 
-    # İlk çalışma mı kontrol et
     is_first_run = not state.get("initialized", False)
 
     new_count = 0
