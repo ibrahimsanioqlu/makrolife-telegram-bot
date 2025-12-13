@@ -2,79 +2,132 @@ import requests
 from bs4 import BeautifulSoup
 import os
 import json
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
+from zoneinfo import ZoneInfo
 
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 CHAT_ID = os.getenv("CHAT_ID")
 
 URL = "https://www.makrolife.com.tr/tumilanlar"
+BASE = "https://www.makrolife.com.tr"
 DATA_FILE = "ilanlar.json"
+
+TR_TZ = ZoneInfo("Europe/Istanbul")
 
 def send_message(text):
     url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
-    requests.post(url, data={"chat_id": CHAT_ID, "text": text})
+    requests.post(
+        url,
+        data={
+            "chat_id": CHAT_ID,
+            "text": text,
+            "disable_web_page_preview": True
+        }
+    )
 
-def load_data():
+def load_state():
     if os.path.exists(DATA_FILE):
         with open(DATA_FILE, "r", encoding="utf-8") as f:
             return json.load(f)
-    return []
+    return {
+        "cycle_start": datetime.now(TR_TZ).strftime("%Y-%m-%d"),
+        "items": [],
+        "reported_days": []
+    }
 
-def save_data(data):
+def save_state(state):
     with open(DATA_FILE, "w", encoding="utf-8") as f:
-        json.dump(data, f, ensure_ascii=False, indent=2)
+        json.dump(state, f, ensure_ascii=False, indent=2)
 
-def main():
-    response = requests.get(URL, timeout=30)
-    soup = BeautifulSoup(response.text, "html.parser")
+def fetch_listings():
+    r = requests.get(URL, timeout=30)
+    soup = BeautifulSoup(r.text, "html.parser")
 
     ilanlar = soup.select(".ilan-item")
-    kayitli = load_data()
-    kayitli_kodlar = [i["kod"] for i in kayitli]
-
-    yeni_ilanlar = []
+    results = []
 
     for ilan in ilanlar:
-        baslik = ilan.select_one(".ilan-title")
-        kod = ilan.get("data-ilan-kodu")
-        link = ilan.select_one("a")["href"]
+        baslik_el = ilan.select_one(".ilan-title")
+        fiyat_el = ilan.select_one(".ilan-price")
 
-        if not kod or kod in kayitli_kodlar:
+        kod = ilan.get("data-ilan-kodu")
+        a = ilan.select_one("a")
+        if not a or not kod:
             continue
 
-        tarih = datetime.now().strftime("%d.%m.%Y")
+        href = a.get("href", "")
+        link = href if href.startswith("http") else (BASE + href)
 
-        mesaj = (
-            f"Tarih: {tarih}\n\n"
-            f"Başlık: {baslik.text.strip()}\n"
-            f"İlan kodu: {kod}\n\n"
-            f"İlan linki: https://www.makrolife.com.tr{link}"
-        )
+        baslik = baslik_el.text.strip() if baslik_el else "(Başlık yok)"
+        fiyat = fiyat_el.text.strip() if fiyat_el else "Fiyat belirtilmemiş"
 
-        send_message(mesaj)
+        results.append((kod, baslik, fiyat, link))
 
-        yeni_ilanlar.append({
-            "kod": kod,
-            "tarih": tarih
-        })
+    return results
 
-    tum_ilanlar = kayitli + yeni_ilanlar
+def main():
+    now = datetime.now(TR_TZ)
+    today_str = now.strftime("%Y-%m-%d")
 
-    # 15 günden eski ilanları sil
-    sinir = datetime.now() - timedelta(days=15)
-    tum_ilanlar = [
-        i for i in tum_ilanlar
-        if datetime.strptime(i["tarih"], "%d.%m.%Y") >= sinir
-    ]
+    state = load_state()
 
-    # Saat 23:30 ise günlük liste gönder
-    now = datetime.now()
-    if now.hour == 23 and now.minute >= 30:
-        if tum_ilanlar:
-            liste = "\n".join(i["kod"] for i in tum_ilanlar)
-            send_message(f"Günlük ilan kodları:\n{liste}")
+    # 15 günde bir sıfırlama
+    cycle_start = datetime.strptime(state["cycle_start"], "%Y-%m-%d").replace(tzinfo=TR_TZ)
+    if now - cycle_start >= timedelta(days=15):
+        state = {
+            "cycle_start": today_str,
+            "items": [],
+            "reported_days": []
+        }
 
-    save_data(tum_ilanlar)
+    items_by_code = {i["kod"]: i for i in state["items"]}
+
+    try:
+        listings = fetch_listings()
+    except:
+        save_state(state)
+        return
+
+    for kod, baslik, fiyat, link in listings:
+        if kod not in items_by_code:
+            # YENİ İLAN
+            send_message(
+                f"🆕 YENİ İLAN\n\n"
+                f"Tarih: {now.strftime('%d.%m.%Y')}\n"
+                f"Başlık: {baslik}\n"
+                f"İlan kodu: {kod}\n"
+                f"Fiyat: {fiyat}\n\n"
+                f"{link}"
+            )
+            state["items"].append({
+                "kod": kod,
+                "tarih": today_str,
+                "fiyat": fiyat
+            })
+        else:
+            # FİYAT DEĞİŞİMİ KONTROLÜ
+            eski_fiyat = items_by_code[kod]["fiyat"]
+            if eski_fiyat != fiyat:
+                send_message(
+                    f"🔔 FİYAT DEĞİŞTİ\n\n"
+                    f"İlan kodu: {kod}\n"
+                    f"Başlık: {baslik}\n\n"
+                    f"Eski fiyat: {eski_fiyat}\n"
+                    f"Yeni fiyat: {fiyat}\n\n"
+                    f"{link}"
+                )
+                items_by_code[kod]["fiyat"] = fiyat
+
+    # Günlük 23:30 raporu (sadece BUGÜN gelen ilanlar)
+    if (now.hour == 23 and now.minute >= 30) and (today_str not in state["reported_days"]):
+        todays = [i["kod"] for i in state["items"] if i["tarih"] == today_str]
+        if todays:
+            send_message("📋 Günlük ilan kodları:\n" + "\n".join(todays))
+        else:
+            send_message("📋 Günlük ilan kodları:\nBugün yeni ilan yok.")
+        state["reported_days"].append(today_str)
+
+    save_state(state)
 
 if __name__ == "__main__":
     main()
