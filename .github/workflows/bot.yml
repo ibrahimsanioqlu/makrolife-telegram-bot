@@ -2,28 +2,29 @@ name: Makrolife Telegram Bot
 
 on:
   schedule:
-    - cron: "*/1 * * * *"
+    - cron: "*/5 * * * *"   # 5 dakikada bir
   workflow_dispatch:
 
 jobs:
   run-bot:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Repo'yu çek
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Python kur
+      - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
 
-      - name: Gerekli paketleri kur
+      - name: Install dependencies
         run: |
-          pip install requests beautifulsoup4
+          python -m pip install --upgrade pip
+          pip install playwright requests
+          playwright install chromium
 
-      - name: Botu çalıştır
+      - name: Run bot
         env:
           BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
           CHAT_ID: ${{ secrets.CHAT_ID }}
-        run: python bot.py
+        run: |
+          python bot.py
