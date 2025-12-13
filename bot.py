@@ -47,8 +47,7 @@ def save_state(state):
 
 def fetch_listings_playwright(limit=50):
     """
-    Sayfayı Playwright ile açar (JS çalışır) ve ilk `limit` ilandan:
-    (ilan_kodu, fiyat, link) döndürür.
+    Sayfayı Playwright ile açar ve ilanları çeker.
     """
     results = []
 
@@ -57,27 +56,50 @@ def fetch_listings_playwright(limit=50):
         page = browser.new_page()
 
         page.goto(URL, timeout=60000, wait_until="domcontentloaded")
-        # JS ile yüklenen içerik için biraz bekle
-        page.wait_for_timeout(6000)
+        page.wait_for_timeout(8000)
 
-        # İlan kartlarını bulmak için esnek seçim
-        cards = page.query_selector_all("[data-ilan-kodu]")
-        for card in cards[:limit]:
-            kod = card.get_attribute("data-ilan-kodu")
-            if not kod:
-                continue
-            kod = kod.strip()
-
-            a = card.query_selector("a")
-            href = a.get_attribute("href") if a else ""
-            link = href if (href and href.startswith("http")) else (BASE + href if href else "")
-
-            fiyat_el = card.query_selector(".ilan-price, .price, [class*='price']")
-            fiyat = fiyat_el.inner_text().strip() if fiyat_el else "Fiyat belirtilmemiş"
-
-            results.append((kod, fiyat, link))
+        # JavaScript ile tüm ilanları çek
+        listings = page.evaluate('''() => {
+            const results = [];
+            const links = document.querySelectorAll('a[href*="ilandetay?ilan_kodu="]');
+            const seen = new Set();
+            
+            links.forEach(link => {
+                const href = link.getAttribute("href");
+                if (!href) return;
+                
+                const match = href.match(/ilan_kodu=([A-Z0-9-]+)/);
+                if (!match) return;
+                
+                const kod = match[1];
+                if (seen.has(kod)) return;
+                seen.add(kod);
+                
+                // Üst kartı bul
+                let card = link;
+                for (let i = 0; i < 6; i++) {
+                    if (card.parentElement) card = card.parentElement;
+                }
+                
+                // Fiyatı bul
+                const text = card.innerText || "";
+                const fiyatMatch = text.match(/([\\d.,]+)\\s*₺/);
+                const fiyat = fiyatMatch ? fiyatMatch[0] : "Fiyat yok";
+                
+                results.push({
+                    kod: kod,
+                    fiyat: fiyat,
+                    link: "https://www.makrolife.com.tr/" + href
+                });
+            });
+            
+            return results;
+        }''')
 
         browser.close()
+        
+        for item in listings[:limit]:
+            results.append((item["kod"], item["fiyat"], item["link"]))
 
     return results
 
