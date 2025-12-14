@@ -63,47 +63,31 @@ def fetch_listings_playwright(max_pages=10):
                 print(f"Sayfa {page_num} yüklenemedi: {e}")
                 break
 
-            # DEBUG: Sayfadaki elementleri say
-            debug_info = page.evaluate('''() => {
-                return {
-                    allLinks: document.querySelectorAll('a').length,
-                    ilanLinks: document.querySelectorAll('a[href*="ilan_kodu"]').length,
-                    h3Count: document.querySelectorAll('h3').length,
-                    h3aCount: document.querySelectorAll('h3 a').length,
-                    bodyText: document.body.innerText.substring(0, 1000)
-                };
-            }''')
-            print(f"DEBUG Page {page_num}: {debug_info}")
-
             listings = page.evaluate('''() => {
                 const results = [];
-                
-                // TÜM linkleri tara
-                const allLinks = document.querySelectorAll('a[href*="ilan_kodu"]');
                 const seen = new Set();
                 
-                allLinks.forEach(link => {
-                    const href = link.getAttribute("href") || "";
-                    const kodMatch = href.match(/ilan_kodu=([A-Z]{2}-\\d+-\\d+)/i);
-                    if (!kodMatch) return;
+                const links = document.querySelectorAll('a[href*="ilandetay?ilan_kodu="]');
+                
+                links.forEach(link => {
+                    const href = link.getAttribute("href");
+                    if (!href) return;
                     
-                    const kod = kodMatch[1];
+                    const match = href.match(/ilan_kodu=([A-Z0-9-]+)/i);
+                    if (!match) return;
+                    
+                    const kod = match[1];
                     if (seen.has(kod)) return;
                     seen.add(kod);
                     
-                    // Fiyatı bulmak için parent'lara çık
-                    let fiyat = "Fiyat yok";
-                    let el = link;
-                    for (let i = 0; i < 10; i++) {
-                        if (!el.parentElement) break;
-                        el = el.parentElement;
-                        const text = el.innerText || "";
-                        const match = text.match(/(\\d{1,3}(?:[.,]\\d{3})*(?:[.,]\\d+)?)\\s*₺/);
-                        if (match) {
-                            fiyat = match[0];
-                            break;
-                        }
+                    let card = link;
+                    for (let i = 0; i < 6; i++) {
+                        if (card.parentElement) card = card.parentElement;
                     }
+                    
+                    const text = card.innerText || "";
+                    const fiyatMatch = text.match(/([\\d.,]+)\\s*₺/);
+                    const fiyat = fiyatMatch ? fiyatMatch[0] : "Fiyat yok";
                     
                     results.push({
                         kod: kod,
@@ -116,10 +100,7 @@ def fetch_listings_playwright(max_pages=10):
             }''')
 
             if not listings:
-                print(f"Sayfa {page_num}: 0 ilan bulundu")
-                if page_num == 1:
-                    break
-                continue
+                break
 
             for item in listings:
                 if item["kod"] not in seen_codes:
@@ -137,7 +118,6 @@ def main():
 
     state = load_state()
 
-    # 15 günde bir sıfırlama
     cycle_start = datetime.strptime(state["cycle_start"], "%Y-%m-%d").replace(tzinfo=TR_TZ)
     if now - cycle_start >= timedelta(days=15):
         state = {"cycle_start": today, "items": {}, "reported_days": []}
@@ -149,14 +129,13 @@ def main():
         save_state(state)
         return
 
-    # TEST MESAJI - Çalıştığını doğruladıktan sonra bu bloğu sil
+    # ✅ TEST MESAJI
     send_message(
         "🧪 TEST SONUCU\n"
-        f"Toplam ilan: {len(listings)}\n"
+        f"Toplam bulunan ilan sayısı: {len(listings)}\n"
         + ("\n".join([f"{k} | {f}" for k, f, _ in listings[:10]]) if listings else "")
     )
 
-    # Yeni ilan / fiyat değişimi
     for kod, fiyat, link in listings:
         if kod not in state["items"]:
             send_message(f"🆕 YENİ İLAN\n📅 {today}\n🏷️ {kod}\n💰 {fiyat}\n🔗 {link}")
@@ -164,13 +143,14 @@ def main():
         else:
             eski = state["items"][kod]["fiyat"]
             if eski != fiyat:
-                send_message(f"🔔 FİYAT DEĞİŞTİ\n🏷️ {kod}\n💰 Eski: {eski}\n💰 Yeni: {fiyat}\n🔗 {link}")
+                send_message(
+                    f"🔔 FİYAT DEĞİŞTİ\n🏷️ {kod}\n💰 Eski: {eski}\n💰 Yeni: {fiyat}\n🔗 {link}"
+                )
                 state["items"][kod]["fiyat"] = fiyat
 
-    # 23:30 günlük özet
     if (now.hour == 23 and now.minute >= 30) and (today not in state["reported_days"]):
         todays = [k for k, v in state["items"].items() if v.get("tarih") == today]
-        send_message(f"📋 Günlük Özet ({today}):\n" + ("\n".join(todays) if todays else "Bugün yeni ilan yok."))
+        send_message("📋 Günlük özet:\n" + ("\n".join(todays) if todays else "Bugün yeni ilan yok."))
         state["reported_days"].append(today)
 
     save_state(state)
