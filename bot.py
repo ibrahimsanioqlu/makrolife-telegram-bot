@@ -53,7 +53,8 @@ def load_state():
     return {
         "cycle_start": datetime.now(TR_TZ).strftime("%Y-%m-%d"),
         "items": {},
-        "reported_days": []
+        "reported_days": [],
+        "first_run_done": False
     }
 
 
@@ -63,36 +64,63 @@ def save_state(state):
         json.dump(state, f, ensure_ascii=False, indent=2)
 
 
-def fetch_listings_playwright(max_pages=10):
-    """Playwright ile ilanları çek."""
+def fetch_listings_playwright(max_pages=55):
+    """Playwright ile ilanları çek - sayfa başı 6+ saniye bekleme."""
     results = []
     seen_codes = set()
 
     with sync_playwright() as p:
         browser = p.chromium.launch(headless=True)
-        page = browser.new_page()
+        context = browser.new_context(
+            viewport={"width": 1920, "height": 1080},
+            user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+        )
+        page = context.new_page()
 
         for page_num in range(1, max_pages + 1):
-            page_url = f"{URL}?&page={page_num}" if page_num > 1 else URL
+            # URL formatı: ?&page=2 (sitenin kendi formatı)
+            if page_num == 1:
+                page_url = URL
+            else:
+                page_url = f"{URL}?&page={page_num}"
 
             try:
-                page.goto(page_url, timeout=60000, wait_until="domcontentloaded")
+                print(f"Sayfa {page_num} yükleniyor: {page_url}")
                 
-                # Loading screen geçene kadar bekle - ilan linkleri görünene kadar
-                page.wait_for_selector('a[href*="ilandetay?ilan_kodu="]', timeout=30000)
+                # Sayfa yükleme - load eventi bekle
+                page.goto(page_url, timeout=120000, wait_until="load")
                 
-                # Ekstra bekleme - tüm içeriğin yüklenmesi için
-                page.wait_for_timeout(2000)
+                # JavaScript içeriğin render edilmesi için bekle (6 saniye + buffer)
+                page.wait_for_timeout(8000)
+                
+                # İlan kartlarının yüklenmesini bekle
+                try:
+                    page.wait_for_selector('a[href*="ilandetay?ilan_kodu="]', timeout=30000)
+                except:
+                    print(f"Sayfa {page_num}: Selector bulunamadı, scroll deneniyor...")
+                    page.evaluate("window.scrollTo(0, document.body.scrollHeight)")
+                    page.wait_for_timeout(3000)
+                    page.evaluate("window.scrollTo(0, 0)")
+                    page.wait_for_timeout(3000)
+                
+                print(f"Sayfa {page_num} yüklendi.")
                 
             except Exception as e:
                 print(f"Sayfa {page_num} yüklenemedi: {e}")
                 break
 
+            # Debug: HTML'de kaç ilan var
+            html_content = page.content()
+            ilan_count_in_html = html_content.count("ilan_kodu=")
+            print(f"Sayfa {page_num} HTML'de {ilan_count_in_html} ilan linki bulundu.")
+
             listings = page.evaluate('''() => {
                 const results = [];
                 const seen = new Set();
                 
+                // Tüm ilan linklerini bul
                 const links = document.querySelectorAll('a[href*="ilandetay?ilan_kodu="]');
+                console.log("Bulunan link sayısı:", links.length);
                 
                 links.forEach(link => {
                     const href = link.getAttribute("href");
@@ -107,56 +135,35 @@ def fetch_listings_playwright(max_pages=10):
                     
                     let fiyat = "Fiyat yok";
                     let title = "";
-                    let el = link.parentElement;
                     
-                    // Başlığı bul - h3 içinde veya link textinde
-                    const h3 = el.closest('.card, .listing-item, [class*="ilan"]')?.querySelector('h3, h4, .title, [class*="title"]');
-                    if (h3) {
-                        title = h3.innerText.trim();
-                    }
-                    if (!title) {
-                        // Link'in üst elementlerinde h3 ara
-                        let parent = el;
-                        for (let i = 0; i < 5; i++) {
+                    // Link'in parent elementlerinde card'ı bul
+                    let card = link.closest('.card, [class*="card"], [class*="listing"]');
+                    if (!card) {
+                        // Parent'larda ara
+                        let parent = link.parentElement;
+                        for (let i = 0; i < 10; i++) {
                             if (!parent) break;
-                            const h = parent.querySelector('h3');
-                            if (h) {
-                                title = h.innerText.trim();
+                            if (parent.querySelector('h3') && parent.innerText.includes('₺')) {
+                                card = parent;
                                 break;
                             }
                             parent = parent.parentElement;
                         }
                     }
                     
-                    for (let i = 0; i < 5; i++) {
-                        if (!el) break;
-                        
-                        const children = el.childNodes;
-                        for (const child of children) {
-                            if (child.nodeType === 3) {
-                                const text = child.textContent.trim();
-                                const fiyatMatch = text.match(/^([\\d.,]+)\\s*₺$/);
-                                if (fiyatMatch) {
-                                    fiyat = fiyatMatch[0];
-                                    break;
-                                }
-                            }
+                    if (card) {
+                        // Başlığı bul - h3 içinde
+                        const h3 = card.querySelector('h3');
+                        if (h3) {
+                            title = h3.innerText.trim();
                         }
                         
-                        if (fiyat !== "Fiyat yok") break;
-                        
-                        const allText = el.innerText || "";
-                        const lines = allText.split("\\n");
-                        for (const line of lines) {
-                            const trimmed = line.trim();
-                            if (/^[\\d.,]+\\s*₺$/.test(trimmed)) {
-                                fiyat = trimmed;
-                                break;
-                            }
+                        // Fiyatı bul - ₺ içeren text
+                        const cardText = card.innerText;
+                        const fiyatMatch = cardText.match(/([\\d.,]+)\\s*₺/);
+                        if (fiyatMatch) {
+                            fiyat = fiyatMatch[0];
                         }
-                        
-                        if (fiyat !== "Fiyat yok") break;
-                        el = el.parentElement;
                     }
                     
                     results.push({
@@ -170,13 +177,27 @@ def fetch_listings_playwright(max_pages=10):
                 return results;
             }''')
 
+            # Sayfada ilan yoksa dur
             if not listings:
+                print(f"Sayfa {page_num} boş, tarama tamamlandı.")
                 break
 
+            page_new_count = 0
             for item in listings:
                 if item["kod"] not in seen_codes:
                     seen_codes.add(item["kod"])
                     results.append((item["kod"], item["fiyat"], item["link"], item.get("title", "")))
+                    page_new_count += 1
+            
+            print(f"Sayfa {page_num}: {len(listings)} ilan bulundu, {page_new_count} yeni eklendi. Toplam: {len(results)}")
+
+            # Sayfada 12'den az ilan varsa son sayfaya ulaşılmış demektir
+            if len(listings) < 12:
+                print(f"Son sayfaya ulaşıldı (sayfa {page_num}, {len(listings)} ilan).")
+                break
+            
+            # Sonraki sayfa için kısa bekleme
+            page.wait_for_timeout(2000)
 
         browser.close()
 
@@ -192,49 +213,57 @@ def main():
     # 15 günlük döngü kontrolü
     cycle_start = datetime.strptime(state["cycle_start"], "%Y-%m-%d").replace(tzinfo=TR_TZ)
     if now - cycle_start >= timedelta(days=15):
-        state = {"cycle_start": today, "items": {}, "reported_days": []}
+        state = {"cycle_start": today, "items": {}, "reported_days": [], "first_run_done": False}
         print("15 günlük döngü sıfırlandı.")
 
     # İlanları çek
     try:
-        listings = fetch_listings_playwright(max_pages=10)
+        listings = fetch_listings_playwright(max_pages=55)
         print(f"Toplam {len(listings)} ilan bulundu.")
     except Exception as e:
         send_message("⚠️ Playwright hata:\n" + str(e))
         save_state(state)
         return
 
-    # TEST MESAJI
-    test_lines = [f"• {k} | {f}" for k, f, _, _ in listings[:10]]
-    send_message(
-        f"🧪 TEST SONUCU\n"
-        f"📅 {today}\n"
-        f"🕐 {now.strftime('%H:%M')}\n"
-        f"📊 Toplam ilan: {len(listings)}\n"
-        + ("\n".join(test_lines) if test_lines else "İlan bulunamadı")
-    )
+    # İlk çalışma kontrolü - ilk veri toplama
+    is_first_run = not state.get("first_run_done", False) or len(state["items"]) == 0
 
-    # Yeni ilan ve fiyat değişikliklerini kontrol et
-    new_count = 0
-    price_change_count = 0
-
-    for kod, fiyat, link, title in listings:
-        if kod not in state["items"]:
-            # Yeni ilan
-            send_message(f"🆕 YENİ İLAN\n📅 {today}\n🏷️ {kod}\n📝 {title}\n💰 {fiyat}\n🔗 {link}")
+    if is_first_run:
+        # İLK VERİ TOPLAMA - tüm ilanları sessizce kaydet, tek mesaj gönder
+        for kod, fiyat, link, title in listings:
             state["items"][kod] = {"fiyat": fiyat, "tarih": today, "link": link, "title": title}
-            new_count += 1
-            time.sleep(0.5)  # Rate limit koruması
-        else:
-            # Fiyat değişikliği kontrolü (normalize edilmiş karşılaştırma)
-            eski = state["items"][kod]["fiyat"]
-            if normalize_price(eski) != normalize_price(fiyat):
-                send_message(f"🔔 FİYAT DEĞİŞTİ\n🏷️ {kod}\n💰 Eski: {eski}\n💰 Yeni: {fiyat}\n🔗 {link}")
-                state["items"][kod]["fiyat"] = fiyat
-                price_change_count += 1
-                time.sleep(0.5)  # Rate limit koruması
+        
+        state["first_run_done"] = True
+        
+        # Tek özet mesaj gönder
+        send_message(
+            f"📅 {today}  🕐 {now.strftime('%H:%M')}\n"
+            f"📊 Toplam ilan: {len(listings)}\n"
+            f"✅ Tüm ilanlar kaydedildi"
+        )
+        print(f"İlk veri toplama tamamlandı: {len(listings)} ilan kaydedildi.")
+    else:
+        # Normal çalışma - yeni ilan ve fiyat değişikliklerini kontrol et
+        new_count = 0
+        price_change_count = 0
 
-    print(f"Yeni ilan: {new_count}, Fiyat değişikliği: {price_change_count}")
+        for kod, fiyat, link, title in listings:
+            if kod not in state["items"]:
+                # Yeni ilan
+                send_message(f"🆕 YENİ İLAN\n📅 {today}\n🏷️ {kod}\n📝 {title}\n💰 {fiyat}\n🔗 {link}")
+                state["items"][kod] = {"fiyat": fiyat, "tarih": today, "link": link, "title": title}
+                new_count += 1
+                time.sleep(0.5)  # Rate limit koruması
+            else:
+                # Fiyat değişikliği kontrolü
+                eski = state["items"][kod]["fiyat"]
+                if normalize_price(eski) != normalize_price(fiyat):
+                    send_message(f"🔔 FİYAT DEĞİŞTİ\n🏷️ {kod}\n💰 Eski: {eski}\n💰 Yeni: {fiyat}\n🔗 {link}")
+                    state["items"][kod]["fiyat"] = fiyat
+                    price_change_count += 1
+                    time.sleep(0.5)  # Rate limit koruması
+
+        print(f"Yeni ilan: {new_count}, Fiyat değişikliği: {price_change_count}")
 
     # Günlük özet (23:30-23:59 arası, günde bir kez)
     if (now.hour == 23 and now.minute >= 30) and (today not in state["reported_days"]):
