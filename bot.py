@@ -67,9 +67,13 @@ def fetch_listings_playwright(max_pages=10):
                 const results = [];
                 const seen = new Set();
                 
-                const links = document.querySelectorAll('a[href*="ilandetay?ilan_kodu="]');
+                // Tüm ilan kartlarını bul - "Detayları Gör" linkinin parent'ı
+                const detayLinks = document.querySelectorAll('a[href*="ilandetay?ilan_kodu="]');
                 
-                links.forEach(link => {
+                detayLinks.forEach(link => {
+                    // Sadece "Detayları Gör" linklerini al (başlık linklerini atla)
+                    if (!link.textContent.includes("Detay")) return;
+                    
                     const href = link.getAttribute("href");
                     if (!href) return;
                     
@@ -80,14 +84,25 @@ def fetch_listings_playwright(max_pages=10):
                     if (seen.has(kod)) return;
                     seen.add(kod);
                     
+                    // Kartı bul - parent'lara çık
                     let card = link;
-                    for (let i = 0; i < 6; i++) {
+                    for (let i = 0; i < 4; i++) {
                         if (card.parentElement) card = card.parentElement;
                     }
                     
-                    const text = card.innerText || "";
-                    const fiyatMatch = text.match(/([\\d.,]+)\\s*₺/);
-                    const fiyat = fiyatMatch ? fiyatMatch[0] : "Fiyat yok";
+                    // Kart içindeki fiyatı bul
+                    let fiyat = "Fiyat yok";
+                    const cardText = card.innerText || "";
+                    const lines = cardText.split("\\n");
+                    
+                    for (const line of lines) {
+                        const trimmed = line.trim();
+                        // Fiyat formatı: 12.000 ₺ veya 3.690.000 ₺
+                        if (/^[\\d.,]+\\s*₺$/.test(trimmed)) {
+                            fiyat = trimmed;
+                            break;
+                        }
+                    }
                     
                     results.push({
                         kod: kod,
