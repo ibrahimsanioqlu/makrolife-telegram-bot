@@ -177,6 +177,15 @@ def main():
         save_state(state)
         return
 
+    # TEST MESAJI
+    send_message(
+        "🧪 TEST SONUCU\n"
+        f"📅 {today}\n"
+        f"🕐 {now.strftime('%H:%M')}\n"
+        f"📊 Toplam ilan: {len(listings)}\n"
+        + ("\n".join([f"• {k} | {f}" for k, f, _ in listings[:10]]) if listings else "Ilan bulunamadı")
+    )
+
     # Yeni ilan ve fiyat değişikliklerini kontrol et
     new_count = 0
     price_change_count = 0
