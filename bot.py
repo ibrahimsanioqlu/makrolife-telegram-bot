@@ -64,7 +64,7 @@ def save_state(state):
         json.dump(state, f, ensure_ascii=False, indent=2)
 
 
-def fetch_listings_playwright(max_pages=55):
+def fetch_listings_playwright(max_pages=40):
     """Playwright ile ilanları çek - sayfa başı 6+ saniye bekleme."""
     results = []
     seen_codes = set()
@@ -89,14 +89,14 @@ def fetch_listings_playwright(max_pages=55):
                 print(f"Sayfa {page_num} yükleniyor: {page_url}")
                 
                 # Sayfa yükleme
-                page.goto(page_url, timeout=60000, wait_until="domcontentloaded")
+                page.goto(page_url, timeout=45000, wait_until="domcontentloaded")
                 
                 # JavaScript içeriğin render edilmesi için bekle
-                page.wait_for_timeout(7000)
+                page.wait_for_timeout(6000)
                 
                 # İlan kartlarının yüklenmesini bekle
                 try:
-                    page.wait_for_selector('a[href*="ilandetay?ilan_kodu="]', timeout=20000)
+                    page.wait_for_selector('a[href*="ilandetay?ilan_kodu="]', timeout=15000)
                 except:
                     print(f"Sayfa {page_num}: Selector timeout, devam ediliyor...")
                     consecutive_failures += 1
@@ -225,7 +225,7 @@ def main():
 
     # İlanları çek
     try:
-        listings = fetch_listings_playwright(max_pages=55)
+        listings = fetch_listings_playwright(max_pages=40)
         print(f"Toplam {len(listings)} ilan bulundu.")
     except Exception as e:
         print(f"Playwright hata: {e}")
@@ -239,7 +239,7 @@ def main():
         # Minimum ilan kontrolü - en az 100 ilan bekliyoruz
         if len(listings) < 100:
             print(f"İlk çalışmada yetersiz ilan: {len(listings)} (minimum 100 bekleniyor)")
-            # State'i kaydetme, sonraki çalışmada tekrar dene
+            save_state(state)
             return
         
         # İLK VERİ TOPLAMA - tüm ilanları sessizce kaydet, tek mesaj gönder
