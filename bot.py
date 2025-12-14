@@ -54,7 +54,7 @@ def load_state():
         "cycle_start": datetime.now(TR_TZ).strftime("%Y-%m-%d"),
         "items": {},
         "reported_days": [],
-        "initialized": False  # İlk veri toplama tamamlandı mı?
+        "initialized": False
     }
 
 
@@ -64,41 +64,113 @@ def save_state(state):
         json.dump(state, f, ensure_ascii=False, indent=2)
 
 
+def wait_for_page_load(page, page_num):
+    """Sayfa yüklenene kadar bekle - birden fazla strateji dene."""
+    
+    # Strateji 1: networkidle bekle
+    try:
+        page.wait_for_load_state("networkidle", timeout=20000)
+        print(f"Sayfa {page_num}: networkidle tamamlandı")
+    except Exception as e:
+        print(f"Sayfa {page_num}: networkidle timeout - {e}")
+    
+    # Strateji 2: Belirli selector'ı bekle
+    selectors_to_try = [
+        'a[href*="ilandetay?ilan_kodu="]',
+        'a[href*="ilandetay"]',
+        '.card',
+        '[class*="ilan"]',
+        'h3'
+    ]
+    
+    for selector in selectors_to_try:
+        try:
+            page.wait_for_selector(selector, timeout=10000)
+            count = len(page.query_selector_all(selector))
+            print(f"Sayfa {page_num}: '{selector}' bulundu - {count} adet")
+            if count > 0:
+                break
+        except Exception:
+            continue
+    
+    # Strateji 3: Sayfayı scroll et (lazy load için)
+    try:
+        page.evaluate("window.scrollTo(0, document.body.scrollHeight / 2)")
+        page.wait_for_timeout(1000)
+        page.evaluate("window.scrollTo(0, document.body.scrollHeight)")
+        page.wait_for_timeout(1000)
+        page.evaluate("window.scrollTo(0, 0)")
+    except Exception:
+        pass
+    
+    # Ekstra bekleme
+    page.wait_for_timeout(3000)
+
+
 def fetch_listings_playwright(max_pages=50):
     """Playwright ile ilanları çek."""
     results = []
     seen_codes = set()
 
     with sync_playwright() as p:
-        browser = p.chromium.launch(headless=True)
-        page = browser.new_page()
+        browser = p.chromium.launch(
+            headless=True,
+            args=[
+                '--disable-blink-features=AutomationControlled',
+                '--disable-dev-shm-usage',
+                '--no-sandbox'
+            ]
+        )
+        
+        context = browser.new_context(
+            viewport={'width': 1920, 'height': 1080},
+            user_agent='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+        )
+        
+        page = context.new_page()
+        
+        # İlk sayfayı yükle ve debug bilgisi al
+        print(f"Ana sayfa yükleniyor: {URL}")
 
         for page_num in range(1, max_pages + 1):
             page_url = f"{URL}?&page={page_num}" if page_num > 1 else URL
 
             try:
                 page.goto(page_url, timeout=60000, wait_until="domcontentloaded")
-                
-                # Loading screen geçene kadar bekle - ilan linkleri görünene kadar
-                page.wait_for_selector('a[href*="ilandetay?ilan_kodu="]', timeout=30000)
-                
-                # Ekstra bekleme - tüm içeriğin yüklenmesi için
-                page.wait_for_timeout(2000)
+                wait_for_page_load(page, page_num)
                 
             except Exception as e:
                 print(f"Sayfa {page_num} yüklenemedi: {e}")
+                # İlk sayfa yüklenemezse tamamen dur
+                if page_num == 1:
+                    # Debug için HTML'i kaydet
+                    try:
+                        html_len = len(page.content())
+                        print(f"HTML uzunluğu: {html_len}")
+                    except:
+                        pass
                 break
+
+            # Debug: Sayfadaki elementleri say
+            try:
+                all_links = page.query_selector_all('a')
+                ilan_links = page.query_selector_all('a[href*="ilandetay"]')
+                print(f"Sayfa {page_num}: Toplam link: {len(all_links)}, İlan linki: {len(ilan_links)}")
+            except Exception as e:
+                print(f"Debug hata: {e}")
 
             listings = page.evaluate('''() => {
                 const results = [];
                 const seen = new Set();
                 
-                const links = document.querySelectorAll('a[href*="ilandetay?ilan_kodu="]');
+                // Tüm linkleri tara
+                const links = document.querySelectorAll('a[href*="ilandetay"]');
                 
                 links.forEach(link => {
                     const href = link.getAttribute("href");
                     if (!href) return;
                     
+                    // ilan_kodu parametresini bul
                     const match = href.match(/ilan_kodu=([A-Z0-9-]+)/i);
                     if (!match) return;
                     
@@ -108,63 +180,44 @@ def fetch_listings_playwright(max_pages=50):
                     
                     let fiyat = "Fiyat yok";
                     let title = "";
-                    let el = link.parentElement;
                     
-                    // Başlığı bul - h3 içinde veya link textinde
-                    const h3 = el.closest('.card, .listing-item, [class*="ilan"]')?.querySelector('h3, h4, .title, [class*="title"]');
-                    if (h3) {
-                        title = h3.innerText.trim();
-                    }
-                    if (!title) {
-                        // Link'in üst elementlerinde h3 ara
-                        let parent = el;
-                        for (let i = 0; i < 5; i++) {
-                            if (!parent) break;
-                            const h = parent.querySelector('h3');
+                    // Üst elementlere çıkarak kart container'ını bul
+                    let card = link.closest('div');
+                    for (let i = 0; i < 10; i++) {
+                        if (!card) break;
+                        
+                        // Başlık ara (h3, h4 veya title class'ı)
+                        if (!title) {
+                            const h = card.querySelector('h3, h4, .title, [class*="title"]');
                             if (h) {
                                 title = h.innerText.trim();
-                                break;
                             }
-                            parent = parent.parentElement;
                         }
-                    }
-                    
-                    for (let i = 0; i < 5; i++) {
-                        if (!el) break;
                         
-                        const children = el.childNodes;
-                        for (const child of children) {
-                            if (child.nodeType === 3) {
-                                const text = child.textContent.trim();
-                                const fiyatMatch = text.match(/^([\\d.,]+)\\s*₺$/);
-                                if (fiyatMatch) {
-                                    fiyat = fiyatMatch[0];
+                        // Fiyat ara (₺ içeren text)
+                        if (fiyat === "Fiyat yok") {
+                            const text = card.innerText || "";
+                            const lines = text.split("\\n");
+                            for (const line of lines) {
+                                const trimmed = line.trim();
+                                if (/^[\\d.,]+\\s*₺$/.test(trimmed)) {
+                                    fiyat = trimmed;
                                     break;
                                 }
                             }
                         }
                         
-                        if (fiyat !== "Fiyat yok") break;
+                        // İkisi de bulunduysa dur
+                        if (title && fiyat !== "Fiyat yok") break;
                         
-                        const allText = el.innerText || "";
-                        const lines = allText.split("\\n");
-                        for (const line of lines) {
-                            const trimmed = line.trim();
-                            if (/^[\\d.,]+\\s*₺$/.test(trimmed)) {
-                                fiyat = trimmed;
-                                break;
-                            }
-                        }
-                        
-                        if (fiyat !== "Fiyat yok") break;
-                        el = el.parentElement;
+                        card = card.parentElement;
                     }
                     
                     results.push({
                         kod: kod,
                         fiyat: fiyat,
-                        title: title,
-                        link: "https://www.makrolife.com.tr/" + href
+                        title: title || kod,
+                        link: href.startsWith('http') ? href : "https://www.makrolife.com.tr/" + href
                     });
                 });
                 
@@ -212,6 +265,17 @@ def main():
         save_state(state)
         return
 
+    # Hiç ilan bulunamadıysa hata mesajı gönder
+    if not listings:
+        send_message(
+            f"⚠️ UYARI: İlan bulunamadı!\n"
+            f"📅 {today}\n"
+            f"🕐 {now.strftime('%H:%M')}\n"
+            f"Site erişim sorunu olabilir."
+        )
+        save_state(state)
+        return
+
     # İlk çalışma mı kontrol et
     is_first_run = not state.get("initialized", False)
 
@@ -255,14 +319,13 @@ def main():
                     send_message(f"🔔 FİYAT DEĞİŞTİ\n🏷️ {kod}\n💰 Eski: {eski}\n💰 Yeni: {fiyat}\n🔗 {link}")
                     state["items"][kod]["fiyat"] = fiyat
                     price_change_count += 1
-                    time.sleep(1)  # Rate limit koruması
+                    time.sleep(1)
 
         # Yeni ilanları tek tek bildir
         for kod, fiyat, link, title in new_listings:
             send_message(f"🆕 YENİ İLAN\n📅 {today}\n🏷️ {kod}\n📝 {title}\n💰 {fiyat}\n🔗 {link}")
-            time.sleep(1)  # Rate limit koruması
+            time.sleep(1)
 
-        # Durum özeti (sadece değişiklik varsa)
         if new_count > 0 or price_change_count > 0:
             print(f"Yeni ilan: {new_count}, Fiyat değişikliği: {price_change_count}")
         else:
