@@ -63,64 +63,26 @@ def fetch_listings_playwright(max_pages=10):
                 print(f"Sayfa {page_num} yüklenemedi: {e}")
                 break
 
-            listings = page.evaluate('''() => {
-                const results = [];
-                const seen = new Set();
-                
-                // Tüm ilan kartlarını bul - "Detayları Gör" linkinin parent'ı
-                const detayLinks = document.querySelectorAll('a[href*="ilandetay?ilan_kodu="]');
-                
-                detayLinks.forEach(link => {
-                    // Sadece "Detayları Gör" linklerini al (başlık linklerini atla)
-                    if (!link.textContent.includes("Detay")) return;
-                    
-                    const href = link.getAttribute("href");
-                    if (!href) return;
-                    
-                    const match = href.match(/ilan_kodu=([A-Z0-9-]+)/i);
-                    if (!match) return;
-                    
-                    const kod = match[1];
-                    if (seen.has(kod)) return;
-                    seen.add(kod);
-                    
-                    // Kartı bul - parent'lara çık
-                    let card = link;
-                    for (let i = 0; i < 4; i++) {
-                        if (card.parentElement) card = card.parentElement;
-                    }
-                    
-                    // Kart içindeki fiyatı bul
-                    let fiyat = "Fiyat yok";
-                    const cardText = card.innerText || "";
-                    const lines = cardText.split("\\n");
-                    
-                    for (const line of lines) {
-                        const trimmed = line.trim();
-                        // Fiyat formatı: 12.000 ₺ veya 3.690.000 ₺
-                        if (/^[\\d.,]+\\s*₺$/.test(trimmed)) {
-                            fiyat = trimmed;
-                            break;
-                        }
-                    }
-                    
-                    results.push({
-                        kod: kod,
-                        fiyat: fiyat,
-                        link: "https://www.makrolife.com.tr/" + href
-                    });
-                });
-                
-                return results;
-            }''')
+            # Sayfanın tüm HTML'ini al
+            html = page.content()
+            
+            # Regex ile ilan kodlarını ve fiyatları çıkar
+            import re
+            
+            # İlan bloklarını bul - her ilan "ilandetay?ilan_kodu=" ile başlıyor
+            # ve bir sonraki ilana kadar devam ediyor
+            pattern = r'ilandetay\?ilan_kodu=([A-Z0-9-]+).*?(\d{1,3}(?:\.\d{3})*)\s*₺'
+            matches = re.findall(pattern, html, re.DOTALL)
+            
+            for kod, fiyat in matches:
+                if kod not in seen_codes:
+                    seen_codes.add(kod)
+                    fiyat_formatted = fiyat + " ₺"
+                    link = f"https://www.makrolife.com.tr/ilandetay?ilan_kodu={kod}"
+                    results.append((kod, fiyat_formatted, link))
 
-            if not listings:
+            if not matches:
                 break
-
-            for item in listings:
-                if item["kod"] not in seen_codes:
-                    seen_codes.add(item["kod"])
-                    results.append((item["kod"], item["fiyat"], item["link"]))
 
         browser.close()
 
