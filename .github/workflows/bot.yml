@@ -30,7 +30,6 @@ jobs:
         uses: dawidd6/action-download-artifact@v3
         with:
           name: ilanlar-state
-          workflow: makrolife-bot.yml
           workflow_conclusion: ""
           if_no_artifact_found: ignore
           
