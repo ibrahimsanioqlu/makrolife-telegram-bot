@@ -14,7 +14,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
         
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -30,9 +30,12 @@ jobs:
           
       - name: Check existing state
         run: |
+          echo "Mevcut dizin içeriği:"
+          ls -la
+          echo "---"
           if [ -f ilanlar.json ]; then
             echo "State dosyası bulundu:"
-            cat ilanlar.json | head -20
+            head -20 ilanlar.json
           else
             echo "State dosyası bulunamadı, ilk çalışma."
           fi
@@ -48,6 +51,7 @@ jobs:
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
+          git pull --rebase || true
           git add ilanlar.json || true
           git diff --staged --quiet || git commit -m "Update ilanlar.json state"
           git push || true
