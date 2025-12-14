@@ -1,27 +1,45 @@
 name: Makrolife Telegram Bot
+
 on:
   schedule:
     - cron: "*/5 * * * *"
   workflow_dispatch:
+
 jobs:
   run-bot:
     runs-on: ubuntu-latest
+
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
-          
+
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install playwright requests
           playwright install chromium
-          
+          playwright install-deps
+
+      - name: Restore state
+        uses: actions/cache@v4
+        with:
+          path: ilanlar.json
+          key: ilanlar-state-${{ github.run_id }}
+          restore-keys: |
+            ilanlar-state-
+
       - name: Run bot
         env:
           BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
           CHAT_ID: ${{ secrets.CHAT_ID }}
         run: python bot.py
+
+      - name: Save state
+        uses: actions/cache/save@v4
+        with:
+          path: ilanlar.json
+          key: ilanlar-state-${{ github.run_id }}
