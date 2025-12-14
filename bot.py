@@ -46,9 +46,6 @@ def save_state(state):
 
 
 def fetch_listings_playwright(max_pages=10):
-    """
-    İlk 10 sayfadaki ilanları çeker.
-    """
     results = []
     seen_codes = set()
 
@@ -61,38 +58,50 @@ def fetch_listings_playwright(max_pages=10):
 
             try:
                 page.goto(page_url, timeout=60000, wait_until="domcontentloaded")
-                page.wait_for_timeout(5000)
+                page.wait_for_timeout(8000)
             except Exception as e:
                 print(f"Sayfa {page_num} yüklenemedi: {e}")
                 break
 
+            # DEBUG: Sayfadaki elementleri say
+            debug_info = page.evaluate('''() => {
+                return {
+                    allLinks: document.querySelectorAll('a').length,
+                    ilanLinks: document.querySelectorAll('a[href*="ilan_kodu"]').length,
+                    h3Count: document.querySelectorAll('h3').length,
+                    h3aCount: document.querySelectorAll('h3 a').length,
+                    bodyText: document.body.innerText.substring(0, 1000)
+                };
+            }''')
+            print(f"DEBUG Page {page_num}: {debug_info}")
+
             listings = page.evaluate('''() => {
                 const results = [];
                 
-                // Başlık linklerini bul
-                const titleLinks = document.querySelectorAll('h3 a[href*="ilandetay?ilan_kodu="]');
+                // TÜM linkleri tara
+                const allLinks = document.querySelectorAll('a[href*="ilan_kodu"]');
+                const seen = new Set();
                 
-                titleLinks.forEach(link => {
-                    const href = link.getAttribute("href");
-                    if (!href) return;
-                    
-                    const kodMatch = href.match(/ilan_kodu=([A-Z0-9-]+)/i);
+                allLinks.forEach(link => {
+                    const href = link.getAttribute("href") || "";
+                    const kodMatch = href.match(/ilan_kodu=([A-Z]{2}-\\d+-\\d+)/i);
                     if (!kodMatch) return;
                     
                     const kod = kodMatch[1];
-                    const h3 = link.closest("h3");
-                    if (!h3) return;
+                    if (seen.has(kod)) return;
+                    seen.add(kod);
                     
+                    // Fiyatı bulmak için parent'lara çık
                     let fiyat = "Fiyat yok";
-                    let container = h3.parentElement;
-                    
-                    if (container) {
-                        const lines = container.innerText.split("\\n").map(l => l.trim()).filter(l => l);
-                        for (const line of lines) {
-                            if (/^[\\d.,]+\\s*₺$/.test(line)) {
-                                fiyat = line;
-                                break;
-                            }
+                    let el = link;
+                    for (let i = 0; i < 10; i++) {
+                        if (!el.parentElement) break;
+                        el = el.parentElement;
+                        const text = el.innerText || "";
+                        const match = text.match(/(\\d{1,3}(?:[.,]\\d{3})*(?:[.,]\\d+)?)\\s*₺/);
+                        if (match) {
+                            fiyat = match[0];
+                            break;
                         }
                     }
                     
@@ -107,7 +116,10 @@ def fetch_listings_playwright(max_pages=10):
             }''')
 
             if not listings:
-                break
+                print(f"Sayfa {page_num}: 0 ilan bulundu")
+                if page_num == 1:
+                    break
+                continue
 
             for item in listings:
                 if item["kod"] not in seen_codes:
