@@ -22,7 +22,7 @@ def send_message(text: str):
         url,
         data={
             "chat_id": CHAT_ID,
-            "text": text,
+            "text": text[:4000],
             "disable_web_page_preview": True
         },
         timeout=30
@@ -67,6 +67,7 @@ def fetch_listings_playwright(max_pages=10):
                 const results = [];
                 const seen = new Set();
                 
+                // Detayları Gör linklerini bul
                 const links = document.querySelectorAll('a[href*="ilandetay?ilan_kodu="]');
                 
                 links.forEach(link => {
@@ -80,14 +81,44 @@ def fetch_listings_playwright(max_pages=10):
                     if (seen.has(kod)) return;
                     seen.add(kod);
                     
-                    let card = link;
-                    for (let i = 0; i < 6; i++) {
-                        if (card.parentElement) card = card.parentElement;
-                    }
+                    // Linkin parent'ına git ve fiyatı bul
+                    let fiyat = "Fiyat yok";
+                    let el = link.parentElement;
                     
-                    const text = card.innerText || "";
-                    const fiyatMatch = text.match(/([\\d.,]+)\\s*₺/);
-                    const fiyat = fiyatMatch ? fiyatMatch[0] : "Fiyat yok";
+                    // Max 5 seviye yukarı çık, ama her seviyede fiyat ara
+                    for (let i = 0; i < 5; i++) {
+                        if (!el) break;
+                        
+                        // Bu elementin SADECE kendi text içeriğine bak
+                        const children = el.childNodes;
+                        for (const child of children) {
+                            if (child.nodeType === 3) { // Text node
+                                const text = child.textContent.trim();
+                                const fiyatMatch = text.match(/^([\\d.,]+)\\s*₺$/);
+                                if (fiyatMatch) {
+                                    fiyat = fiyatMatch[0];
+                                    break;
+                                }
+                            }
+                        }
+                        
+                        if (fiyat !== "Fiyat yok") break;
+                        
+                        // Element içindeki tüm text'e bak
+                        const allText = el.innerText || "";
+                        const lines = allText.split("\\n");
+                        for (const line of lines) {
+                            const trimmed = line.trim();
+                            // Sadece fiyat formatına uyan satırları al
+                            if (/^[\\d.,]+\\s*₺$/.test(trimmed)) {
+                                fiyat = trimmed;
+                                break;
+                            }
+                        }
+                        
+                        if (fiyat !== "Fiyat yok") break;
+                        el = el.parentElement;
+                    }
                     
                     results.push({
                         kod: kod,
@@ -129,10 +160,10 @@ def main():
         save_state(state)
         return
 
-    # ✅ TEST MESAJI
+    # TEST MESAJI
     send_message(
         "🧪 TEST SONUCU\n"
-        f"Toplam bulunan ilan sayısı: {len(listings)}\n"
+        f"Toplam ilan: {len(listings)}\n"
         + ("\n".join([f"{k} | {f}" for k, f, _ in listings[:10]]) if listings else "")
     )
 
@@ -143,14 +174,12 @@ def main():
         else:
             eski = state["items"][kod]["fiyat"]
             if eski != fiyat:
-                send_message(
-                    f"🔔 FİYAT DEĞİŞTİ\n🏷️ {kod}\n💰 Eski: {eski}\n💰 Yeni: {fiyat}\n🔗 {link}"
-                )
+                send_message(f"🔔 FİYAT DEĞİŞTİ\n🏷️ {kod}\n💰 Eski: {eski}\n💰 Yeni: {fiyat}\n🔗 {link}")
                 state["items"][kod]["fiyat"] = fiyat
 
     if (now.hour == 23 and now.minute >= 30) and (today not in state["reported_days"]):
         todays = [k for k, v in state["items"].items() if v.get("tarih") == today]
-        send_message("📋 Günlük özet:\n" + ("\n".join(todays) if todays else "Bugün yeni ilan yok."))
+        send_message(f"📋 Günlük Özet ({today}):\n" + ("\n".join(todays) if todays else "Bugün yeni ilan yok."))
         state["reported_days"].append(today)
 
     save_state(state)
