@@ -53,7 +53,8 @@ def load_state():
     return {
         "cycle_start": datetime.now(TR_TZ).strftime("%Y-%m-%d"),
         "items": {},
-        "reported_days": []
+        "reported_days": [],
+        "initialized": False  # İlk veri toplama tamamlandı mı?
     }
 
 
@@ -63,7 +64,7 @@ def save_state(state):
         json.dump(state, f, ensure_ascii=False, indent=2)
 
 
-def fetch_listings_playwright(max_pages=10):
+def fetch_listings_playwright(max_pages=50):
     """Playwright ile ilanları çek."""
     results = []
     seen_codes = set()
@@ -171,12 +172,19 @@ def fetch_listings_playwright(max_pages=10):
             }''')
 
             if not listings:
+                print(f"Sayfa {page_num}: İlan bulunamadı, tarama durduruluyor.")
                 break
 
             for item in listings:
                 if item["kod"] not in seen_codes:
                     seen_codes.add(item["kod"])
                     results.append((item["kod"], item["fiyat"], item["link"], item.get("title", "")))
+
+            print(f"Sayfa {page_num}: {len(listings)} ilan bulundu. Toplam: {len(results)}")
+            
+            # Sayfalar arası bekleme (rate limit için)
+            if page_num < max_pages:
+                page.wait_for_timeout(2000)
 
         browser.close()
 
@@ -192,49 +200,73 @@ def main():
     # 15 günlük döngü kontrolü
     cycle_start = datetime.strptime(state["cycle_start"], "%Y-%m-%d").replace(tzinfo=TR_TZ)
     if now - cycle_start >= timedelta(days=15):
-        state = {"cycle_start": today, "items": {}, "reported_days": []}
+        state = {"cycle_start": today, "items": {}, "reported_days": [], "initialized": False}
         print("15 günlük döngü sıfırlandı.")
 
     # İlanları çek
     try:
-        listings = fetch_listings_playwright(max_pages=10)
+        listings = fetch_listings_playwright(max_pages=50)
         print(f"Toplam {len(listings)} ilan bulundu.")
     except Exception as e:
         send_message("⚠️ Playwright hata:\n" + str(e))
         save_state(state)
         return
 
-    # TEST MESAJI
-    test_lines = [f"• {k} | {f}" for k, f, _, _ in listings[:10]]
-    send_message(
-        f"🧪 TEST SONUCU\n"
-        f"📅 {today}\n"
-        f"🕐 {now.strftime('%H:%M')}\n"
-        f"📊 Toplam ilan: {len(listings)}\n"
-        + ("\n".join(test_lines) if test_lines else "İlan bulunamadı")
-    )
+    # İlk çalışma mı kontrol et
+    is_first_run = not state.get("initialized", False)
 
-    # Yeni ilan ve fiyat değişikliklerini kontrol et
-    new_count = 0
-    price_change_count = 0
-
-    for kod, fiyat, link, title in listings:
-        if kod not in state["items"]:
-            # Yeni ilan
-            send_message(f"🆕 YENİ İLAN\n📅 {today}\n🏷️ {kod}\n📝 {title}\n💰 {fiyat}\n🔗 {link}")
+    if is_first_run:
+        # İLK ÇALIŞMA: Tüm ilanları kaydet, sadece özet mesaj gönder
+        for kod, fiyat, link, title in listings:
             state["items"][kod] = {"fiyat": fiyat, "tarih": today, "link": link, "title": title}
-            new_count += 1
-            time.sleep(0.5)  # Rate limit koruması
-        else:
-            # Fiyat değişikliği kontrolü (normalize edilmiş karşılaştırma)
-            eski = state["items"][kod]["fiyat"]
-            if normalize_price(eski) != normalize_price(fiyat):
-                send_message(f"🔔 FİYAT DEĞİŞTİ\n🏷️ {kod}\n💰 Eski: {eski}\n💰 Yeni: {fiyat}\n🔗 {link}")
-                state["items"][kod]["fiyat"] = fiyat
-                price_change_count += 1
-                time.sleep(0.5)  # Rate limit koruması
+        
+        state["initialized"] = True
+        
+        # Özet mesaj gönder
+        sample_lines = [f"• {k} | {f}" for k, f, _, _ in listings[:10]]
+        send_message(
+            f"✅ İLK VERİ TOPLAMA TAMAMLANDI\n"
+            f"📅 {today}\n"
+            f"🕐 {now.strftime('%H:%M')}\n"
+            f"📊 Toplam ilan: {len(listings)}\n"
+            f"💾 Tüm ilanlar kaydedildi\n\n"
+            f"Örnek ilanlar:\n"
+            + "\n".join(sample_lines)
+        )
+        
+        print(f"İlk çalışma: {len(listings)} ilan kaydedildi.")
+    
+    else:
+        # SONRAKI ÇALIŞMALAR: Sadece yeni ilanları ve fiyat değişikliklerini bildir
+        new_count = 0
+        price_change_count = 0
+        new_listings = []
 
-    print(f"Yeni ilan: {new_count}, Fiyat değişikliği: {price_change_count}")
+        for kod, fiyat, link, title in listings:
+            if kod not in state["items"]:
+                # Yeni ilan
+                new_listings.append((kod, fiyat, link, title))
+                state["items"][kod] = {"fiyat": fiyat, "tarih": today, "link": link, "title": title}
+                new_count += 1
+            else:
+                # Fiyat değişikliği kontrolü
+                eski = state["items"][kod]["fiyat"]
+                if normalize_price(eski) != normalize_price(fiyat):
+                    send_message(f"🔔 FİYAT DEĞİŞTİ\n🏷️ {kod}\n💰 Eski: {eski}\n💰 Yeni: {fiyat}\n🔗 {link}")
+                    state["items"][kod]["fiyat"] = fiyat
+                    price_change_count += 1
+                    time.sleep(1)  # Rate limit koruması
+
+        # Yeni ilanları tek tek bildir
+        for kod, fiyat, link, title in new_listings:
+            send_message(f"🆕 YENİ İLAN\n📅 {today}\n🏷️ {kod}\n📝 {title}\n💰 {fiyat}\n🔗 {link}")
+            time.sleep(1)  # Rate limit koruması
+
+        # Durum özeti (sadece değişiklik varsa)
+        if new_count > 0 or price_change_count > 0:
+            print(f"Yeni ilan: {new_count}, Fiyat değişikliği: {price_change_count}")
+        else:
+            print("Değişiklik yok.")
 
     # Günlük özet (23:30-23:59 arası, günde bir kez)
     if (now.hour == 23 and now.minute >= 30) and (today not in state["reported_days"]):
