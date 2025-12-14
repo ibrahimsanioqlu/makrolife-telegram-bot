@@ -63,26 +63,80 @@ def fetch_listings_playwright(max_pages=10):
                 print(f"Sayfa {page_num} yüklenemedi: {e}")
                 break
 
-            # Sayfanın tüm HTML'ini al
-            html = page.content()
-            
-            # Regex ile ilan kodlarını ve fiyatları çıkar
-            import re
-            
-            # İlan bloklarını bul - her ilan "ilandetay?ilan_kodu=" ile başlıyor
-            # ve bir sonraki ilana kadar devam ediyor
-            pattern = r'ilandetay\?ilan_kodu=([A-Z0-9-]+).*?(\d{1,3}(?:\.\d{3})*)\s*₺'
-            matches = re.findall(pattern, html, re.DOTALL)
-            
-            for kod, fiyat in matches:
-                if kod not in seen_codes:
-                    seen_codes.add(kod)
-                    fiyat_formatted = fiyat + " ₺"
-                    link = f"https://www.makrolife.com.tr/ilandetay?ilan_kodu={kod}"
-                    results.append((kod, fiyat_formatted, link))
+            listings = page.evaluate('''() => {
+                const results = [];
+                const seen = new Set();
+                
+                // Detayları Gör linklerini bul
+                const links = document.querySelectorAll('a[href*="ilandetay?ilan_kodu="]');
+                
+                links.forEach(link => {
+                    const href = link.getAttribute("href");
+                    if (!href) return;
+                    
+                    const match = href.match(/ilan_kodu=([A-Z0-9-]+)/i);
+                    if (!match) return;
+                    
+                    const kod = match[1];
+                    if (seen.has(kod)) return;
+                    seen.add(kod);
+                    
+                    // Linkin parent'ına git ve fiyatı bul
+                    let fiyat = "Fiyat yok";
+                    let el = link.parentElement;
+                    
+                    // Max 5 seviye yukarı çık, ama her seviyede fiyat ara
+                    for (let i = 0; i < 5; i++) {
+                        if (!el) break;
+                        
+                        // Bu elementin SADECE kendi text içeriğine bak
+                        const children = el.childNodes;
+                        for (const child of children) {
+                            if (child.nodeType === 3) { // Text node
+                                const text = child.textContent.trim();
+                                const fiyatMatch = text.match(/^([\\d.,]+)\\s*₺$/);
+                                if (fiyatMatch) {
+                                    fiyat = fiyatMatch[0];
+                                    break;
+                                }
+                            }
+                        }
+                        
+                        if (fiyat !== "Fiyat yok") break;
+                        
+                        // Element içindeki tüm text'e bak
+                        const allText = el.innerText || "";
+                        const lines = allText.split("\\n");
+                        for (const line of lines) {
+                            const trimmed = line.trim();
+                            // Sadece fiyat formatına uyan satırları al
+                            if (/^[\\d.,]+\\s*₺$/.test(trimmed)) {
+                                fiyat = trimmed;
+                                break;
+                            }
+                        }
+                        
+                        if (fiyat !== "Fiyat yok") break;
+                        el = el.parentElement;
+                    }
+                    
+                    results.push({
+                        kod: kod,
+                        fiyat: fiyat,
+                        link: "https://www.makrolife.com.tr/" + href
+                    });
+                });
+                
+                return results;
+            }''')
 
-            if not matches:
+            if not listings:
                 break
+
+            for item in listings:
+                if item["kod"] not in seen_codes:
+                    seen_codes.add(item["kod"])
+                    results.append((item["kod"], item["fiyat"], item["link"]))
 
         browser.close()
 
