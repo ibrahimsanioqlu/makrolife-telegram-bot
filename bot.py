@@ -125,11 +125,10 @@ def fetch_listings_playwright(max_pages=40):
                 const results = [];
                 const seen = new Set();
                 
-                // Tüm ilan linklerini bul
-                const links = document.querySelectorAll('a[href*="ilandetay?ilan_kodu="]');
-                console.log("Bulunan link sayısı:", links.length);
+                // Tüm ilan kartlarını bul - Detayları Gör linklerinden
+                const detayLinks = document.querySelectorAll('a[href*="ilandetay?ilan_kodu="]');
                 
-                links.forEach(link => {
+                detayLinks.forEach(link => {
                     const href = link.getAttribute("href");
                     if (!href) return;
                     
@@ -143,33 +142,31 @@ def fetch_listings_playwright(max_pages=40):
                     let fiyat = "Fiyat yok";
                     let title = "";
                     
-                    // Link'in parent elementlerinde card'ı bul
-                    let card = link.closest('.card, [class*="card"], [class*="listing"]');
-                    if (!card) {
-                        // Parent'larda ara
-                        let parent = link.parentElement;
-                        for (let i = 0; i < 10; i++) {
-                            if (!parent) break;
-                            if (parent.querySelector('h3') && parent.innerText.includes('₺')) {
-                                card = parent;
-                                break;
-                            }
-                            parent = parent.parentElement;
-                        }
-                    }
-                    
-                    if (card) {
-                        // Başlığı bul - h3 içinde
-                        const h3 = card.querySelector('h3');
-                        if (h3) {
-                            title = h3.innerText.trim();
-                        }
+                    // Kartı bul - link'in üst elementlerinde ara
+                    let card = link;
+                    for (let i = 0; i < 10; i++) {
+                        if (!card.parentElement) break;
+                        card = card.parentElement;
                         
-                        // Fiyatı bul - ₺ içeren text
-                        const cardText = card.innerText;
-                        const fiyatMatch = cardText.match(/([\\d.,]+)\\s*₺/);
-                        if (fiyatMatch) {
-                            fiyat = fiyatMatch[0];
+                        // Kart içinde h3 ve fiyat var mı kontrol et
+                        const h3 = card.querySelector('h3');
+                        const text = card.innerText || "";
+                        
+                        if (h3 && text.includes('₺')) {
+                            // Başlığı al
+                            title = h3.innerText.trim();
+                            
+                            // Fiyatı bul - satırlarda ₺ içereni ara
+                            const lines = text.split('\\n');
+                            for (const line of lines) {
+                                const trimmed = line.trim();
+                                // Fiyat formatı: 1.070.000 ₺ veya 25.000 ₺
+                                if (/^[\\d.,]+\\s*₺$/.test(trimmed)) {
+                                    fiyat = trimmed;
+                                    break;
+                                }
+                            }
+                            break;
                         }
                     }
                     
