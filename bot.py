@@ -78,9 +78,15 @@ def fetch_listings_playwright(max_pages=50):
         page = context.new_page()
 
         for page_num in range(1, max_pages + 1):
-            page_url = f"{URL}?&page={page_num}" if page_num > 1 else URL
+            # URL formatını düzelt
+            if page_num == 1:
+                page_url = URL
+            else:
+                page_url = f"{URL}?page={page_num}"
 
             try:
+                print(f"Sayfa {page_num} yükleniyor: {page_url}")
+                
                 # Sayfa yükleme - networkidle ile tam yüklenmeyi bekle
                 page.goto(page_url, timeout=120000, wait_until="networkidle")
                 
@@ -196,15 +202,22 @@ def fetch_listings_playwright(max_pages=50):
                 print(f"Sayfa {page_num} boş, tarama tamamlandı.")
                 break
 
+            page_new_count = 0
             for item in listings:
                 if item["kod"] not in seen_codes:
                     seen_codes.add(item["kod"])
                     results.append((item["kod"], item["fiyat"], item["link"], item.get("title", "")))
+                    page_new_count += 1
+            
+            print(f"Sayfa {page_num}: {len(listings)} ilan bulundu, {page_new_count} yeni eklendi. Toplam: {len(results)}")
 
             # Sayfada 12'den az ilan varsa son sayfaya ulaşılmış demektir
             if len(listings) < 12:
                 print(f"Son sayfaya ulaşıldı (sayfa {page_num}, {len(listings)} ilan).")
                 break
+            
+            # Sonraki sayfa için kısa bekleme
+            page.wait_for_timeout(2000)
 
         browser.close()
 
