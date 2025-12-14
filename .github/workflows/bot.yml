@@ -25,11 +25,3 @@ jobs:
           BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
           CHAT_ID: ${{ secrets.CHAT_ID }}
         run: python bot.py
-        
-      - name: Save state
-        run: |
-          git config --local user.email "bot@github.com"
-          git config --local user.name "Bot"
-          git add ilanlar.json || true
-          git diff --quiet && git diff --staged --quiet || git commit -m "Update state"
-          git push || true
