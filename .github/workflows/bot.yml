@@ -13,6 +13,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
         
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -26,18 +28,11 @@ jobs:
           playwright install chromium
           playwright install-deps
           
-      - name: Download previous state
-        uses: dawidd6/action-download-artifact@v3
-        with:
-          name: ilanlar-state
-          workflow_conclusion: ""
-          if_no_artifact_found: ignore
-          
-      - name: Check state file
+      - name: Check existing state
         run: |
           if [ -f ilanlar.json ]; then
             echo "State dosyası bulundu:"
-            cat ilanlar.json | head -50
+            cat ilanlar.json | head -20
           else
             echo "State dosyası bulunamadı, ilk çalışma."
           fi
@@ -49,11 +44,10 @@ jobs:
         run: python bot.py
         timeout-minutes: 15
         
-      - name: Upload state
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: ilanlar-state
-          path: ilanlar.json
-          overwrite: true
-          retention-days: 90
+      - name: Commit and push state
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add ilanlar.json || true
+          git diff --staged --quiet || git commit -m "Update ilanlar.json state"
+          git push || true
