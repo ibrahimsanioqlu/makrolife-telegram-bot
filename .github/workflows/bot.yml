@@ -8,9 +8,10 @@ on:
 jobs:
   run-bot:
     runs-on: ubuntu-latest
-
+    
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -24,13 +25,12 @@ jobs:
           playwright install chromium
           playwright install-deps
 
-      - name: Restore state
-        uses: actions/cache@v4
+      - name: Download previous state
+        uses: actions/download-artifact@v4
         with:
-          path: ilanlar.json
-          key: ilanlar-state-${{ github.run_id }}
-          restore-keys: |
-            ilanlar-state-
+          name: ilanlar-state
+          path: .
+        continue-on-error: true
 
       - name: Run bot
         env:
@@ -38,9 +38,11 @@ jobs:
           CHAT_ID: ${{ secrets.CHAT_ID }}
         run: python bot.py
 
-      - name: Save state
+      - name: Upload state
         if: always()
-        uses: actions/cache/save@v4
+        uses: actions/upload-artifact@v4
         with:
+          name: ilanlar-state
           path: ilanlar.json
-          key: ilanlar-state-${{ github.run_id }}
+          overwrite: true
+          retention-days: 90
