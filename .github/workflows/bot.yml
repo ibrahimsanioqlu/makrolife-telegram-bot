@@ -28,9 +28,9 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ilanlar.json
-          key: ilanlar-state-${{ github.run_id }}
+          key: ilanlar-v2-${{ github.run_id }}
           restore-keys: |
-            ilanlar-state-
+            ilanlar-v2-
 
       - name: Run bot
         env:
@@ -43,4 +43,4 @@ jobs:
         uses: actions/cache/save@v4
         with:
           path: ilanlar.json
-          key: ilanlar-state-${{ github.run_id }}
+          key: ilanlar-v2-${{ github.run_id }}
