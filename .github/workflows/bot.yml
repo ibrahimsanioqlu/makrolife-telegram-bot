@@ -39,6 +39,7 @@ jobs:
         run: python bot.py
 
       - name: Save state
+        if: always()
         uses: actions/cache/save@v4
         with:
           path: ilanlar.json
