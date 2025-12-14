@@ -77,11 +77,6 @@ def fetch_listings_playwright(max_pages=55):
             user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
         )
         page = context.new_page()
-        
-        # İlk sayfayı yükle ve siteyi ısındır
-        print("Site ısınıyor...")
-        page.goto(URL, timeout=120000, wait_until="load")
-        page.wait_for_timeout(10000)
 
         for page_num in range(1, max_pages + 1):
             # URL formatı: ?&page=2 (sitenin kendi formatı)
@@ -90,40 +85,36 @@ def fetch_listings_playwright(max_pages=55):
             else:
                 page_url = f"{URL}?&page={page_num}"
 
-            # Retry mekanizması
-            max_retries = 2
-            page_loaded = False
-            
-            for retry in range(max_retries):
+            try:
+                print(f"Sayfa {page_num} yükleniyor: {page_url}")
+                
+                # Sayfa yükleme
+                page.goto(page_url, timeout=60000, wait_until="domcontentloaded")
+                
+                # JavaScript içeriğin render edilmesi için bekle
+                page.wait_for_timeout(7000)
+                
+                # İlan kartlarının yüklenmesini bekle
                 try:
-                    print(f"Sayfa {page_num} yükleniyor (deneme {retry + 1}): {page_url}")
-                    
-                    # Sayfa yükleme
-                    page.goto(page_url, timeout=120000, wait_until="load")
-                    
-                    # JavaScript içeriğin render edilmesi için bekle
-                    page.wait_for_timeout(10000)
-                    
-                    # İlan kartlarının yüklenmesini bekle
-                    page.wait_for_selector('a[href*="ilandetay?ilan_kodu="]', timeout=45000)
-                    
-                    page_loaded = True
-                    print(f"Sayfa {page_num} yüklendi.")
-                    break
-                    
-                except Exception as e:
-                    print(f"Sayfa {page_num} deneme {retry + 1} başarısız: {e}")
-                    if retry < max_retries - 1:
-                        page.wait_for_timeout(5000)
-            
-            if not page_loaded:
+                    page.wait_for_selector('a[href*="ilandetay?ilan_kodu="]', timeout=20000)
+                except:
+                    print(f"Sayfa {page_num}: Selector timeout, devam ediliyor...")
+                    consecutive_failures += 1
+                    if consecutive_failures >= 3:
+                        print("3 ardışık başarısız, durduruluyor.")
+                        break
+                    continue
+                
+                consecutive_failures = 0
+                print(f"Sayfa {page_num} yüklendi.")
+                
+            except Exception as e:
+                print(f"Sayfa {page_num} yüklenemedi: {e}")
                 consecutive_failures += 1
                 if consecutive_failures >= 3:
-                    print(f"3 ardışık başarısız sayfa, tarama durduruluyor.")
+                    print("3 ardışık başarısız, durduruluyor.")
                     break
                 continue
-            else:
-                consecutive_failures = 0
 
             # Debug: HTML'de kaç ilan var
             html_content = page.content()
@@ -213,7 +204,7 @@ def fetch_listings_playwright(max_pages=55):
                 break
             
             # Sonraki sayfa için bekleme
-            page.wait_for_timeout(3000)
+            page.wait_for_timeout(1000)
 
         browser.close()
 
@@ -237,7 +228,7 @@ def main():
         listings = fetch_listings_playwright(max_pages=55)
         print(f"Toplam {len(listings)} ilan bulundu.")
     except Exception as e:
-        send_message("⚠️ Playwright hata:\n" + str(e))
+        print(f"Playwright hata: {e}")
         save_state(state)
         return
 
@@ -245,9 +236,9 @@ def main():
     is_first_run = not state.get("first_run_done", False) or len(state["items"]) == 0
 
     if is_first_run:
-        # Minimum ilan kontrolü - site 646 ilan gösteriyor, en az 500 bekliyoruz
-        if len(listings) < 500:
-            print(f"İlk çalışmada yetersiz ilan: {len(listings)} (minimum 500 bekleniyor)")
+        # Minimum ilan kontrolü - en az 100 ilan bekliyoruz
+        if len(listings) < 100:
+            print(f"İlk çalışmada yetersiz ilan: {len(listings)} (minimum 100 bekleniyor)")
             # State'i kaydetme, sonraki çalışmada tekrar dene
             return
         
