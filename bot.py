@@ -92,8 +92,8 @@ def fetch_listings_playwright(max_pages=50):
             try:
                 page.goto(page_url, timeout=60000, wait_until="domcontentloaded")
                 
-                # Loading screen için 7 saniye bekle
-                page.wait_for_timeout(7000)
+                # Loading screen için 10 saniye bekle
+                page.wait_for_timeout(10000)
                 
             except Exception as e:
                 print(f"Sayfa {page_num} yüklenemedi: {e}")
