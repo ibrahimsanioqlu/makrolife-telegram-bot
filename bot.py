@@ -64,49 +64,6 @@ def save_state(state):
         json.dump(state, f, ensure_ascii=False, indent=2)
 
 
-def wait_for_page_load(page, page_num):
-    """Sayfa yüklenene kadar bekle - birden fazla strateji dene."""
-    
-    # Strateji 1: networkidle bekle
-    try:
-        page.wait_for_load_state("networkidle", timeout=20000)
-        print(f"Sayfa {page_num}: networkidle tamamlandı")
-    except Exception as e:
-        print(f"Sayfa {page_num}: networkidle timeout - {e}")
-    
-    # Strateji 2: Belirli selector'ı bekle
-    selectors_to_try = [
-        'a[href*="ilandetay?ilan_kodu="]',
-        'a[href*="ilandetay"]',
-        '.card',
-        '[class*="ilan"]',
-        'h3'
-    ]
-    
-    for selector in selectors_to_try:
-        try:
-            page.wait_for_selector(selector, timeout=10000)
-            count = len(page.query_selector_all(selector))
-            print(f"Sayfa {page_num}: '{selector}' bulundu - {count} adet")
-            if count > 0:
-                break
-        except Exception:
-            continue
-    
-    # Strateji 3: Sayfayı scroll et (lazy load için)
-    try:
-        page.evaluate("window.scrollTo(0, document.body.scrollHeight / 2)")
-        page.wait_for_timeout(1000)
-        page.evaluate("window.scrollTo(0, document.body.scrollHeight)")
-        page.wait_for_timeout(1000)
-        page.evaluate("window.scrollTo(0, 0)")
-    except Exception:
-        pass
-    
-    # Ekstra bekleme
-    page.wait_for_timeout(3000)
-
-
 def fetch_listings_playwright(max_pages=50):
     """Playwright ile ilanları çek."""
     results = []
@@ -128,49 +85,30 @@ def fetch_listings_playwright(max_pages=50):
         )
         
         page = context.new_page()
-        
-        # İlk sayfayı yükle ve debug bilgisi al
-        print(f"Ana sayfa yükleniyor: {URL}")
 
         for page_num in range(1, max_pages + 1):
             page_url = f"{URL}?&page={page_num}" if page_num > 1 else URL
 
             try:
                 page.goto(page_url, timeout=60000, wait_until="domcontentloaded")
-                wait_for_page_load(page, page_num)
+                
+                # Loading screen için 7 saniye bekle
+                page.wait_for_timeout(7000)
                 
             except Exception as e:
                 print(f"Sayfa {page_num} yüklenemedi: {e}")
-                # İlk sayfa yüklenemezse tamamen dur
-                if page_num == 1:
-                    # Debug için HTML'i kaydet
-                    try:
-                        html_len = len(page.content())
-                        print(f"HTML uzunluğu: {html_len}")
-                    except:
-                        pass
                 break
-
-            # Debug: Sayfadaki elementleri say
-            try:
-                all_links = page.query_selector_all('a')
-                ilan_links = page.query_selector_all('a[href*="ilandetay"]')
-                print(f"Sayfa {page_num}: Toplam link: {len(all_links)}, İlan linki: {len(ilan_links)}")
-            except Exception as e:
-                print(f"Debug hata: {e}")
 
             listings = page.evaluate('''() => {
                 const results = [];
                 const seen = new Set();
                 
-                // Tüm linkleri tara
                 const links = document.querySelectorAll('a[href*="ilandetay"]');
                 
                 links.forEach(link => {
                     const href = link.getAttribute("href");
                     if (!href) return;
                     
-                    // ilan_kodu parametresini bul
                     const match = href.match(/ilan_kodu=([A-Z0-9-]+)/i);
                     if (!match) return;
                     
@@ -181,12 +119,10 @@ def fetch_listings_playwright(max_pages=50):
                     let fiyat = "Fiyat yok";
                     let title = "";
                     
-                    // Üst elementlere çıkarak kart container'ını bul
                     let card = link.closest('div');
                     for (let i = 0; i < 10; i++) {
                         if (!card) break;
                         
-                        // Başlık ara (h3, h4 veya title class'ı)
                         if (!title) {
                             const h = card.querySelector('h3, h4, .title, [class*="title"]');
                             if (h) {
@@ -194,7 +130,6 @@ def fetch_listings_playwright(max_pages=50):
                             }
                         }
                         
-                        // Fiyat ara (₺ içeren text)
                         if (fiyat === "Fiyat yok") {
                             const text = card.innerText || "";
                             const lines = text.split("\\n");
@@ -207,7 +142,6 @@ def fetch_listings_playwright(max_pages=50):
                             }
                         }
                         
-                        // İkisi de bulunduysa dur
                         if (title && fiyat !== "Fiyat yok") break;
                         
                         card = card.parentElement;
@@ -233,11 +167,7 @@ def fetch_listings_playwright(max_pages=50):
                     seen_codes.add(item["kod"])
                     results.append((item["kod"], item["fiyat"], item["link"], item.get("title", "")))
 
-            print(f"Sayfa {page_num}: {len(listings)} ilan bulundu. Toplam: {len(results)}")
-            
-            # Sayfalar arası bekleme (rate limit için)
-            if page_num < max_pages:
-                page.wait_for_timeout(2000)
+            print(f"Sayfa {page_num}: {len(listings)} ilan. Toplam: {len(results)}")
 
         browser.close()
 
