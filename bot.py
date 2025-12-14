@@ -81,14 +81,21 @@ def fetch_listings_playwright(max_pages=50):
             page_url = f"{URL}?&page={page_num}" if page_num > 1 else URL
 
             try:
-                # Sayfa yükleme - 90 saniye timeout (6 sn * 12 ilan + buffer)
-                page.goto(page_url, timeout=90000, wait_until="domcontentloaded")
+                # Sayfa yükleme - networkidle ile tam yüklenmeyi bekle
+                page.goto(page_url, timeout=120000, wait_until="networkidle")
                 
-                # İlan linkleri görünene kadar bekle - 60 saniye timeout
-                page.wait_for_selector('a[href*="ilandetay?ilan_kodu="]', timeout=60000)
+                # Ekstra bekleme - JavaScript rendering için
+                page.wait_for_timeout(8000)
                 
-                # Sayfanın tam yüklenmesi için 7 saniye bekle (6 sn + 1 sn buffer)
-                page.wait_for_timeout(7000)
+                # İlan linkleri görünene kadar bekle
+                try:
+                    page.wait_for_selector('a[href*="ilandetay?ilan_kodu="]', timeout=30000)
+                except:
+                    # Selector bulunamazsa sayfayı scroll edip tekrar dene
+                    page.evaluate("window.scrollTo(0, document.body.scrollHeight)")
+                    page.wait_for_timeout(3000)
+                    page.evaluate("window.scrollTo(0, 0)")
+                    page.wait_for_timeout(2000)
                 
                 print(f"Sayfa {page_num} yüklendi.")
                 
@@ -97,6 +104,11 @@ def fetch_listings_playwright(max_pages=50):
                 # Hata durumunda mevcut sonuçlarla devam et
                 break
 
+            # Debug: Sayfa içeriğini kontrol et
+            html_content = page.content()
+            ilan_count_in_html = html_content.count("ilan_kodu=")
+            print(f"Sayfa {page_num} HTML'de {ilan_count_in_html} ilan linki bulundu.")
+            
             listings = page.evaluate('''() => {
                 const results = [];
                 const seen = new Set();
