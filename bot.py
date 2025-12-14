@@ -67,7 +67,6 @@ def fetch_listings_playwright(max_pages=10):
                 const results = [];
                 const seen = new Set();
                 
-                // Detayları Gör linklerini bul
                 const links = document.querySelectorAll('a[href*="ilandetay?ilan_kodu="]');
                 
                 links.forEach(link => {
@@ -81,44 +80,14 @@ def fetch_listings_playwright(max_pages=10):
                     if (seen.has(kod)) return;
                     seen.add(kod);
                     
-                    // Linkin parent'ına git ve fiyatı bul
-                    let fiyat = "Fiyat yok";
-                    let el = link.parentElement;
-                    
-                    // Max 5 seviye yukarı çık, ama her seviyede fiyat ara
-                    for (let i = 0; i < 5; i++) {
-                        if (!el) break;
-                        
-                        // Bu elementin SADECE kendi text içeriğine bak
-                        const children = el.childNodes;
-                        for (const child of children) {
-                            if (child.nodeType === 3) { // Text node
-                                const text = child.textContent.trim();
-                                const fiyatMatch = text.match(/^([\\d.,]+)\\s*₺$/);
-                                if (fiyatMatch) {
-                                    fiyat = fiyatMatch[0];
-                                    break;
-                                }
-                            }
-                        }
-                        
-                        if (fiyat !== "Fiyat yok") break;
-                        
-                        // Element içindeki tüm text'e bak
-                        const allText = el.innerText || "";
-                        const lines = allText.split("\\n");
-                        for (const line of lines) {
-                            const trimmed = line.trim();
-                            // Sadece fiyat formatına uyan satırları al
-                            if (/^[\\d.,]+\\s*₺$/.test(trimmed)) {
-                                fiyat = trimmed;
-                                break;
-                            }
-                        }
-                        
-                        if (fiyat !== "Fiyat yok") break;
-                        el = el.parentElement;
+                    let card = link;
+                    for (let i = 0; i < 6; i++) {
+                        if (card.parentElement) card = card.parentElement;
                     }
+                    
+                    const text = card.innerText || "";
+                    const fiyatMatch = text.match(/([\\d.,]+)\\s*₺/);
+                    const fiyat = fiyatMatch ? fiyatMatch[0] : "Fiyat yok";
                     
                     results.push({
                         kod: kod,
