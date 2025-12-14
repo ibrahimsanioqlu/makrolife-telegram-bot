@@ -77,7 +77,13 @@ def fetch_listings_playwright(max_pages=10):
 
             try:
                 page.goto(page_url, timeout=60000, wait_until="domcontentloaded")
-                page.wait_for_timeout(8000)
+                
+                # Loading screen geçene kadar bekle - ilan linkleri görünene kadar
+                page.wait_for_selector('a[href*="ilandetay?ilan_kodu="]', timeout=30000)
+                
+                # Ekstra bekleme - tüm içeriğin yüklenmesi için
+                page.wait_for_timeout(2000)
+                
             except Exception as e:
                 print(f"Sayfa {page_num} yüklenemedi: {e}")
                 break
@@ -100,7 +106,27 @@ def fetch_listings_playwright(max_pages=10):
                     seen.add(kod);
                     
                     let fiyat = "Fiyat yok";
+                    let title = "";
                     let el = link.parentElement;
+                    
+                    // Başlığı bul - h3 içinde veya link textinde
+                    const h3 = el.closest('.card, .listing-item, [class*="ilan"]')?.querySelector('h3, h4, .title, [class*="title"]');
+                    if (h3) {
+                        title = h3.innerText.trim();
+                    }
+                    if (!title) {
+                        // Link'in üst elementlerinde h3 ara
+                        let parent = el;
+                        for (let i = 0; i < 5; i++) {
+                            if (!parent) break;
+                            const h = parent.querySelector('h3');
+                            if (h) {
+                                title = h.innerText.trim();
+                                break;
+                            }
+                            parent = parent.parentElement;
+                        }
+                    }
                     
                     for (let i = 0; i < 5; i++) {
                         if (!el) break;
@@ -136,6 +162,7 @@ def fetch_listings_playwright(max_pages=10):
                     results.push({
                         kod: kod,
                         fiyat: fiyat,
+                        title: title,
                         link: "https://www.makrolife.com.tr/" + href
                     });
                 });
@@ -149,7 +176,7 @@ def fetch_listings_playwright(max_pages=10):
             for item in listings:
                 if item["kod"] not in seen_codes:
                     seen_codes.add(item["kod"])
-                    results.append((item["kod"], item["fiyat"], item["link"]))
+                    results.append((item["kod"], item["fiyat"], item["link"], item.get("title", "")))
 
         browser.close()
 
@@ -178,23 +205,24 @@ def main():
         return
 
     # TEST MESAJI
+    test_lines = [f"• {k} | {f}" for k, f, _, _ in listings[:10]]
     send_message(
-        "🧪 TEST SONUCU\n"
+        f"🧪 TEST SONUCU\n"
         f"📅 {today}\n"
         f"🕐 {now.strftime('%H:%M')}\n"
         f"📊 Toplam ilan: {len(listings)}\n"
-        + ("\n".join([f"• {k} | {f}" for k, f, _ in listings[:10]]) if listings else "Ilan bulunamadı")
+        + ("\n".join(test_lines) if test_lines else "İlan bulunamadı")
     )
 
     # Yeni ilan ve fiyat değişikliklerini kontrol et
     new_count = 0
     price_change_count = 0
 
-    for kod, fiyat, link in listings:
+    for kod, fiyat, link, title in listings:
         if kod not in state["items"]:
             # Yeni ilan
-            send_message(f"🆕 YENİ İLAN\n📅 {today}\n🏷️ {kod}\n💰 {fiyat}\n🔗 {link}")
-            state["items"][kod] = {"fiyat": fiyat, "tarih": today, "link": link}
+            send_message(f"🆕 YENİ İLAN\n📅 {today}\n🏷️ {kod}\n📝 {title}\n💰 {fiyat}\n🔗 {link}")
+            state["items"][kod] = {"fiyat": fiyat, "tarih": today, "link": link, "title": title}
             new_count += 1
             time.sleep(0.5)  # Rate limit koruması
         else:
