@@ -27,11 +27,21 @@ jobs:
           playwright install-deps
           
       - name: Download previous state
-        uses: actions/download-artifact@v4
+        uses: dawidd6/action-download-artifact@v3
         with:
           name: ilanlar-state
-          path: .
-        continue-on-error: true
+          workflow: makrolife-bot.yml
+          workflow_conclusion: ""
+          if_no_artifact_found: ignore
+          
+      - name: Check state file
+        run: |
+          if [ -f ilanlar.json ]; then
+            echo "State dosyası bulundu:"
+            cat ilanlar.json | head -50
+          else
+            echo "State dosyası bulunamadı, ilk çalışma."
+          fi
         
       - name: Run bot
         env:
