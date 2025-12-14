@@ -1,5 +1,6 @@
 import os
 import json
+import time
 from datetime import datetime, timedelta
 from zoneinfo import ZoneInfo
 
@@ -17,22 +18,38 @@ TR_TZ = ZoneInfo("Europe/Istanbul")
 
 
 def send_message(text: str):
-    url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
-    requests.post(
-        url,
-        data={
-            "chat_id": CHAT_ID,
-            "text": text[:4000],
-            "disable_web_page_preview": True
-        },
-        timeout=30
-    )
+    """Telegram'a mesaj gönder, hata durumunda logla."""
+    try:
+        url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
+        resp = requests.post(
+            url,
+            data={
+                "chat_id": CHAT_ID,
+                "text": text[:4000],
+                "disable_web_page_preview": True
+            },
+            timeout=30
+        )
+        resp.raise_for_status()
+        return True
+    except Exception as e:
+        print(f"Telegram mesaj hatası: {e}")
+        return False
+
+
+def normalize_price(fiyat: str) -> str:
+    """Fiyattan sadece rakamları çıkar (karşılaştırma için)."""
+    return ''.join(c for c in fiyat if c.isdigit())
 
 
 def load_state():
+    """State dosyasını yükle, yoksa yeni oluştur."""
     if os.path.exists(DATA_FILE):
-        with open(DATA_FILE, "r", encoding="utf-8") as f:
-            return json.load(f)
+        try:
+            with open(DATA_FILE, "r", encoding="utf-8") as f:
+                return json.load(f)
+        except json.JSONDecodeError:
+            print("State dosyası bozuk, yeni oluşturuluyor.")
     return {
         "cycle_start": datetime.now(TR_TZ).strftime("%Y-%m-%d"),
         "items": {},
@@ -41,11 +58,13 @@ def load_state():
 
 
 def save_state(state):
+    """State dosyasını kaydet."""
     with open(DATA_FILE, "w", encoding="utf-8") as f:
         json.dump(state, f, ensure_ascii=False, indent=2)
 
 
 def fetch_listings_playwright(max_pages=10):
+    """Playwright ile ilanları çek."""
     results = []
     seen_codes = set()
 
@@ -67,7 +86,6 @@ def fetch_listings_playwright(max_pages=10):
                 const results = [];
                 const seen = new Set();
                 
-                // Detayları Gör linklerini bul
                 const links = document.querySelectorAll('a[href*="ilandetay?ilan_kodu="]');
                 
                 links.forEach(link => {
@@ -81,18 +99,15 @@ def fetch_listings_playwright(max_pages=10):
                     if (seen.has(kod)) return;
                     seen.add(kod);
                     
-                    // Linkin parent'ına git ve fiyatı bul
                     let fiyat = "Fiyat yok";
                     let el = link.parentElement;
                     
-                    // Max 5 seviye yukarı çık, ama her seviyede fiyat ara
                     for (let i = 0; i < 5; i++) {
                         if (!el) break;
                         
-                        // Bu elementin SADECE kendi text içeriğine bak
                         const children = el.childNodes;
                         for (const child of children) {
-                            if (child.nodeType === 3) { // Text node
+                            if (child.nodeType === 3) {
                                 const text = child.textContent.trim();
                                 const fiyatMatch = text.match(/^([\\d.,]+)\\s*₺$/);
                                 if (fiyatMatch) {
@@ -104,12 +119,10 @@ def fetch_listings_playwright(max_pages=10):
                         
                         if (fiyat !== "Fiyat yok") break;
                         
-                        // Element içindeki tüm text'e bak
                         const allText = el.innerText || "";
                         const lines = allText.split("\\n");
                         for (const line of lines) {
                             const trimmed = line.trim();
-                            // Sadece fiyat formatına uyan satırları al
                             if (/^[\\d.,]+\\s*₺$/.test(trimmed)) {
                                 fiyat = trimmed;
                                 break;
@@ -149,40 +162,58 @@ def main():
 
     state = load_state()
 
+    # 15 günlük döngü kontrolü
     cycle_start = datetime.strptime(state["cycle_start"], "%Y-%m-%d").replace(tzinfo=TR_TZ)
     if now - cycle_start >= timedelta(days=15):
         state = {"cycle_start": today, "items": {}, "reported_days": []}
+        print("15 günlük döngü sıfırlandı.")
 
+    # İlanları çek
     try:
         listings = fetch_listings_playwright(max_pages=10)
+        print(f"Toplam {len(listings)} ilan bulundu.")
     except Exception as e:
         send_message("⚠️ Playwright hata:\n" + str(e))
         save_state(state)
         return
 
-    # TEST MESAJI
-    send_message(
-        "🧪 TEST SONUCU\n"
-        f"Toplam ilan: {len(listings)}\n"
-        + ("\n".join([f"{k} | {f}" for k, f, _ in listings[:10]]) if listings else "")
-    )
+    # Yeni ilan ve fiyat değişikliklerini kontrol et
+    new_count = 0
+    price_change_count = 0
 
     for kod, fiyat, link in listings:
         if kod not in state["items"]:
+            # Yeni ilan
             send_message(f"🆕 YENİ İLAN\n📅 {today}\n🏷️ {kod}\n💰 {fiyat}\n🔗 {link}")
             state["items"][kod] = {"fiyat": fiyat, "tarih": today, "link": link}
+            new_count += 1
+            time.sleep(0.5)  # Rate limit koruması
         else:
+            # Fiyat değişikliği kontrolü (normalize edilmiş karşılaştırma)
             eski = state["items"][kod]["fiyat"]
-            if eski != fiyat:
+            if normalize_price(eski) != normalize_price(fiyat):
                 send_message(f"🔔 FİYAT DEĞİŞTİ\n🏷️ {kod}\n💰 Eski: {eski}\n💰 Yeni: {fiyat}\n🔗 {link}")
                 state["items"][kod]["fiyat"] = fiyat
+                price_change_count += 1
+                time.sleep(0.5)  # Rate limit koruması
 
+    print(f"Yeni ilan: {new_count}, Fiyat değişikliği: {price_change_count}")
+
+    # Günlük özet (23:30-23:59 arası, günde bir kez)
     if (now.hour == 23 and now.minute >= 30) and (today not in state["reported_days"]):
         todays = [k for k, v in state["items"].items() if v.get("tarih") == today]
-        send_message(f"📋 Günlük Özet ({today}):\n" + ("\n".join(todays) if todays else "Bugün yeni ilan yok."))
+        total = len(state["items"])
+        send_message(
+            f"📋 Günlük Özet ({today}):\n"
+            f"📊 Toplam takip edilen: {total}\n"
+            f"🆕 Bugün eklenen: {len(todays)}\n"
+            + ("\n".join(todays[:20]) if todays else "Bugün yeni ilan yok.")
+            + ("\n..." if len(todays) > 20 else "")
+        )
         state["reported_days"].append(today)
 
     save_state(state)
+    print("İşlem tamamlandı.")
 
 
 if __name__ == "__main__":
