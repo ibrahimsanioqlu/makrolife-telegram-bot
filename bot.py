@@ -8,7 +8,7 @@ import requests
 from playwright.sync_api import sync_playwright
 
 BOT_TOKEN = os.getenv("BOT_TOKEN")
-CHAT_ID = os.getenv("CHAT_ID")
+CHAT_IDS = [os.getenv("CHAT_ID"), "7449598531"]
 
 URL = "https://www.makrolife.com.tr/tumilanlar"
 BASE = "https://www.makrolife.com.tr"
@@ -19,22 +19,26 @@ TR_TZ = ZoneInfo("Europe/Istanbul")
 
 def send_message(text: str):
     """Telegram'a mesaj gönder, hata durumunda logla."""
-    try:
-        url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
-        resp = requests.post(
-            url,
-            data={
-                "chat_id": CHAT_ID,
-                "text": text[:4000],
-                "disable_web_page_preview": True
-            },
-            timeout=30
-        )
-        resp.raise_for_status()
-        return True
-    except Exception as e:
-        print(f"Telegram mesaj hatası: {e}")
-        return False
+    success = True
+    for chat_id in CHAT_IDS:
+        if not chat_id:
+            continue
+        try:
+            url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
+            resp = requests.post(
+                url,
+                data={
+                    "chat_id": chat_id,
+                    "text": text[:4000],
+                    "disable_web_page_preview": True
+                },
+                timeout=30
+            )
+            resp.raise_for_status()
+        except Exception as e:
+            print(f"Telegram mesaj hatası ({chat_id}): {e}")
+            success = False
+    return success
 
 
 def normalize_price(fiyat: str) -> str:
