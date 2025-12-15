@@ -463,7 +463,7 @@ def fetch_listings_playwright():
                 page.wait_for_timeout(5000)
                 
                 try:
-                    page.wait_for_selector('a[href*="ilandetay?ilan_kodu="]', timeout=10000)
+                    page.wait_for_selector('a[href*="ilandetay?ilan_kodu="]', timeout=30000)
                 except:
                     print(f"[SAYFA {page_num}] Selector timeout", flush=True)
                     consecutive_failures += 1
