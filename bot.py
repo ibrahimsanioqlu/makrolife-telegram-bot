@@ -12,6 +12,7 @@ from playwright.sync_api import sync_playwright, TimeoutError
 os.makedirs("/data", exist_ok=True)
 
 # Başlangıçta hemen log bas
+print("DATA klasörü:", os.listdir("/data"), flush=True)
 print("=" * 60, flush=True)
 print("BOT BAŞLATILIYOR...", flush=True)
 print(f"Python version: {sys.version}", flush=True)
