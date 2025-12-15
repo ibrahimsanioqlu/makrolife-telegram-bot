@@ -135,7 +135,7 @@ def github_save_file(filename, content, sha=None):
         headers = {
             "Authorization": "token " + GITHUB_TOKEN,
             "Accept": "application/vnd.github+json",
-            "X-GitHub-Api-Version": "2022-11-28"
+            "X-GitHub-Api-Version": "2022-11-28",
             "User-Agent": "railway-makrolife-bot"
         }
 
