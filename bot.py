@@ -25,7 +25,7 @@ ADMIN_CHAT_IDS = [os.getenv("CHAT_ID"), "7449598531"]
 
 # GitHub ayarlari (veri yedekleme icin)
 GITHUB_TOKEN = os.getenv("GITHUB_TOKEN")
-GITHUB_REPO = os.getenv("GITHUB_REPO", "ibrahimsanioqlu/makrolife-telegram-bot")
+GITHUB_REPO = os.getenv("GITHUB_REPO", "ibrahimsanioglu/makrolife-telegram-bot")
 
 print("BOT_TOKEN mevcut: " + str(bool(BOT_TOKEN)), flush=True)
 print("CHAT_ID mevcut: " + str(bool(os.getenv("CHAT_ID"))), flush=True)
@@ -131,6 +131,8 @@ def github_save_file(filename, content, sha=None):
 
     try:
         url = f"https://api.github.com/repos/{GITHUB_REPO}/contents/{filename}"
+        print(f"[GITHUB DEBUG] GITHUB_REPO = '{GITHUB_REPO}'", flush=True)
+        print(f"[GITHUB DEBUG] URL = {url}", flush=True)
 
         headers = {
             "Authorization": "token " + GITHUB_TOKEN,
