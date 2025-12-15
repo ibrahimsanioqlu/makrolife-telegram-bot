@@ -261,7 +261,7 @@ def main():
         for kod, fiyat, link, title, page_num in listings:
             if kod not in state["items"]:
                 # Yeni ilan - sadece ilk 3 sayfadakiler için bildirim gönder
-                if page_num <= 3:
+                if page_num <= 4:
                     send_message(f"🆕 YENİ İLAN\n📅 {today}\n🏷️ {kod}\n📝 {title}\n💰 {fiyat}\n🔗 {link}")
                     time.sleep(0.5)  # Rate limit koruması
                 
