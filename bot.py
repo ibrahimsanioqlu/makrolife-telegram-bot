@@ -16,6 +16,9 @@ DATA_FILE = "ilanlar.json"
 
 TR_TZ = ZoneInfo("Europe/Istanbul")
 
+# Tarama aralığı (saniye) - 10 dakika
+SCAN_INTERVAL = 10 * 60
+
 
 def send_message(text: str):
     """Telegram'a mesaj gönder, hata durumunda logla."""
@@ -68,7 +71,7 @@ def save_state(state):
         json.dump(state, f, ensure_ascii=False, indent=2)
 
 
-def fetch_listings_playwright(max_pages=40):
+def fetch_listings_playwright(max_pages=50):
     """Playwright ile ilanları çek - sayfa başı 6+ saniye bekleme."""
     results = []
     seen_codes = set()
@@ -213,13 +216,14 @@ def fetch_listings_playwright(max_pages=40):
     return results
 
 
-def main():
+def run_scan():
+    """Tek bir tarama döngüsü çalıştır."""
     now = datetime.now(TR_TZ)
     today = now.strftime("%Y-%m-%d")
 
     state = load_state()
 
-    # 15 günlük döngü kontrolü
+    # 30 günlük döngü kontrolü
     cycle_start = datetime.strptime(state["cycle_start"], "%Y-%m-%d").replace(tzinfo=TR_TZ)
     if now - cycle_start >= timedelta(days=30):
         state = {"cycle_start": today, "items": {}, "reported_days": [], "first_run_done": False}
@@ -264,7 +268,7 @@ def main():
 
         for kod, fiyat, link, title, page_num in listings:
             if kod not in state["items"]:
-                # Yeni ilan - sadece ilk 3 sayfadakiler için bildirim gönder
+                # Yeni ilan - sadece ilk 4 sayfadakiler için bildirim gönder
                 if page_num <= 4:
                     send_message(f"🆕 YENİ İLAN\n📅 {today}\n🏷️ {kod}\n📝 {title}\n💰 {fiyat}\n🔗 {link}")
                     time.sleep(0.5)  # Rate limit koruması
@@ -315,6 +319,31 @@ def main():
 
     save_state(state)
     print("İşlem tamamlandı.")
+
+
+def main():
+    """Ana döngü - sürekli çalışır."""
+    print("Bot başlatıldı...")
+    send_message("🚀 Bot başlatıldı!")
+    
+    while True:
+        try:
+            print(f"\n{'='*50}")
+            print(f"Tarama başlıyor: {datetime.now(TR_TZ).strftime('%Y-%m-%d %H:%M:%S')}")
+            print('='*50)
+            
+            run_scan()
+            
+            print(f"Sonraki tarama {SCAN_INTERVAL // 60} dakika sonra...")
+            time.sleep(SCAN_INTERVAL)
+            
+        except KeyboardInterrupt:
+            print("\nBot durduruluyor...")
+            send_message("🛑 Bot durduruldu!")
+            break
+        except Exception as e:
+            print(f"Beklenmeyen hata: {e}")
+            time.sleep(60)  # Hata durumunda 1 dakika bekle ve tekrar dene
 
 
 if __name__ == "__main__":
