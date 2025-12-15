@@ -148,6 +148,7 @@ def github_save_file(filename, content, sha=None):
             "branch": "main"
         }
 
+        # Sadece sha varsa ekle (dosya zaten mevcutsa)
         if sha:
             data["sha"] = sha
 
@@ -156,17 +157,24 @@ def github_save_file(filename, content, sha=None):
         if resp.status_code in (200, 201):
             print(f"[GITHUB] {filename} kaydedildi", flush=True)
             return True
+        elif resp.status_code == 422:
+            # Dosya zaten var ama sha gonderilmedi - sha'yi al ve tekrar dene
+            print(f"[GITHUB] Dosya mevcut, sha aliniyor...", flush=True)
+            _, existing_sha = github_get_file(filename)
+            if existing_sha:
+                data["sha"] = existing_sha
+                resp = requests.put(url, headers=headers, json=data, timeout=20)
+                if resp.status_code in (200, 201):
+                    print(f"[GITHUB] {filename} kaydedildi (retry)", flush=True)
+                    return True
+            print(f"[GITHUB] Kayit hatasi: {resp.status_code} {resp.text}", flush=True)
+            return False
         else:
             print(f"[GITHUB] Kayit hatasi: {resp.status_code} {resp.text}", flush=True)
             return False
 
     except Exception as e:
         print(f"[GITHUB] Kayit hatasi: {e}", flush=True)
-        return False
-
-
-    except Exception as e:
-        print("[GITHUB] Kayit hatasi:", str(e), flush=True)
         return False
 
 
@@ -731,11 +739,11 @@ def run_scan_with_timeout():
                 })
                 
                 if page_num <= 4:
-                    msg = "<b>YENI ILAN</b>\n\n"
-                    msg += kod + "\n"
-                    msg += title + "\n"
-                    msg += fiyat + "\n"
-                    msg += link
+                    msg = "🏠 <b>YENİ İLAN</b>\n\n"
+                    msg += "📋 " + kod + "\n"
+                    msg += "🏷️ " + title + "\n"
+                    msg += "💰 " + fiyat + "\n\n"
+                    msg += "🔗 " + link
                     send_message(msg)
                     time.sleep(0.3)
             else:
@@ -751,16 +759,19 @@ def run_scan_with_timeout():
                     eski_num = int(normalize_price(eski)) if normalize_price(eski) else 0
                     yeni_num = int(normalize_price(fiyat)) if normalize_price(fiyat) else 0
                     fark = yeni_num - eski_num
-                    if fark > 0:
-                        fark_str = "+" + format_number(fark)
-                    else:
-                        fark_str = format_number(fark)
                     
-                    msg = "<b>FIYAT DEGISTI</b>\n\n"
-                    msg += kod + "\n"
-                    msg += eski + " -> " + fiyat + "\n"
-                    msg += "Fark: " + fark_str + " TL\n"
-                    msg += state["items"][kod].get("link", "")
+                    if fark > 0:
+                        fark_str = "📈 +" + format_number(fark) + " TL"
+                        trend = "artış"
+                    else:
+                        fark_str = "📉 " + format_number(fark) + " TL"
+                        trend = "düşüş"
+                    
+                    msg = "💱 <b>FİYAT DEĞİŞTİ</b>\n\n"
+                    msg += "📋 " + kod + "\n"
+                    msg += "💰 " + eski + " ➜ " + fiyat + "\n"
+                    msg += fark_str + " (" + trend + ")\n\n"
+                    msg += "🔗 " + state["items"][kod].get("link", "")
                     send_message(msg)
                     time.sleep(0.3)
 
@@ -774,10 +785,10 @@ def run_scan_with_timeout():
                     "title": item.get("title", ""), "tarih": today
                 })
                 
-                msg = "<b>ILAN SILINDI</b>\n\n"
-                msg += kod + "\n"
-                msg += item.get("title", "") + "\n"
-                msg += item.get("fiyat", "")
+                msg = "🗑️ <b>İLAN SİLİNDİ</b>\n\n"
+                msg += "📋 " + kod + "\n"
+                msg += "🏷️ " + item.get("title", "") + "\n"
+                msg += "💰 " + item.get("fiyat", "")
                 send_message(msg)
                 
                 del state["items"][kod]
