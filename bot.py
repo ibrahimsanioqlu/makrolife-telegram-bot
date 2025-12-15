@@ -136,6 +136,7 @@ def github_save_file(filename, content, sha=None):
             "Authorization": "token " + GITHUB_TOKEN,
             "Accept": "application/vnd.github+json",
             "X-GitHub-Api-Version": "2022-11-28"
+            "User-Agent": "railway-makrolife-bot"
         }
 
         content_b64 = base64.b64encode(
