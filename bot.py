@@ -151,7 +151,6 @@ def github_save_file(filename, content, sha=None):
             "branch": "main"
         }
 
-        # Sadece sha varsa ekle (dosya zaten mevcutsa)
         if sha:
             data["sha"] = sha
 
@@ -161,7 +160,6 @@ def github_save_file(filename, content, sha=None):
             print(f"[GITHUB] {filename} kaydedildi", flush=True)
             return True
         elif resp.status_code == 422:
-            # Dosya zaten var ama sha gonderilmedi - sha'yi al ve tekrar dene
             print(f"[GITHUB] Dosya mevcut, sha aliniyor...", flush=True)
             _, existing_sha = github_get_file(filename)
             if existing_sha:
@@ -927,15 +925,6 @@ def main():
         elapsed = time.time() - last_scan_time
         print(f"[BASLANGIC] Son taramadan {int(elapsed//60)} dakika gecmis", flush=True)
     
-    interval = get_scan_interval() // 60
-    github_status = "Aktif" if GITHUB_TOKEN else "Kapali"
-    msg = "<b>Bot Baslatildi!</b>\n\n"
-    msg += "Tarama araligi: " + str(interval) + " dk\n"
-    msg += "Bellekteki ilan: " + str(item_count) + "\n"
-    msg += "GitHub yedek: " + github_status + "\n\n"
-    msg += "/yardim - Komutlar"
-    send_message(msg)
-    
     while True:
         try:
             cmd_result = check_telegram_commands()
@@ -953,6 +942,15 @@ def main():
                 print("# TARAMA #" + str(bot_stats["total_scans"] + 1) + " " + scan_type, flush=True)
                 print("# " + get_turkey_time().strftime("%Y-%m-%d %H:%M:%S"), flush=True)
                 print("#" * 50, flush=True)
+                
+                # Tarama baslamadan once bilgilendirme mesaji
+                interval = get_scan_interval() // 60
+                github_status = "Aktif" if GITHUB_TOKEN else "Kapali"
+                msg = "<b>Tarama Basladi!</b>\n\n"
+                msg += "Tarama araligi: " + str(interval) + " dk\n"
+                msg += "Bellekteki ilan: " + str(len(load_state().get("items", {}))) + "\n"
+                msg += "GitHub yedek: " + github_status
+                send_message(msg)
                 
                 run_scan()
                 
