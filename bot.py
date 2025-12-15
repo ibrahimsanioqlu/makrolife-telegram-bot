@@ -128,20 +128,19 @@ def github_get_file(filename):
 def github_save_file(filename, content, sha=None):
     if not GITHUB_TOKEN:
         return False
-    
+
     try:
         url = f"https://api.github.com/repos/{GITHUB_REPO}/contents/{filename}"
 
         headers = {
             "Authorization": "token " + GITHUB_TOKEN,
             "Accept": "application/vnd.github+json",
-            "X-GitHub-Api-Version": "2022-11-28",
             "User-Agent": "railway-makrolife-bot"
         }
 
         content_b64 = base64.b64encode(
-            json.dumps(content, ensure_ascii=False, indent=2).encode("utf-8")
-        ).decode("utf-8")
+            json.dumps(content, ensure_ascii=False, indent=2).encode()
+        ).decode()
 
         data = {
             "message": "Update " + filename + " - " + get_turkey_time().strftime("%Y-%m-%d %H:%M"),
@@ -151,19 +150,20 @@ def github_save_file(filename, content, sha=None):
 
         if sha:
             data["sha"] = sha
-        else:
-            print("[GITHUB] Yeni dosya olusturuluyor:", filename, flush=True)
-
-        print("[GITHUB] Dosya yaziliyor:", filename, flush=True)
 
         resp = requests.put(url, headers=headers, json=data, timeout=20)
 
         if resp.status_code in (200, 201):
-            print("[GITHUB] " + filename + " kaydedildi", flush=True)
+            print(f"[GITHUB] {filename} kaydedildi", flush=True)
             return True
         else:
-            print("[GITHUB] Kayit hatasi:", resp.status_code, resp.text, flush=True)
+            print(f"[GITHUB] Kayit hatasi: {resp.status_code} {resp.text}", flush=True)
             return False
+
+    except Exception as e:
+        print(f"[GITHUB] Kayit hatasi: {e}", flush=True)
+        return False
+
 
     except Exception as e:
         print("[GITHUB] Kayit hatasi:", str(e), flush=True)
