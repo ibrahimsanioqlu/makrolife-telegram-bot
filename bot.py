@@ -402,25 +402,10 @@ def handle_command(chat_id, command, message_text):
         send_message("🔄 Manuel tarama başlatılıyor...", chat_id)
         return "SCAN"
     
-   else:
-    send_message(
-        "❓ <b>Bilinmeyen komut</b>\n\n"
-        "Aşağıdaki komutlardan birini kullanabilirsiniz:\n\n"
-        "/durum - Bot durumu\n"
-        "/istatistik - Detaylı istatistikler\n"
-        "/bellek - Bellek durumu\n"
-        "/bugun - Bugünkü aktiviteler\n"
-        "/hafta - Son 7 gün\n"
-        "/son [sayı] - Son ilanlar\n"
-        "/ara [kelime] - İlan ara\n"
-        "/ucuz [sayı] - En ucuz ilanlar\n"
-        "/pahali [sayı] - En pahalı ilanlar\n"
-        "/silinenler - Son silinen ilanlar\n"
-        "/degisimler - Son fiyat değişimleri\n"
-        "/tara - Manuel tarama\n"
-        "/yardim - Yardım",
-        chat_id
-    )
+    else:
+        send_message("❓ Bilinmeyen komut. /yardim yazın.", chat_id)
+    
+    return None
 
 
 def check_telegram_commands():
