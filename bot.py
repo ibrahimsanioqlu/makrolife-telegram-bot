@@ -196,7 +196,7 @@ def save_state(state):
     save_state_local(state)
     print("[STATE] Lokal kaydedildi - " + str(len(state.get("items", {}))) + " ilan", flush=True)
     
-    if GITHUB_TOKEN and bot_stats["total_scans"] % 3 == 0:
+    if GITHUB_TOKEN:
         _, sha = github_get_file("ilanlar.json")
         github_save_file("ilanlar.json", state, sha)
 
