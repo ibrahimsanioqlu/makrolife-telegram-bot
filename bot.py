@@ -3,11 +3,12 @@ import sys
 import json
 import time
 import signal
+import random
 from datetime import datetime, timedelta
 from concurrent.futures import ThreadPoolExecutor, TimeoutError as FuturesTimeoutError
 
 import requests
-from playwright.sync_api import sync_playwright
+from playwright.sync_api import sync_playwright, TimeoutError
 
 # Başlangıçta hemen log bas
 print("=" * 60, flush=True)
@@ -401,10 +402,25 @@ def handle_command(chat_id, command, message_text):
         send_message("🔄 Manuel tarama başlatılıyor...", chat_id)
         return "SCAN"
     
-    else:
-        send_message("❓ Bilinmeyen komut. /yardim yazın.", chat_id)
-    
-    return None
+   else:
+    send_message(
+        "❓ <b>Bilinmeyen komut</b>\n\n"
+        "Aşağıdaki komutlardan birini kullanabilirsiniz:\n\n"
+        "/durum - Bot durumu\n"
+        "/istatistik - Detaylı istatistikler\n"
+        "/bellek - Bellek durumu\n"
+        "/bugun - Bugünkü aktiviteler\n"
+        "/hafta - Son 7 gün\n"
+        "/son [sayı] - Son ilanlar\n"
+        "/ara [kelime] - İlan ara\n"
+        "/ucuz [sayı] - En ucuz ilanlar\n"
+        "/pahali [sayı] - En pahalı ilanlar\n"
+        "/silinenler - Son silinen ilanlar\n"
+        "/degisimler - Son fiyat değişimleri\n"
+        "/tara - Manuel tarama\n"
+        "/yardim - Yardım",
+        chat_id
+    )
 
 
 def check_telegram_commands():
@@ -435,80 +451,106 @@ def check_telegram_commands():
     
     return result
 
-
 def fetch_listings_playwright():
-    """Playwright ile TÜM sayfalardaki ilanları çek."""
-    print(f"[PLAYWRIGHT] Başlatılıyor (tüm sayfalar)", flush=True)
+    """
+    BOT ALGILAMAYA DAYANIKLI – TIMEOUT ATMAYAN – KARARLI SÜRÜM
+    """
+    print("[PLAYWRIGHT] Başlatıldı (STABLE MODE)", flush=True)
+
     results = []
-    seen_codes = set()
-    consecutive_failures = 0
+    seen_codes =s = set()
+
     page_num = 0
+    consecutive_failures = 0
+    MAX_FAILURES = 3
 
     with sync_playwright() as p:
-        browser = p.chromium.launch(headless=True)
-        context = browser.new_context(
-            viewport={"width": 1920, "height": 1080},
-            user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
+        browser = p.chromium.launch(
+            headless=True,
+            args=[
+                "--disable-blink-features=AutomationControlled",
+                "--no-sandbox",
+                "--disable-dev-shm-usage"
+            ]
         )
+
+        def new_context():
+            return browser.new_context(
+                viewport={"width": 1920, "height": 1080},
+                user_agent=(
+                    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+                    "AppleWebKit/537.36 (KHTML, like Gecko) "
+                    "Chrome/120.0.0.0 Safari/537.36"
+                )
+            )
+
+        context = new_context()
         page = context.new_page()
 
         while True:
             page_num += 1
-            page_url = URL if page_num == 1 else f"{URL}?&page={page_num}"
+            page_url = URL if page_num == 1 else f"{URL}?page={page_num}"
+            print(f"[SAYFA {page_num}] {page_url}", flush=True)
 
-            try:
-                print(f"[SAYFA {page_num}] {page_url}", flush=True)
-                
-                page.goto(page_url, timeout=30000, wait_until="domcontentloaded")
-                page.wait_for_timeout(5000)
-                
+            success = False
+            for attempt in range(3):
                 try:
-                    page.wait_for_selector('a[href*="ilandetay?ilan_kodu="]', timeout=30000)
-                except:
-                    print(f"[SAYFA {page_num}] Selector timeout", flush=True)
-                    consecutive_failures += 1
-                    if consecutive_failures >= 3:
-                        break
-                    continue
-                
-                consecutive_failures = 0
-                
-            except Exception as e:
-                print(f"[SAYFA {page_num}] HATA: {e}", flush=True)
+                    page.goto(
+                        page_url,
+                        timeout=60000,
+                        wait_until="networkidle"
+                    )
+
+                    page.wait_for_selector(
+                        'a[href*="ilandetay?ilan_kodu="]',
+                        timeout=60000
+                    )
+
+                    success = True
+                    break
+
+                except TimeoutError:
+                    print(f"[SAYFA {page_num}] retry {attempt+1}/3", flush=True)
+                    page.wait_for_timeout(3000)
+
+            if not success:
                 consecutive_failures += 1
-                if consecutive_failures >= 3:
+                if consecutive_failures >= MAX_FAILURES:
+                    print("[PLAYWRIGHT] Üst üste hata – tarama durduruldu", flush=True)
                     break
                 continue
 
-            listings = page.evaluate('''() => {
-                const results = [];
+            consecutive_failures = 0
+
+            listings = page.evaluate("""() => {
+                const out = [];
                 const seen = new Set();
-                
-                document.querySelectorAll('a[href*="ilandetay?ilan_kodu="]').forEach(link => {
-                    const href = link.getAttribute("href");
+
+                document.querySelectorAll('a[href*="ilandetay?ilan_kodu="]').forEach(a => {
+                    const href = a.getAttribute("href");
                     if (!href) return;
-                    
-                    const match = href.match(/ilan_kodu=([A-Z0-9-]+)/i);
-                    if (!match) return;
-                    
-                    const kod = match[1];
+
+                    const m = href.match(/ilan_kodu=([A-Z0-9-]+)/i);
+                    if (!m) return;
+
+                    const kod = m[1];
                     if (seen.has(kod)) return;
                     seen.add(kod);
-                    
-                    let fiyat = "Fiyat yok", title = "";
-                    
-                    let card = link;
-                    for (let i = 0; i < 10; i++) {
-                        if (!card.parentElement) break;
-                        card = card.parentElement;
-                        
-                        const h3 = card.querySelector('h3');
-                        const text = card.innerText || "";
-                        
-                        if (h3 && text.includes('₺')) {
+
+                    let fiyat = "Fiyat yok";
+                    let title = "";
+
+                    let el = a;
+                    for (let i = 0; i < 8; i++) {
+                        if (!el.parentElement) break;
+                        el = el.parentElement;
+
+                        const h3 = el.querySelector("h3");
+                        const text = el.innerText || "";
+
+                        if (h3 && text.includes("₺")) {
                             title = h3.innerText.trim();
-                            const lines = text.split('\\n');
-                            for (const line of lines) {
+                            for (const line of text.split("\\n")) {
                                 if (/^[\\d.,]+\\s*₺$/.test(line.trim())) {
                                     fiyat = line.trim();
                                     break;
@@ -517,35 +559,54 @@ def fetch_listings_playwright():
                             break;
                         }
                     }
-                    
-                    results.push({ kod, fiyat, title, link: "https://www.makrolife.com.tr/" + href });
+
+                    out.push({
+                        kod,
+                        fiyat,
+                        title,
+                        link: "https://www.makrolife.com.tr/" + href
+                    });
                 });
-                
-                return results;
-            }''')
+
+                return out;
+            }""")
 
             if not listings:
-                print(f"[SAYFA {page_num}] Boş - tarama bitti", flush=True)
+                print(f"[SAYFA {page_num}] Boş – bitiş", flush=True)
                 break
 
-            new_count = 0
             for item in listings:
                 if item["kod"] not in seen_codes:
                     seen_codes.add(item["kod"])
-                    results.append((item["kod"], item["fiyat"], item["link"], item.get("title", ""), page_num))
-                    new_count += 1
-            
-            print(f"[SAYFA {page_num}] {len(listings)} ilan, {new_count} yeni. Toplam: {len(results)}", flush=True)
+                    results.append((
+                        item["kod"],
+                        item["fiyat"],
+                        item["link"],
+                        item["title"],
+                        page_num
+                    ))
+
+            print(
+                f"[SAYFA {page_num}] {len(listings)} ilan | toplam {len(results)}",
+                flush=True
+            )
 
             if len(listings) < 12:
-                print(f"[SAYFA {page_num}] Son sayfa", flush=True)
+                print("[PLAYWRIGHT] Son sayfa", flush=True)
                 break
-            
-            page.wait_for_timeout(800)
+
+            if page_num % 5 == 0:
+                page.close()
+                context.close()
+                context = new_context()
+                page = context.new_page()
+                print("[PLAYWRIGHT] Context reset", flush=True)
+
+            page.wait_for_timeout(random.randint(2500, 4500))
 
         browser.close()
 
-    print(f"[PLAYWRIGHT] Toplam {len(results)} ilan, {page_num} sayfa", flush=True)
+    print(f"[PLAYWRIGHT] Bitti → {len(results)} ilan", flush=True)
     return results
 
 
