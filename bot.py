@@ -281,7 +281,24 @@ def main():
                     price_change_count += 1
                     time.sleep(0.5)  # Rate limit koruması
 
-        print(f"Yeni ilan: {new_count}, Fiyat değişikliği: {price_change_count}")
+        # Silinen ilanları kontrol et
+        current_codes = set(kod for kod, fiyat, link, title, page_num in listings)
+        deleted_count = 0
+        deleted_codes = []
+        
+        for kod in list(state["items"].keys()):
+            if kod not in current_codes:
+                item = state["items"][kod]
+                send_message(f"🗑️ İLAN SİLİNDİ\n📅 {today}\n🏷️ {kod}\n📝 {item.get('title', '')}\n💰 {item.get('fiyat', '')}\n🔗 {item.get('link', '')}")
+                deleted_codes.append(kod)
+                deleted_count += 1
+                time.sleep(0.5)  # Rate limit koruması
+        
+        # Silinen ilanları state'den kaldır
+        for kod in deleted_codes:
+            del state["items"][kod]
+        
+        print(f"Yeni ilan: {new_count}, Fiyat değişikliği: {price_change_count}, Silinen: {deleted_count}")
 
     # Günlük özet (23:30-23:59 arası, günde bir kez)
     if (now.hour == 23 and now.minute >= 30) and (today not in state["reported_days"]):
