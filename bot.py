@@ -2,8 +2,9 @@ import os
 import sys
 import json
 import time
-import threading
+import signal
 from datetime import datetime, timedelta
+from concurrent.futures import ThreadPoolExecutor, TimeoutError as FuturesTimeoutError
 
 import requests
 from playwright.sync_api import sync_playwright
@@ -17,24 +18,31 @@ print("=" * 60, flush=True)
 
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 CHAT_IDS = [os.getenv("CHAT_ID"), "7449598531"]
-ADMIN_CHAT_IDS = [os.getenv("CHAT_ID"), "7449598531"]  # Komut kullanabilecek kişiler
+ADMIN_CHAT_IDS = [os.getenv("CHAT_ID"), "7449598531"]
 
 print(f"BOT_TOKEN mevcut: {bool(BOT_TOKEN)}", flush=True)
 print(f"CHAT_ID mevcut: {bool(os.getenv('CHAT_ID'))}", flush=True)
-print(f"CHAT_IDS: {CHAT_IDS}", flush=True)
 
 URL = "https://www.makrolife.com.tr/tumilanlar"
-BASE = "https://www.makrolife.com.tr"
 DATA_FILE = "ilanlar.json"
+HISTORY_FILE = "history.json"  # Silinen, değişen ilanların kaydı
+
+# Timeout (saniye) - 25 dakika
+SCAN_TIMEOUT = 25 * 60
 
 # Türkiye saati için UTC+3
 def get_turkey_time():
     return datetime.utcnow() + timedelta(hours=3)
 
-# Tarama aralığı (saniye) - 10 dakika
-SCAN_INTERVAL = 10 * 60
+def get_scan_interval():
+    """Saate göre tarama aralığını belirle."""
+    hour = get_turkey_time().hour
+    if 8 <= hour < 18:
+        return 45 * 60  # 08:00-17:59 arası 45 dakika
+    else:
+        return 120 * 60  # 18:00-07:59 arası 120 dakika
 
-# İstatistikler için global değişkenler
+# İstatistikler
 bot_stats = {
     "start_time": None,
     "total_scans": 0,
@@ -44,24 +52,17 @@ bot_stats = {
     "last_scan_time": None,
     "last_scan_duration": 0,
     "last_scan_listings": 0,
-    "errors": 0
+    "errors": 0,
+    "timeouts": 0
 }
 
-# Son mesaj ID'si (duplicate önlemek için)
 last_update_id = 0
 
 
 def send_message(text: str, chat_id=None):
-    """Telegram'a mesaj gönder, hata durumunda logla."""
-    if chat_id:
-        # Tek kişiye gönder
-        chat_ids = [chat_id]
-    else:
-        # Herkese gönder
-        chat_ids = CHAT_IDS
+    """Telegram'a mesaj gönder."""
+    chat_ids = [chat_id] if chat_id else CHAT_IDS
     
-    print(f"[TELEGRAM] Mesaj gönderiliyor: {text[:100]}...", flush=True)
-    success = True
     for cid in chat_ids:
         if not cid:
             continue
@@ -75,48 +76,43 @@ def send_message(text: str, chat_id=None):
                     "disable_web_page_preview": True,
                     "parse_mode": "HTML"
                 },
-                timeout=30
+                timeout=10
             )
             resp.raise_for_status()
-            print(f"[TELEGRAM] {cid} - BAŞARILI", flush=True)
         except Exception as e:
             print(f"[TELEGRAM] {cid} - HATA: {e}", flush=True)
-            success = False
-    return success
 
 
 def get_updates(offset=None):
-    """Telegram'dan gelen mesajları al."""
+    """Telegram'dan gelen mesajları al - hızlı."""
     try:
         url = f"https://api.telegram.org/bot{BOT_TOKEN}/getUpdates"
-        params = {"timeout": 5}
+        params = {"timeout": 1, "limit": 10}  # Hızlı polling
         if offset:
             params["offset"] = offset
-        resp = requests.get(url, params=params, timeout=10)
+        resp = requests.get(url, params=params, timeout=5)
         resp.raise_for_status()
         return resp.json().get("result", [])
-    except Exception as e:
-        print(f"[TELEGRAM] getUpdates hatası: {e}", flush=True)
+    except:
         return []
 
 
 def normalize_price(fiyat: str) -> str:
-    """Fiyattan sadece rakamları çıkar (karşılaştırma için)."""
+    """Fiyattan sadece rakamları çıkar."""
     return ''.join(c for c in fiyat if c.isdigit())
 
 
 def load_state():
-    """State dosyasını yükle, yoksa yeni oluştur."""
-    print(f"[STATE] Dosya kontrol ediliyor: {DATA_FILE}", flush=True)
+    """State dosyasını yükle."""
     if os.path.exists(DATA_FILE):
         try:
             with open(DATA_FILE, "r", encoding="utf-8") as f:
                 state = json.load(f)
-                print(f"[STATE] Yüklendi - {len(state.get('items', {}))} ilan mevcut", flush=True)
+                print(f"[STATE] Yüklendi - {len(state.get('items', {}))} ilan", flush=True)
                 return state
-        except json.JSONDecodeError as e:
-            print(f"[STATE] Dosya bozuk: {e}", flush=True)
-    print("[STATE] Yeni state oluşturuluyor", flush=True)
+        except Exception as e:
+            print(f"[STATE] Yükleme hatası: {e}", flush=True)
+    
     return {
         "cycle_start": get_turkey_time().strftime("%Y-%m-%d"),
         "items": {},
@@ -128,22 +124,47 @@ def load_state():
 
 def save_state(state):
     """State dosyasını kaydet."""
-    print(f"[STATE] Kaydediliyor - {len(state.get('items', {}))} ilan", flush=True)
-    with open(DATA_FILE, "w", encoding="utf-8") as f:
-        json.dump(state, f, ensure_ascii=False, indent=2)
-    print("[STATE] Kaydedildi", flush=True)
+    try:
+        with open(DATA_FILE, "w", encoding="utf-8") as f:
+            json.dump(state, f, ensure_ascii=False, indent=2)
+        print(f"[STATE] Kaydedildi - {len(state.get('items', {}))} ilan", flush=True)
+    except Exception as e:
+        print(f"[STATE] Kaydetme hatası: {e}", flush=True)
+
+
+def load_history():
+    """Geçmiş dosyasını yükle."""
+    if os.path.exists(HISTORY_FILE):
+        try:
+            with open(HISTORY_FILE, "r", encoding="utf-8") as f:
+                return json.load(f)
+        except:
+            pass
+    return {"deleted": [], "price_changes": [], "new": []}
+
+
+def save_history(history):
+    """Geçmiş dosyasını kaydet."""
+    try:
+        # Son 1000 kaydı tut
+        for key in ["deleted", "price_changes", "new"]:
+            if len(history.get(key, [])) > 1000:
+                history[key] = history[key][-1000:]
+        
+        with open(HISTORY_FILE, "w", encoding="utf-8") as f:
+            json.dump(history, f, ensure_ascii=False, indent=2)
+    except Exception as e:
+        print(f"[HISTORY] Kaydetme hatası: {e}", flush=True)
 
 
 def format_duration(seconds):
     """Saniyeyi okunabilir formata çevir."""
     if seconds < 60:
-        return f"{int(seconds)} saniye"
+        return f"{int(seconds)} sn"
     elif seconds < 3600:
-        return f"{int(seconds // 60)} dakika {int(seconds % 60)} saniye"
+        return f"{int(seconds // 60)} dk {int(seconds % 60)} sn"
     else:
-        hours = int(seconds // 3600)
-        minutes = int((seconds % 3600) // 60)
-        return f"{hours} saat {minutes} dakika"
+        return f"{int(seconds // 3600)} sa {int((seconds % 3600) // 60)} dk"
 
 
 def format_number(num):
@@ -153,163 +174,126 @@ def format_number(num):
 
 def handle_command(chat_id, command, message_text):
     """Telegram komutlarını işle."""
-    global bot_stats
-    
     state = load_state()
+    history = load_history()
     now = get_turkey_time()
     today = now.strftime("%Y-%m-%d")
     
     print(f"[KOMUT] {chat_id}: {command}", flush=True)
     
     if command == "/start":
+        interval = get_scan_interval() // 60
         send_message(
             "🤖 <b>Makrolife İlan Takip Botu</b>\n\n"
-            "Kullanılabilir komutlar:\n\n"
-            "📊 <b>İstatistikler</b>\n"
-            "/durum - Bot durumu ve özet bilgiler\n"
+            f"⏰ Şu anki tarama aralığı: {interval} dakika\n"
+            f"📊 Bellekteki ilan: {len(state.get('items', {}))}\n\n"
+            "<b>Komutlar:</b>\n"
+            "/durum - Bot durumu\n"
             "/istatistik - Detaylı istatistikler\n"
-            "/bellek - Bellekteki ilan sayısı\n"
+            "/bellek - Bellek durumu\n"
             "/bugun - Bugünkü aktiviteler\n"
-            "/hafta - Son 7 günlük özet\n\n"
-            "🔍 <b>Arama</b>\n"
+            "/hafta - Son 7 gün\n"
+            "/son [sayı] - Son ilanlar\n"
             "/ara [kelime] - İlan ara\n"
-            "/son [sayı] - Son eklenen ilanlar\n"
             "/ucuz [sayı] - En ucuz ilanlar\n"
-            "/pahali [sayı] - En pahalı ilanlar\n\n"
-            "⚙️ <b>Yönetim</b>\n"
-            "/tara - Manuel tarama başlat\n"
-            "/yardim - Yardım menüsü",
+            "/pahali [sayı] - En pahalı ilanlar\n"
+            "/silinenler - Son silinen ilanlar\n"
+            "/degisimler - Son fiyat değişimleri\n"
+            "/tara - Manuel tarama\n"
+            "/yardim - Yardım",
             chat_id
         )
     
     elif command == "/yardim" or command == "/help":
         send_message(
-            "📖 <b>Yardım Menüsü</b>\n\n"
-            "<b>Bot ne yapar?</b>\n"
-            "• Her 10 dakikada makrolife.com.tr'yi tarar\n"
-            "• Yeni ilanları bildirir (ilk 4 sayfa)\n"
-            "• Fiyat değişikliklerini bildirir\n"
-            "• Silinen ilanları bildirir\n"
-            "• Günlük özet gönderir (23:30)\n\n"
-            "<b>Komut örnekleri:</b>\n"
-            "/ara daire - 'daire' içeren ilanları bul\n"
-            "/son 5 - Son 5 ilanı göster\n"
-            "/ucuz 10 - En ucuz 10 ilanı göster\n\n"
-            "<b>Sorun bildirimi:</b>\n"
-            "Bot ile ilgili sorunları yöneticiye bildirin.",
+            "📖 <b>Yardım</b>\n\n"
+            "<b>Tarama Saatleri:</b>\n"
+            "• 08:00-18:00: Her 45 dakikada\n"
+            "• 18:00-08:00: Her 120 dakikada\n\n"
+            "<b>Bildirimler:</b>\n"
+            "🆕 Yeni ilan (ilk 4 sayfa)\n"
+            "💰 Fiyat değişikliği\n"
+            "🗑️ Silinen ilan\n\n"
+            "<b>Timeout:</b> 25 dakika",
             chat_id
         )
     
     elif command == "/durum" or command == "/status":
         uptime = ""
         if bot_stats["start_time"]:
-            uptime_seconds = (datetime.utcnow() - bot_stats["start_time"]).total_seconds()
-            uptime = format_duration(uptime_seconds)
+            uptime = format_duration((datetime.utcnow() - bot_stats["start_time"]).total_seconds())
         
-        last_scan = "Henüz tarama yapılmadı"
-        if bot_stats["last_scan_time"]:
-            last_scan = bot_stats["last_scan_time"].strftime("%H:%M:%S")
-        
+        interval = get_scan_interval() // 60
         next_scan = "Bilinmiyor"
         if bot_stats["last_scan_time"]:
-            next_time = bot_stats["last_scan_time"] + timedelta(seconds=SCAN_INTERVAL)
+            next_time = bot_stats["last_scan_time"] + timedelta(seconds=get_scan_interval())
             remaining = (next_time - datetime.utcnow()).total_seconds()
             if remaining > 0:
-                next_scan = f"{int(remaining // 60)} dk {int(remaining % 60)} sn sonra"
+                next_scan = format_duration(remaining)
             else:
                 next_scan = "Şimdi"
         
         send_message(
             f"📊 <b>Bot Durumu</b>\n\n"
-            f"🟢 Durum: Aktif\n"
-            f"⏱ Çalışma süresi: {uptime}\n"
-            f"🕐 Şu an: {now.strftime('%H:%M:%S')} (TR)\n\n"
-            f"📋 <b>Bellek</b>\n"
-            f"• Toplam ilan: {format_number(len(state.get('items', {})))}\n"
-            f"• Döngü başlangıcı: {state.get('cycle_start', 'Bilinmiyor')}\n\n"
-            f"🔄 <b>Tarama</b>\n"
-            f"• Son tarama: {last_scan}\n"
-            f"• Sonraki tarama: {next_scan}\n"
-            f"• Tarama süresi: {format_duration(bot_stats['last_scan_duration'])}\n"
-            f"• Toplam tarama: {bot_stats['total_scans']}",
+            f"🟢 Aktif | ⏱ {uptime}\n"
+            f"🕐 {now.strftime('%H:%M:%S')} (TR)\n\n"
+            f"📋 Bellek: {format_number(len(state.get('items', {})))} ilan\n"
+            f"🔄 Tarama aralığı: {interval} dk\n"
+            f"⏳ Sonraki: {next_scan}\n"
+            f"📈 Toplam tarama: {bot_stats['total_scans']}\n"
+            f"⚠️ Timeout: {bot_stats['timeouts']}",
             chat_id
         )
     
     elif command == "/istatistik" or command == "/stats":
         items = state.get("items", {})
-        
-        # Fiyat istatistikleri
-        prices = []
-        for item in items.values():
-            price_str = normalize_price(item.get("fiyat", "0"))
-            if price_str:
-                prices.append(int(price_str))
+        prices = [int(normalize_price(v.get("fiyat", "0"))) for v in items.values() if normalize_price(v.get("fiyat", "0"))]
         
         avg_price = sum(prices) // len(prices) if prices else 0
         min_price = min(prices) if prices else 0
         max_price = max(prices) if prices else 0
         
-        # Tarih istatistikleri
-        today_count = sum(1 for v in items.values() if v.get("tarih") == today)
-        
         send_message(
-            f"📈 <b>Detaylı İstatistikler</b>\n\n"
-            f"📋 <b>İlan Sayıları</b>\n"
-            f"• Toplam ilan: {format_number(len(items))}\n"
-            f"• Bugün eklenen: {today_count}\n\n"
-            f"💰 <b>Fiyat Analizi</b>\n"
-            f"• Ortalama: {format_number(avg_price)} ₺\n"
-            f"• En düşük: {format_number(min_price)} ₺\n"
-            f"• En yüksek: {format_number(max_price)} ₺\n\n"
-            f"🔄 <b>Bot İstatistikleri</b>\n"
-            f"• Toplam tarama: {bot_stats['total_scans']}\n"
-            f"• Bulunan yeni ilan: {bot_stats['total_new_listings']}\n"
-            f"• Fiyat değişikliği: {bot_stats['total_price_changes']}\n"
-            f"• Silinen ilan: {bot_stats['total_deleted']}\n"
-            f"• Hata sayısı: {bot_stats['errors']}",
+            f"📈 <b>İstatistikler</b>\n\n"
+            f"📋 Toplam: {format_number(len(items))} ilan\n"
+            f"💰 Ortalama: {format_number(avg_price)} ₺\n"
+            f"📉 En düşük: {format_number(min_price)} ₺\n"
+            f"📈 En yüksek: {format_number(max_price)} ₺\n\n"
+            f"🆕 Yeni bulunan: {bot_stats['total_new_listings']}\n"
+            f"💰 Fiyat değişimi: {bot_stats['total_price_changes']}\n"
+            f"🗑️ Silinen: {bot_stats['total_deleted']}\n"
+            f"❌ Hata: {bot_stats['errors']}",
             chat_id
         )
     
     elif command == "/bellek" or command == "/memory":
         items = state.get("items", {})
-        
-        # Dosya boyutu
-        file_size = 0
-        if os.path.exists(DATA_FILE):
-            file_size = os.path.getsize(DATA_FILE)
-        
-        file_size_kb = file_size / 1024
-        file_size_mb = file_size / (1024 * 1024)
+        file_size = os.path.getsize(DATA_FILE) if os.path.exists(DATA_FILE) else 0
         
         send_message(
-            f"💾 <b>Bellek Durumu</b>\n\n"
-            f"📁 Dosya: {DATA_FILE}\n"
-            f"📊 Boyut: {file_size_kb:.1f} KB ({file_size_mb:.2f} MB)\n"
-            f"📋 Kayıtlı ilan: {format_number(len(items))}\n"
-            f"📅 Döngü başlangıcı: {state.get('cycle_start', 'Bilinmiyor')}\n"
-            f"🔄 İlk çalışma tamamlandı: {'Evet' if state.get('first_run_done') else 'Hayır'}",
+            f"💾 <b>Bellek</b>\n\n"
+            f"📁 {DATA_FILE}: {file_size/1024:.1f} KB\n"
+            f"📋 İlan: {format_number(len(items))}\n"
+            f"📅 Döngü: {state.get('cycle_start', '-')}\n"
+            f"✅ İlk çalışma: {'Evet' if state.get('first_run_done') else 'Hayır'}",
             chat_id
         )
     
     elif command == "/bugun" or command == "/today":
         items = state.get("items", {})
-        daily_stats = state.get("daily_stats", {}).get(today, {})
+        today_items = [k for k, v in items.items() if v.get("tarih") == today]
+        daily = state.get("daily_stats", {}).get(today, {})
         
-        today_items = [(k, v) for k, v in items.items() if v.get("tarih") == today]
+        msg = f"📅 <b>Bugün</b> ({today})\n\n"
+        msg += f"🆕 Yeni: {len(today_items)}\n"
+        msg += f"💰 Fiyat değişimi: {daily.get('price_changes', 0)}\n"
+        msg += f"🗑️ Silinen: {daily.get('deleted', 0)}\n"
         
-        msg = f"📅 <b>Bugünkü Aktiviteler</b> ({today})\n\n"
-        msg += f"🆕 Eklenen ilan: {len(today_items)}\n"
-        msg += f"🔔 Fiyat değişikliği: {daily_stats.get('price_changes', 0)}\n"
-        msg += f"🗑 Silinen ilan: {daily_stats.get('deleted', 0)}\n\n"
-        
-        if today_items:
-            msg += "<b>Bugün eklenen son 10 ilan:</b>\n"
-            for kod, item in today_items[:10]:
-                msg += f"• {kod} - {item.get('fiyat', 'Fiyat yok')}\n"
-            if len(today_items) > 10:
-                msg += f"... ve {len(today_items) - 10} ilan daha"
-        else:
-            msg += "Bugün henüz yeni ilan eklenmedi."
+        if today_items[:5]:
+            msg += "\n<b>Son eklenenler:</b>\n"
+            for kod in today_items[:5]:
+                item = items[kod]
+                msg += f"• {kod} - {item.get('fiyat', '-')}\n"
         
         send_message(msg, chat_id)
     
@@ -317,151 +301,114 @@ def handle_command(chat_id, command, message_text):
         items = state.get("items", {})
         daily_stats = state.get("daily_stats", {})
         
-        msg = "📊 <b>Son 7 Günlük Özet</b>\n\n"
+        days_tr = {"Monday": "Pzt", "Tuesday": "Sal", "Wednesday": "Çar", "Thursday": "Per", "Friday": "Cum", "Saturday": "Cmt", "Sunday": "Paz"}
         
+        msg = "📊 <b>Son 7 Gün</b>\n\n"
         for i in range(7):
             date = (now - timedelta(days=i)).strftime("%Y-%m-%d")
-            day_name = (now - timedelta(days=i)).strftime("%A")
-            
-            # Türkçe gün adları
-            day_names_tr = {
-                "Monday": "Pazartesi", "Tuesday": "Salı", "Wednesday": "Çarşamba",
-                "Thursday": "Perşembe", "Friday": "Cuma", "Saturday": "Cumartesi", "Sunday": "Pazar"
-            }
-            day_name = day_names_tr.get(day_name, day_name)
-            
-            day_items = sum(1 for v in items.values() if v.get("tarih") == date)
+            day = days_tr.get((now - timedelta(days=i)).strftime("%A"), "")
+            count = sum(1 for v in items.values() if v.get("tarih") == date)
             stats = daily_stats.get(date, {})
             
-            if i == 0:
-                msg += f"📅 <b>Bugün</b> ({date})\n"
-            else:
-                msg += f"📅 {day_name} ({date})\n"
-            
-            msg += f"   🆕 {day_items} ilan"
-            if stats.get("price_changes"):
-                msg += f" | 🔔 {stats['price_changes']} fiyat"
-            if stats.get("deleted"):
-                msg += f" | 🗑 {stats['deleted']} silindi"
-            msg += "\n"
+            label = "Bugün" if i == 0 else f"{day} {date[5:]}"
+            msg += f"📅 {label}: 🆕{count} 💰{stats.get('price_changes', 0)} 🗑️{stats.get('deleted', 0)}\n"
         
         send_message(msg, chat_id)
     
-    elif command.startswith("/ara") or command.startswith("/search"):
+    elif command.startswith("/silinenler"):
+        deleted = history.get("deleted", [])[-10:]
+        if deleted:
+            msg = "🗑️ <b>Son Silinen İlanlar</b>\n\n"
+            for item in reversed(deleted):
+                msg += f"• <b>{item.get('kod', '-')}</b>\n"
+                msg += f"  {item.get('title', '')[:40]}\n"
+                msg += f"  💰 {item.get('fiyat', '-')} | 📅 {item.get('tarih', '-')}\n\n"
+        else:
+            msg = "🗑️ Henüz silinen ilan yok."
+        send_message(msg, chat_id)
+    
+    elif command.startswith("/degisimler"):
+        changes = history.get("price_changes", [])[-10:]
+        if changes:
+            msg = "💰 <b>Son Fiyat Değişimleri</b>\n\n"
+            for item in reversed(changes):
+                msg += f"• <b>{item.get('kod', '-')}</b>\n"
+                msg += f"  {item.get('eski_fiyat', '-')} ➜ {item.get('yeni_fiyat', '-')}\n"
+                msg += f"  📅 {item.get('tarih', '-')}\n\n"
+        else:
+            msg = "💰 Henüz fiyat değişimi yok."
+        send_message(msg, chat_id)
+    
+    elif command.startswith("/ara"):
         parts = message_text.split(maxsplit=1)
         if len(parts) < 2:
-            send_message("❌ Kullanım: /ara [kelime]\nÖrnek: /ara daire", chat_id)
+            send_message("❌ Kullanım: /ara kelime", chat_id)
             return
         
         keyword = parts[1].lower()
         items = state.get("items", {})
-        
-        results = []
-        for kod, item in items.items():
-            title = item.get("title", "").lower()
-            if keyword in title or keyword in kod.lower():
-                results.append((kod, item))
+        results = [(k, v) for k, v in items.items() if keyword in v.get("title", "").lower() or keyword in k.lower()]
         
         if results:
-            msg = f"🔍 <b>Arama Sonuçları</b> ({len(results)} sonuç)\n"
-            msg += f"Aranan: \"{keyword}\"\n\n"
-            for kod, item in results[:15]:
-                msg += f"• <b>{kod}</b>\n"
-                msg += f"  {item.get('title', '')[:50]}\n"
-                msg += f"  💰 {item.get('fiyat', 'Fiyat yok')}\n\n"
-            if len(results) > 15:
-                msg += f"... ve {len(results) - 15} sonuç daha"
+            msg = f"🔍 <b>{len(results)} sonuç</b> ({keyword})\n\n"
+            for kod, item in results[:10]:
+                msg += f"• <b>{kod}</b>\n  {item.get('title', '')[:40]}\n  💰 {item.get('fiyat', '-')}\n\n"
+            if len(results) > 10:
+                msg += f"... +{len(results)-10} sonuç"
         else:
-            msg = f"🔍 \"{keyword}\" için sonuç bulunamadı."
-        
+            msg = f"🔍 '{keyword}' bulunamadı."
         send_message(msg, chat_id)
     
-    elif command.startswith("/son") or command.startswith("/recent"):
+    elif command.startswith("/son"):
         parts = message_text.split()
-        count = 5
-        if len(parts) > 1 and parts[1].isdigit():
-            count = min(int(parts[1]), 20)
+        count = min(int(parts[1]), 15) if len(parts) > 1 and parts[1].isdigit() else 5
         
         items = state.get("items", {})
-        
-        # Tarihe göre sırala
-        sorted_items = sorted(items.items(), key=lambda x: x[1].get("tarih", ""), reverse=True)
+        sorted_items = sorted(items.items(), key=lambda x: x[1].get("tarih", ""), reverse=True)[:count]
         
         msg = f"🆕 <b>Son {count} İlan</b>\n\n"
-        for kod, item in sorted_items[:count]:
-            msg += f"• <b>{kod}</b> ({item.get('tarih', '')})\n"
-            msg += f"  {item.get('title', '')[:40]}\n"
-            msg += f"  💰 {item.get('fiyat', 'Fiyat yok')}\n\n"
-        
+        for kod, item in sorted_items:
+            msg += f"• <b>{kod}</b> ({item.get('tarih', '')})\n  {item.get('title', '')[:35]}\n  💰 {item.get('fiyat', '-')}\n\n"
         send_message(msg, chat_id)
     
-    elif command.startswith("/ucuz") or command.startswith("/cheap"):
+    elif command.startswith("/ucuz"):
         parts = message_text.split()
-        count = 10
-        if len(parts) > 1 and parts[1].isdigit():
-            count = min(int(parts[1]), 20)
+        count = min(int(parts[1]), 15) if len(parts) > 1 and parts[1].isdigit() else 10
         
         items = state.get("items", {})
+        priced = [(k, v, int(normalize_price(v.get("fiyat", "0")))) for k, v in items.items() if normalize_price(v.get("fiyat", "0"))]
+        sorted_items = sorted(priced, key=lambda x: x[2])[:count]
         
-        # Fiyata göre sırala
-        priced_items = []
-        for kod, item in items.items():
-            price_str = normalize_price(item.get("fiyat", "0"))
-            if price_str and int(price_str) > 0:
-                priced_items.append((kod, item, int(price_str)))
-        
-        sorted_items = sorted(priced_items, key=lambda x: x[2])
-        
-        msg = f"💰 <b>En Ucuz {count} İlan</b>\n\n"
-        for kod, item, price in sorted_items[:count]:
-            msg += f"• <b>{kod}</b>\n"
-            msg += f"  {item.get('title', '')[:40]}\n"
-            msg += f"  💰 {item.get('fiyat', 'Fiyat yok')}\n\n"
-        
+        msg = f"💰 <b>En Ucuz {count}</b>\n\n"
+        for kod, item, _ in sorted_items:
+            msg += f"• <b>{kod}</b>\n  {item.get('title', '')[:35]}\n  💰 {item.get('fiyat', '-')}\n\n"
         send_message(msg, chat_id)
     
-    elif command.startswith("/pahali") or command.startswith("/expensive"):
+    elif command.startswith("/pahali"):
         parts = message_text.split()
-        count = 10
-        if len(parts) > 1 and parts[1].isdigit():
-            count = min(int(parts[1]), 20)
+        count = min(int(parts[1]), 15) if len(parts) > 1 and parts[1].isdigit() else 10
         
         items = state.get("items", {})
+        priced = [(k, v, int(normalize_price(v.get("fiyat", "0")))) for k, v in items.items() if normalize_price(v.get("fiyat", "0"))]
+        sorted_items = sorted(priced, key=lambda x: x[2], reverse=True)[:count]
         
-        # Fiyata göre sırala
-        priced_items = []
-        for kod, item in items.items():
-            price_str = normalize_price(item.get("fiyat", "0"))
-            if price_str and int(price_str) > 0:
-                priced_items.append((kod, item, int(price_str)))
-        
-        sorted_items = sorted(priced_items, key=lambda x: x[2], reverse=True)
-        
-        msg = f"💎 <b>En Pahalı {count} İlan</b>\n\n"
-        for kod, item, price in sorted_items[:count]:
-            msg += f"• <b>{kod}</b>\n"
-            msg += f"  {item.get('title', '')[:40]}\n"
-            msg += f"  💰 {item.get('fiyat', 'Fiyat yok')}\n\n"
-        
+        msg = f"💎 <b>En Pahalı {count}</b>\n\n"
+        for kod, item, _ in sorted_items:
+            msg += f"• <b>{kod}</b>\n  {item.get('title', '')[:35]}\n  💰 {item.get('fiyat', '-')}\n\n"
         send_message(msg, chat_id)
     
     elif command == "/tara" or command == "/scan":
         send_message("🔄 Manuel tarama başlatılıyor...", chat_id)
-        # Bu komut ana döngüde işlenecek
         return "SCAN"
     
     else:
-        send_message(
-            "❓ Bilinmeyen komut.\n"
-            "Kullanılabilir komutları görmek için /yardim yazın.",
-            chat_id
-        )
+        send_message("❓ Bilinmeyen komut. /yardim yazın.", chat_id)
     
     return None
 
 
 def check_telegram_commands():
-    """Telegram'dan gelen komutları kontrol et."""
+    """Telegram komutlarını kontrol et - hızlı."""
     global last_update_id
     
     updates = get_updates(last_update_id + 1 if last_update_id else None)
@@ -477,9 +424,7 @@ def check_telegram_commands():
         if not text or not chat_id:
             continue
         
-        # Sadece admin'ler komut kullanabilir
         if chat_id not in ADMIN_CHAT_IDS:
-            print(f"[KOMUT] Yetkisiz kullanıcı: {chat_id}", flush=True)
             continue
         
         if text.startswith("/"):
@@ -491,52 +436,38 @@ def check_telegram_commands():
     return result
 
 
-def fetch_listings_playwright(max_pages=50):
-    """Playwright ile ilanları çek - sayfa başı 6+ saniye bekleme."""
-    print(f"[PLAYWRIGHT] Başlatılıyor, max_pages={max_pages}", flush=True)
+def fetch_listings_playwright():
+    """Playwright ile TÜM sayfalardaki ilanları çek."""
+    print(f"[PLAYWRIGHT] Başlatılıyor (tüm sayfalar)", flush=True)
     results = []
     seen_codes = set()
     consecutive_failures = 0
+    page_num = 0
 
     with sync_playwright() as p:
-        print("[PLAYWRIGHT] sync_playwright başlatıldı", flush=True)
-        
-        print("[PLAYWRIGHT] Chromium başlatılıyor...", flush=True)
         browser = p.chromium.launch(headless=True)
-        print("[PLAYWRIGHT] Chromium başlatıldı", flush=True)
-        
         context = browser.new_context(
             viewport={"width": 1920, "height": 1080},
-            user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+            user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
         )
-        print("[PLAYWRIGHT] Context oluşturuldu", flush=True)
-        
         page = context.new_page()
-        print("[PLAYWRIGHT] Sayfa oluşturuldu", flush=True)
 
-        for page_num in range(1, max_pages + 1):
-            if page_num == 1:
-                page_url = URL
-            else:
-                page_url = f"{URL}?&page={page_num}"
+        while True:
+            page_num += 1
+            page_url = URL if page_num == 1 else f"{URL}?&page={page_num}"
 
             try:
-                print(f"[SAYFA {page_num}] Yükleniyor: {page_url}", flush=True)
+                print(f"[SAYFA {page_num}] {page_url}", flush=True)
                 
-                page.goto(page_url, timeout=45000, wait_until="domcontentloaded")
-                print(f"[SAYFA {page_num}] DOM yüklendi", flush=True)
-                
-                page.wait_for_timeout(6000)
-                print(f"[SAYFA {page_num}] 6 saniye beklendi", flush=True)
+                page.goto(page_url, timeout=30000, wait_until="domcontentloaded")
+                page.wait_for_timeout(5000)
                 
                 try:
-                    page.wait_for_selector('a[href*="ilandetay?ilan_kodu="]', timeout=15000)
-                    print(f"[SAYFA {page_num}] Selector bulundu", flush=True)
+                    page.wait_for_selector('a[href*="ilandetay?ilan_kodu="]', timeout=10000)
                 except:
-                    print(f"[SAYFA {page_num}] Selector timeout, devam ediliyor...", flush=True)
+                    print(f"[SAYFA {page_num}] Selector timeout", flush=True)
                     consecutive_failures += 1
                     if consecutive_failures >= 3:
-                        print("[HATA] 3 ardışık başarısız, durduruluyor.", flush=True)
                         break
                     continue
                 
@@ -546,21 +477,14 @@ def fetch_listings_playwright(max_pages=50):
                 print(f"[SAYFA {page_num}] HATA: {e}", flush=True)
                 consecutive_failures += 1
                 if consecutive_failures >= 3:
-                    print("[HATA] 3 ardışık başarısız, durduruluyor.", flush=True)
                     break
                 continue
-
-            html_content = page.content()
-            ilan_count_in_html = html_content.count("ilan_kodu=")
-            print(f"[SAYFA {page_num}] HTML'de {ilan_count_in_html} ilan linki", flush=True)
 
             listings = page.evaluate('''() => {
                 const results = [];
                 const seen = new Set();
                 
-                const detayLinks = document.querySelectorAll('a[href*="ilandetay?ilan_kodu="]');
-                
-                detayLinks.forEach(link => {
+                document.querySelectorAll('a[href*="ilandetay?ilan_kodu="]').forEach(link => {
                     const href = link.getAttribute("href");
                     if (!href) return;
                     
@@ -571,8 +495,7 @@ def fetch_listings_playwright(max_pages=50):
                     if (seen.has(kod)) return;
                     seen.add(kod);
                     
-                    let fiyat = "Fiyat yok";
-                    let title = "";
+                    let fiyat = "Fiyat yok", title = "";
                     
                     let card = link;
                     for (let i = 0; i < 10; i++) {
@@ -584,12 +507,10 @@ def fetch_listings_playwright(max_pages=50):
                         
                         if (h3 && text.includes('₺')) {
                             title = h3.innerText.trim();
-                            
                             const lines = text.split('\\n');
                             for (const line of lines) {
-                                const trimmed = line.trim();
-                                if (/^[\\d.,]+\\s*₺$/.test(trimmed)) {
-                                    fiyat = trimmed;
+                                if (/^[\\d.,]+\\s*₺$/.test(line.trim())) {
+                                    fiyat = line.trim();
                                     break;
                                 }
                             }
@@ -597,85 +518,80 @@ def fetch_listings_playwright(max_pages=50):
                         }
                     }
                     
-                    results.push({
-                        kod: kod,
-                        fiyat: fiyat,
-                        title: title,
-                        link: "https://www.makrolife.com.tr/" + href
-                    });
+                    results.push({ kod, fiyat, title, link: "https://www.makrolife.com.tr/" + href });
                 });
                 
                 return results;
             }''')
 
             if not listings:
-                print(f"[SAYFA {page_num}] Boş, tarama tamamlandı.", flush=True)
+                print(f"[SAYFA {page_num}] Boş - tarama bitti", flush=True)
                 break
 
-            page_new_count = 0
+            new_count = 0
             for item in listings:
                 if item["kod"] not in seen_codes:
                     seen_codes.add(item["kod"])
                     results.append((item["kod"], item["fiyat"], item["link"], item.get("title", ""), page_num))
-                    page_new_count += 1
+                    new_count += 1
             
-            print(f"[SAYFA {page_num}] {len(listings)} ilan, {page_new_count} yeni. Toplam: {len(results)}", flush=True)
+            print(f"[SAYFA {page_num}] {len(listings)} ilan, {new_count} yeni. Toplam: {len(results)}", flush=True)
 
             if len(listings) < 12:
-                print(f"[SAYFA {page_num}] Son sayfa ({len(listings)} ilan).", flush=True)
+                print(f"[SAYFA {page_num}] Son sayfa", flush=True)
                 break
             
-            page.wait_for_timeout(1000)
+            page.wait_for_timeout(800)
 
-        print("[PLAYWRIGHT] Browser kapatılıyor...", flush=True)
         browser.close()
-        print("[PLAYWRIGHT] Browser kapatıldı", flush=True)
 
-    print(f"[PLAYWRIGHT] Toplam {len(results)} ilan bulundu", flush=True)
+    print(f"[PLAYWRIGHT] Toplam {len(results)} ilan, {page_num} sayfa", flush=True)
     return results
 
 
-def run_scan():
-    """Tek bir tarama döngüsü çalıştır."""
+def run_scan_with_timeout():
+    """Timeout ile tarama çalıştır."""
     global bot_stats
     
     scan_start = time.time()
     now = get_turkey_time()
     today = now.strftime("%Y-%m-%d")
     
-    print(f"\n[TARAMA] Başlıyor - {now.strftime('%Y-%m-%d %H:%M:%S')} (TR)", flush=True)
+    print(f"\n[TARAMA] Başlıyor - {now.strftime('%Y-%m-%d %H:%M:%S')}", flush=True)
 
     state = load_state()
+    history = load_history()
     
-    # daily_stats yoksa oluştur
     if "daily_stats" not in state:
         state["daily_stats"] = {}
     if today not in state["daily_stats"]:
         state["daily_stats"][today] = {"new": 0, "price_changes": 0, "deleted": 0}
 
     # 30 günlük döngü kontrolü
-    cycle_start = datetime.strptime(state["cycle_start"], "%Y-%m-%d")
-    if (now - cycle_start).days >= 30:
-        state = {"cycle_start": today, "items": {}, "reported_days": [], "first_run_done": False, "daily_stats": {}}
-        print("[DÖNGÜ] 30 günlük döngü sıfırlandı.", flush=True)
+    try:
+        cycle_start = datetime.strptime(state["cycle_start"], "%Y-%m-%d")
+        if (now - cycle_start).days >= 30:
+            state = {"cycle_start": today, "items": {}, "reported_days": [], "first_run_done": False, "daily_stats": {today: {"new": 0, "price_changes": 0, "deleted": 0}}}
+            print("[DÖNGÜ] 30 gün sıfırlandı", flush=True)
+    except:
+        state["cycle_start"] = today
 
     # İlanları çek
     try:
-        listings = fetch_listings_playwright(max_pages=50)
-        print(f"[TARAMA] Toplam {len(listings)} ilan bulundu.", flush=True)
+        listings = fetch_listings_playwright()
+        print(f"[TARAMA] {len(listings)} ilan bulundu", flush=True)
         bot_stats["last_scan_listings"] = len(listings)
     except Exception as e:
-        print(f"[HATA] Playwright hatası: {e}", flush=True)
+        print(f"[HATA] Playwright: {e}", flush=True)
         bot_stats["errors"] += 1
         save_state(state)
         return
 
     is_first_run = not state.get("first_run_done", False) or len(state["items"]) == 0
-    print(f"[TARAMA] İlk çalışma: {is_first_run}", flush=True)
 
     if is_first_run:
-        if len(listings) < 100:
-            print(f"[UYARI] İlk çalışmada yetersiz ilan: {len(listings)} (min 100)", flush=True)
+        if len(listings) < 50:
+            print(f"[UYARI] Yetersiz ilan: {len(listings)}", flush=True)
             save_state(state)
             return
         
@@ -685,50 +601,87 @@ def run_scan():
         state["first_run_done"] = True
         
         send_message(
-            f"📅 {today}  🕐 {now.strftime('%H:%M')}\n"
-            f"📊 Toplam ilan: {len(listings)}\n"
-            f"✅ Tüm ilanlar kaydedildi"
+            f"✅ <b>İlk Tarama Tamamlandı</b>\n\n"
+            f"📅 {today} {now.strftime('%H:%M')}\n"
+            f"📊 Toplam: {len(listings)} ilan\n"
+            f"💾 Tümü kaydedildi"
         )
-        print(f"[TARAMA] İlk veri toplama tamamlandı: {len(listings)} ilan", flush=True)
+        print(f"[TARAMA] İlk çalışma: {len(listings)} ilan", flush=True)
     else:
         new_count = 0
         price_change_count = 0
+        current_codes = set()
 
         for kod, fiyat, link, title, page_num in listings:
+            current_codes.add(kod)
+            
             if kod not in state["items"]:
-                if page_num <= 4:
-                    print(f"[YENİ İLAN] {kod} - Sayfa {page_num}", flush=True)
-                    send_message(f"🆕 YENİ İLAN\n📅 {today}\n🏷️ {kod}\n📝 {title}\n💰 {fiyat}\n🔗 {link}")
-                    time.sleep(0.5)
-                else:
-                    print(f"[YENİ İLAN] {kod} - Sayfa {page_num} (bildirim yok)", flush=True)
-                
+                # YENİ İLAN
                 state["items"][kod] = {"fiyat": fiyat, "tarih": today, "link": link, "title": title}
                 new_count += 1
+                
+                # History'e ekle
+                history.setdefault("new", []).append({
+                    "kod": kod, "fiyat": fiyat, "title": title, "tarih": today, "link": link
+                })
+                
+                if page_num <= 4:
+                    send_message(
+                        f"🆕 <b>YENİ İLAN</b>\n\n"
+                        f"🏷️ {kod}\n"
+                        f"📝 {title}\n"
+                        f"💰 {fiyat}\n"
+                        f"🔗 {link}"
+                    )
+                    time.sleep(0.3)
             else:
+                # FİYAT DEĞİŞİKLİĞİ
                 eski = state["items"][kod]["fiyat"]
                 if normalize_price(eski) != normalize_price(fiyat):
-                    print(f"[FİYAT DEĞİŞTİ] {kod}: {eski} -> {fiyat}", flush=True)
-                    send_message(f"🔔 FİYAT DEĞİŞTİ\n🏷️ {kod}\n💰 Eski: {eski}\n💰 Yeni: {fiyat}\n🔗 {link}")
+                    # History'e ekle
+                    history.setdefault("price_changes", []).append({
+                        "kod": kod, "eski_fiyat": eski, "yeni_fiyat": fiyat, "tarih": today
+                    })
+                    
                     state["items"][kod]["fiyat"] = fiyat
                     price_change_count += 1
-                    time.sleep(0.5)
+                    
+                    # Fiyat farkını hesapla
+                    eski_num = int(normalize_price(eski)) if normalize_price(eski) else 0
+                    yeni_num = int(normalize_price(fiyat)) if normalize_price(fiyat) else 0
+                    fark = yeni_num - eski_num
+                    fark_str = f"+{format_number(fark)}" if fark > 0 else format_number(fark)
+                    
+                    send_message(
+                        f"💰 <b>FİYAT DEĞİŞTİ</b>\n\n"
+                        f"🏷️ {kod}\n"
+                        f"📉 {eski} ➜ {fiyat}\n"
+                        f"📊 Fark: {fark_str} ₺\n"
+                        f"🔗 {state['items'][kod].get('link', '')}"
+                    )
+                    time.sleep(0.3)
 
-        current_codes = set(kod for kod, fiyat, link, title, page_num in listings)
+        # SİLİNEN İLANLAR
         deleted_count = 0
-        deleted_codes = []
-        
         for kod in list(state["items"].keys()):
             if kod not in current_codes:
                 item = state["items"][kod]
-                print(f"[SİLİNDİ] {kod}", flush=True)
-                send_message(f"🗑️ İLAN SİLİNDİ\n📅 {today}\n🏷️ {kod}\n📝 {item.get('title', '')}\n💰 {item.get('fiyat', '')}\n🔗 {item.get('link', '')}")
-                deleted_codes.append(kod)
+                
+                # History'e ekle
+                history.setdefault("deleted", []).append({
+                    "kod": kod, "fiyat": item.get("fiyat", ""), "title": item.get("title", ""), "tarih": today
+                })
+                
+                send_message(
+                    f"🗑️ <b>İLAN SİLİNDİ</b>\n\n"
+                    f"🏷️ {kod}\n"
+                    f"📝 {item.get('title', '')}\n"
+                    f"💰 {item.get('fiyat', '')}"
+                )
+                
+                del state["items"][kod]
                 deleted_count += 1
-                time.sleep(0.5)
-        
-        for kod in deleted_codes:
-            del state["items"][kod]
+                time.sleep(0.3)
         
         # İstatistikleri güncelle
         bot_stats["total_new_listings"] += new_count
@@ -739,25 +692,23 @@ def run_scan():
         state["daily_stats"][today]["price_changes"] += price_change_count
         state["daily_stats"][today]["deleted"] += deleted_count
         
-        print(f"[ÖZET] Yeni: {new_count}, Fiyat değişikliği: {price_change_count}, Silinen: {deleted_count}", flush=True)
+        print(f"[ÖZET] Yeni: {new_count}, Fiyat: {price_change_count}, Silinen: {deleted_count}", flush=True)
 
-    # Günlük özet (23:30-23:59 arası, günde bir kez)
-    if (now.hour == 23 and now.minute >= 30) and (today not in state["reported_days"]):
-        print("[GÜNLÜK ÖZET] Hazırlanıyor...", flush=True)
+    # Günlük özet (23:30-23:59)
+    if now.hour == 23 and now.minute >= 30 and today not in state.get("reported_days", []):
         todays = [k for k, v in state["items"].items() if v.get("tarih") == today]
-        total = len(state["items"])
         send_message(
-            f"📋 Günlük Özet ({today}):\n"
-            f"📊 Toplam takip edilen: {total}\n"
+            f"📋 <b>Günlük Özet</b> ({today})\n\n"
+            f"📊 Toplam: {len(state['items'])} ilan\n"
             f"🆕 Bugün eklenen: {len(todays)}\n"
-            + ("\n".join(todays[:40]) if todays else "Bugün yeni ilan yok.")
+            + ("\n".join(todays[:40]) if todays else "Yeni ilan yok")
             + ("\n..." if len(todays) > 40 else "")
         )
-        state["reported_days"].append(today)
+        state.setdefault("reported_days", []).append(today)
 
     save_state(state)
+    save_history(history)
     
-    # Tarama istatistiklerini güncelle
     scan_duration = time.time() - scan_start
     bot_stats["total_scans"] += 1
     bot_stats["last_scan_time"] = datetime.utcnow()
@@ -766,8 +717,29 @@ def run_scan():
     print(f"[TARAMA] Tamamlandı ({format_duration(scan_duration)})", flush=True)
 
 
+def run_scan():
+    """Taramayı timeout ile çalıştır."""
+    global bot_stats
+    
+    with ThreadPoolExecutor(max_workers=1) as executor:
+        future = executor.submit(run_scan_with_timeout)
+        try:
+            future.result(timeout=SCAN_TIMEOUT)
+        except FuturesTimeoutError:
+            print(f"[TIMEOUT] Tarama {SCAN_TIMEOUT//60} dakikayı aştı!", flush=True)
+            bot_stats["timeouts"] += 1
+            send_message(
+                f"⚠️ <b>TIMEOUT</b>\n\n"
+                f"Tarama {SCAN_TIMEOUT//60} dakikayı aştı.\n"
+                f"Sonraki tarama bekleniyor..."
+            )
+        except Exception as e:
+            print(f"[HATA] Tarama hatası: {e}", flush=True)
+            bot_stats["errors"] += 1
+
+
 def main():
-    """Ana döngü - sürekli çalışır."""
+    """Ana döngü."""
     global bot_stats
     
     print("=" * 60, flush=True)
@@ -776,46 +748,45 @@ def main():
     
     bot_stats["start_time"] = datetime.utcnow()
     
-    send_message("🚀 Bot başlatıldı! (Railway)\n\nKomutlar için /yardim yazın.")
+    interval = get_scan_interval() // 60
+    send_message(f"🚀 <b>Bot Başlatıldı!</b>\n\n⏰ Tarama aralığı: {interval} dk\n\n/yardim - Komutlar")
     
     last_scan_time = 0
     
     while True:
         try:
-            # Telegram komutlarını kontrol et (her 2 saniyede)
+            # Komutları kontrol et (hızlı)
             cmd_result = check_telegram_commands()
-            
-            # Manuel tarama komutu geldi mi?
             force_scan = (cmd_result == "SCAN")
             
-            # Zamanı geldi mi veya manuel tarama mı?
+            # Tarama zamanı?
             current_time = time.time()
-            if force_scan or (current_time - last_scan_time >= SCAN_INTERVAL):
-                print(f"\n{'#' * 60}", flush=True)
-                print(f"# TARAMA #{bot_stats['total_scans'] + 1}", flush=True)
-                print(f"# Zaman: {get_turkey_time().strftime('%Y-%m-%d %H:%M:%S')} (TR)", flush=True)
-                if force_scan:
-                    print("# Tip: MANUEL TARAMA", flush=True)
-                print(f"{'#' * 60}", flush=True)
+            scan_interval = get_scan_interval()
+            
+            if force_scan or (current_time - last_scan_time >= scan_interval):
+                print(f"\n{'#' * 50}", flush=True)
+                print(f"# TARAMA #{bot_stats['total_scans'] + 1} {'(MANUEL)' if force_scan else ''}", flush=True)
+                print(f"# {get_turkey_time().strftime('%Y-%m-%d %H:%M:%S')}", flush=True)
+                print(f"{'#' * 50}", flush=True)
                 
                 run_scan()
                 last_scan_time = current_time
                 
-                print(f"\n[BEKLİYOR] Sonraki tarama {SCAN_INTERVAL // 60} dakika sonra...", flush=True)
+                next_interval = get_scan_interval() // 60
+                print(f"[BEKLİYOR] Sonraki tarama {next_interval} dk sonra", flush=True)
             
-            time.sleep(2)  # 2 saniye bekle
+            time.sleep(1)  # 1 saniye - hızlı komut yanıtı
             
         except KeyboardInterrupt:
-            print("\n[DURDURULDU] Kullanıcı tarafından", flush=True)
+            print("\n[DURDURULDU]", flush=True)
             send_message("🛑 Bot durduruldu!")
             break
         except Exception as e:
             print(f"[KRİTİK HATA] {e}", flush=True)
             bot_stats["errors"] += 1
-            print("[BEKLİYOR] 60 saniye sonra tekrar deneniyor...", flush=True)
-            time.sleep(60)
+            time.sleep(30)
 
 
 if __name__ == "__main__":
-    print("__main__ bloğu çalıştırılıyor...", flush=True)
+    print("__main__ başlıyor...", flush=True)
     main()
