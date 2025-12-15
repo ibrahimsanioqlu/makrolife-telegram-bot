@@ -217,9 +217,9 @@ def main():
 
     # 15 günlük döngü kontrolü
     cycle_start = datetime.strptime(state["cycle_start"], "%Y-%m-%d").replace(tzinfo=TR_TZ)
-    if now - cycle_start >= timedelta(days=15):
+    if now - cycle_start >= timedelta(days=30):
         state = {"cycle_start": today, "items": {}, "reported_days": [], "first_run_done": False}
-        print("15 günlük döngü sıfırlandı.")
+        print("30 günlük döngü sıfırlandı.")
 
     # İlanları çek
     try:
