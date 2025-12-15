@@ -309,7 +309,7 @@ def handle_command(chat_id, command, message_text):
         msg += "/silinenler - Silinen ilanlar\n"
         msg += "/degisimler - Fiyat degisimleri\n"
         msg += "/tara - Manuel tarama\n"
-        msg += "/kod - Bot kodlarini gonder\n"
+        msg += "/ozellikler - Bot ozellikleri\n"
         msg += "/yardim - Yardim"
         send_message(msg, chat_id)
     
@@ -323,21 +323,36 @@ def handle_command(chat_id, command, message_text):
         msg += "Fiyat degisikligi\n"
         msg += "Silinen ilan\n\n"
         msg += "<b>Timeout:</b> 25 dakika\n\n"
-        msg += "<b>Bot kodlari icin:</b> /kod"
+        msg += "<b>Tum ozellikler:</b> /ozellikler"
         send_message(msg, chat_id)
     
-    elif command == "/kod" or command == "/code":
-        msg = "<b>Bot Kaynak Kodlari</b>\n\n"
-        msg += "GitHub: https://github.com/" + GITHUB_REPO + "\n\n"
-        msg += "Railway uzerinde calisir\n"
-        msg += "Playwright ile web scraping\n"
-        msg += "Telegram Bot API entegrasyonu\n"
-        msg += "GitHub ile veri yedekleme\n\n"
-        msg += "Dosyalar:\n"
-        msg += "- main.py (bot kodu)\n"
-        msg += "- ilanlar.json (ilan veritabani)\n"
-        msg += "- history.json (gecmis kayitlari)\n"
-        msg += "- last_scan_time.json (tarama zamani)"
+    elif command == "/ozellikler" or command == "/features":
+        msg = "<b>🤖 Bot Ozellikleri</b>\n\n"
+        msg += "<b>📊 Tarama Sistemi:</b>\n"
+        msg += "• Otomatik tarama (45-120 dk aralikla)\n"
+        msg += "• 53+ sayfa tarama kapasitesi\n"
+        msg += "• Akilli timeout yonetimi (25 dk)\n"
+        msg += "• Container restart sonrasi sureyi hatirlar\n\n"
+        msg += "<b>🔔 Bildirimler:</b>\n"
+        msg += "• Yeni ilan (ilk 4 sayfa)\n"
+        msg += "• Fiyat degisiklikleri\n"
+        msg += "• Silinen ilanlar\n"
+        msg += "• Gunluk ozet (23:30)\n\n"
+        msg += "<b>💾 Veri Yonetimi:</b>\n"
+        msg += "• Lokal + GitHub yedekleme\n"
+        msg += "• 30 gunluk dongu sistemi\n"
+        msg += "• Gecmis kayitlari (1000 kayit)\n"
+        msg += "• Gunluk istatistikler\n\n"
+        msg += "<b>🔍 Arama & Filtreleme:</b>\n"
+        msg += "• Kelime bazli arama\n"
+        msg += "• Fiyat siralama (ucuz/pahali)\n"
+        msg += "• Tarih bazli listeleme\n"
+        msg += "• Haftalik raporlar\n\n"
+        msg += "<b>⚙️ Teknik:</b>\n"
+        msg += "• Platform: Railway\n"
+        msg += "• Scraping: Playwright\n"
+        msg += "• API: Telegram Bot\n"
+        msg += "• Yedek: GitHub API"
         send_message(msg, chat_id)
     
     elif command == "/durum" or command == "/status":
