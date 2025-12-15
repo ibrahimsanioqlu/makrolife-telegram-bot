@@ -34,6 +34,7 @@ print("GITHUB_TOKEN mevcut: " + str(bool(GITHUB_TOKEN)), flush=True)
 URL = "https://www.makrolife.com.tr/tumilanlar"
 DATA_FILE = "/data/ilanlar.json"
 HISTORY_FILE = "/data/history.json"
+LAST_SCAN_FILE = "/data/last_scan_time.json"
 
 # Timeout (saniye) - 25 dakika
 SCAN_TIMEOUT = 25 * 60
@@ -180,6 +181,27 @@ def github_save_file(filename, content, sha=None):
         return False
 
 
+def load_last_scan_time():
+    """Son tarama zamanini yukle"""
+    if os.path.exists(LAST_SCAN_FILE):
+        try:
+            with open(LAST_SCAN_FILE, "r", encoding="utf-8") as f:
+                data = json.load(f)
+                return data.get("last_scan_time", 0)
+        except:
+            pass
+    return 0
+
+
+def save_last_scan_time(timestamp):
+    """Son tarama zamanini kaydet"""
+    try:
+        with open(LAST_SCAN_FILE, "w", encoding="utf-8") as f:
+            json.dump({"last_scan_time": timestamp}, f)
+    except Exception as e:
+        print("[LAST_SCAN] Kayit hatasi: " + str(e), flush=True)
+
+
 def load_state():
     if os.path.exists(DATA_FILE):
         try:
@@ -287,6 +309,7 @@ def handle_command(chat_id, command, message_text):
         msg += "/silinenler - Silinen ilanlar\n"
         msg += "/degisimler - Fiyat degisimleri\n"
         msg += "/tara - Manuel tarama\n"
+        msg += "/kod - Bot kodlarini gonder\n"
         msg += "/yardim - Yardim"
         send_message(msg, chat_id)
     
@@ -299,7 +322,22 @@ def handle_command(chat_id, command, message_text):
         msg += "Yeni ilan (ilk 4 sayfa)\n"
         msg += "Fiyat degisikligi\n"
         msg += "Silinen ilan\n\n"
-        msg += "<b>Timeout:</b> 25 dakika"
+        msg += "<b>Timeout:</b> 25 dakika\n\n"
+        msg += "<b>Bot kodlari icin:</b> /kod"
+        send_message(msg, chat_id)
+    
+    elif command == "/kod" or command == "/code":
+        msg = "<b>Bot Kaynak Kodlari</b>\n\n"
+        msg += "GitHub: https://github.com/" + GITHUB_REPO + "\n\n"
+        msg += "Railway uzerinde calisir\n"
+        msg += "Playwright ile web scraping\n"
+        msg += "Telegram Bot API entegrasyonu\n"
+        msg += "GitHub ile veri yedekleme\n\n"
+        msg += "Dosyalar:\n"
+        msg += "- main.py (bot kodu)\n"
+        msg += "- ilanlar.json (ilan veritabani)\n"
+        msg += "- history.json (gecmis kayitlari)\n"
+        msg += "- last_scan_time.json (tarama zamani)"
         send_message(msg, chat_id)
     
     elif command == "/durum" or command == "/status":
@@ -863,6 +901,12 @@ def main():
     state = load_state()
     item_count = len(state.get("items", {}))
     
+    # Son tarama zamanini yukle
+    last_scan_time = load_last_scan_time()
+    if last_scan_time > 0:
+        elapsed = time.time() - last_scan_time
+        print(f"[BASLANGIC] Son taramadan {int(elapsed//60)} dakika gecmis", flush=True)
+    
     interval = get_scan_interval() // 60
     github_status = "Aktif" if GITHUB_TOKEN else "Kapali"
     msg = "<b>Bot Baslatildi!</b>\n\n"
@@ -872,8 +916,6 @@ def main():
     msg += "/yardim - Komutlar"
     send_message(msg)
     
-    last_scan_time = 0
-    
     while True:
         try:
             cmd_result = check_telegram_commands()
@@ -881,6 +923,9 @@ def main():
             
             current_time = time.time()
             scan_interval = get_scan_interval()
+            
+            # Son tarama zamanini yukle
+            last_scan_time = load_last_scan_time()
             
             if force_scan or (current_time - last_scan_time >= scan_interval):
                 print("\n" + "#" * 50, flush=True)
@@ -890,7 +935,9 @@ def main():
                 print("#" * 50, flush=True)
                 
                 run_scan()
-                last_scan_time = current_time
+                
+                # Tarama sonrasi zamani kaydet
+                save_last_scan_time(current_time)
                 
                 next_interval = get_scan_interval() // 60
                 print("[BEKLIYOR] Sonraki tarama " + str(next_interval) + " dk sonra", flush=True)
