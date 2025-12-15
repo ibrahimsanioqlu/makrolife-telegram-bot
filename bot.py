@@ -190,7 +190,8 @@ def fetch_listings_playwright(max_pages=40):
             for item in listings:
                 if item["kod"] not in seen_codes:
                     seen_codes.add(item["kod"])
-                    results.append((item["kod"], item["fiyat"], item["link"], item.get("title", "")))
+                    # Sayfa numarasını da ekle
+                    results.append((item["kod"], item["fiyat"], item["link"], item.get("title", ""), page_num))
                     page_new_count += 1
             
             print(f"Sayfa {page_num}: {len(listings)} ilan bulundu, {page_new_count} yeni eklendi. Toplam: {len(results)}")
@@ -240,7 +241,7 @@ def main():
             return
         
         # İLK VERİ TOPLAMA - tüm ilanları sessizce kaydet, tek mesaj gönder
-        for kod, fiyat, link, title in listings:
+        for kod, fiyat, link, title, page_num in listings:
             state["items"][kod] = {"fiyat": fiyat, "tarih": today, "link": link, "title": title}
         
         state["first_run_done"] = True
@@ -257,13 +258,16 @@ def main():
         new_count = 0
         price_change_count = 0
 
-        for kod, fiyat, link, title in listings:
+        for kod, fiyat, link, title, page_num in listings:
             if kod not in state["items"]:
-                # Yeni ilan
-                send_message(f"🆕 YENİ İLAN\n📅 {today}\n🏷️ {kod}\n📝 {title}\n💰 {fiyat}\n🔗 {link}")
+                # Yeni ilan - sadece ilk 3 sayfadakiler için bildirim gönder
+                if page_num <= 3:
+                    send_message(f"🆕 YENİ İLAN\n📅 {today}\n🏷️ {kod}\n📝 {title}\n💰 {fiyat}\n🔗 {link}")
+                    time.sleep(0.5)  # Rate limit koruması
+                
+                # Tüm yeni ilanları kaydet (bildirim gönderilsin veya gönderilmesin)
                 state["items"][kod] = {"fiyat": fiyat, "tarih": today, "link": link, "title": title}
                 new_count += 1
-                time.sleep(0.5)  # Rate limit koruması
             else:
                 # Fiyat değişikliği kontrolü
                 eski = state["items"][kod]["fiyat"]
@@ -283,8 +287,8 @@ def main():
             f"📋 Günlük Özet ({today}):\n"
             f"📊 Toplam takip edilen: {total}\n"
             f"🆕 Bugün eklenen: {len(todays)}\n"
-            + ("\n".join(todays[:20]) if todays else "Bugün yeni ilan yok.")
-            + ("\n..." if len(todays) > 20 else "")
+            + ("\n".join(todays[:40]) if todays else "Bugün yeni ilan yok.")
+            + ("\n..." if len(todays) > 40 else "")
         )
         state["reported_days"].append(today)
 
