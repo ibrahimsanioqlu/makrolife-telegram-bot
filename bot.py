@@ -314,16 +314,21 @@ def handle_command(chat_id, command, message_text):
         send_message(msg, chat_id)
     
     elif command == "/yardim" or command == "/help":
-        msg = "<b>Yardim</b>\n\n"
-        msg += "<b>Tarama Saatleri:</b>\n"
-        msg += "08:00-18:00: Her 45 dk\n"
-        msg += "18:00-08:00: Her 120 dk\n\n"
-        msg += "<b>Bildirimler:</b>\n"
-        msg += "Yeni ilan (ilk 4 sayfa)\n"
-        msg += "Fiyat degisikligi\n"
-        msg += "Silinen ilan\n\n"
-        msg += "<b>Timeout:</b> 25 dakika\n\n"
-        msg += "<b>Tum ozellikler:</b> /ozellikler"
+        msg = "<b>Makrolife Ilan Takip Botu</b>\n\n"
+        msg += "<b>Kullanilabilir komutlar:</b>\n\n"
+        msg += "<b>Istatistikler</b>\n"
+        msg += "/durum - Bot durumu ve ozet bilgiler\n"
+        msg += "/istatistik - Detayli istatistikler\n"
+        msg += "/bellek - Bellekteki ilan sayisi\n"
+        msg += "/bugun - Bugunku aktiviteler\n"
+        msg += "/hafta - Son 7 gunluk ozet\n\n"
+        msg += "<b>Arama</b>\n"
+        msg += "/ara [kelime] - Ilan ara\n"
+        msg += "/son [sayi] - Son eklenen ilanlar\n"
+        msg += "/ucuz [sayi] - En ucuz ilanlar\n"
+        msg += "/pahali [sayi] - En pahali ilanlar\n\n"
+        msg += "<b>Yonetim</b>\n"
+        msg += "/tara - Manuel tarama baslat"
         send_message(msg, chat_id)
     
     elif command == "/ozellikler" or command == "/features":
