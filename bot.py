@@ -227,7 +227,7 @@ def main():
 
     # İlanları çek
     try:
-        listings = fetch_listings_playwright(max_pages=40)
+        listings = fetch_listings_playwright(max_pages=50)
         print(f"Toplam {len(listings)} ilan bulundu.")
     except Exception as e:
         print(f"Playwright hata: {e}")
