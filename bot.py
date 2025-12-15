@@ -9,6 +9,7 @@ from concurrent.futures import ThreadPoolExecutor, TimeoutError as FuturesTimeou
 
 import requests
 from playwright.sync_api import sync_playwright, TimeoutError
+os.makedirs("/data", exist_ok=True)
 
 # Başlangıçta hemen log bas
 print("=" * 60, flush=True)
@@ -25,8 +26,9 @@ print(f"BOT_TOKEN mevcut: {bool(BOT_TOKEN)}", flush=True)
 print(f"CHAT_ID mevcut: {bool(os.getenv('CHAT_ID'))}", flush=True)
 
 URL = "https://www.makrolife.com.tr/tumilanlar"
-DATA_FILE = "ilanlar.json"
-HISTORY_FILE = "history.json"  # Silinen, değişen ilanların kaydı
+DATA_FILE = "/data/ilanlar.json"
+HISTORY_FILE = "/data/history.json"
+
 
 # Timeout (saniye) - 25 dakika
 SCAN_TIMEOUT = 25 * 60
