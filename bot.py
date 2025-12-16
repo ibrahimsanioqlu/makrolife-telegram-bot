@@ -828,9 +828,13 @@ def run_scan_with_timeout():
                     "title": title,
                     "scan_seq": current_scan_seq,
                     "timestamp": time.time(),
-                    "position": position_map[kod]  # Sitedeki sırası
+                    "position": position_map[kod],
+                    "first_seen_date": today  # İlk görülme tarihi
                 }
                 new_count += 1
+                
+                # SADECE YENİ İLANLAR için daily_stats artır
+                state["daily_stats"][today]["new"] += 1
                 
                 history.setdefault("new", []).append({
                     "kod": kod, "fiyat": fiyat, "title": title, "tarih": today, "link": link
@@ -845,7 +849,7 @@ def run_scan_with_timeout():
                     send_message(msg)
                     time.sleep(0.3)
             else:
-                # MEVCUT İLAN: Position güncelle ama scan_seq/timestamp sabit kalır
+                # MEVCUT İLAN: Position güncelle ama scan_seq/timestamp/first_seen_date sabit kalır
                 state["items"][kod]["position"] = position_map[kod]
                 
                 eski = state["items"][kod]["fiyat"]
@@ -856,6 +860,9 @@ def run_scan_with_timeout():
                     
                     state["items"][kod]["fiyat"] = fiyat
                     price_change_count += 1
+                    
+                    # Fiyat değişimi için daily_stats artır
+                    state["daily_stats"][today]["price_changes"] += 1
                     
                     eski_num = int(normalize_price(eski)) if normalize_price(eski) else 0
                     yeni_num = int(normalize_price(fiyat)) if normalize_price(fiyat) else 0
@@ -886,6 +893,9 @@ def run_scan_with_timeout():
                     "title": item.get("title", ""), "tarih": today
                 })
                 
+                # Silinen ilan için daily_stats artır
+                state["daily_stats"][today]["deleted"] += 1
+                
                 msg = "🗑️ <b>İLAN SİLİNDİ</b>\n\n"
                 msg += "📋 " + kod + "\n"
                 msg += "🏷️ " + item.get("title", "") + "\n"
@@ -899,10 +909,6 @@ def run_scan_with_timeout():
         bot_stats["total_new_listings"] += new_count
         bot_stats["total_price_changes"] += price_change_count
         bot_stats["total_deleted"] += deleted_count
-        
-        state["daily_stats"][today]["new"] += new_count
-        state["daily_stats"][today]["price_changes"] += price_change_count
-        state["daily_stats"][today]["deleted"] += deleted_count
         
         print("[OZET] Yeni: " + str(new_count) + ", Fiyat: " + str(price_change_count) + ", Silinen: " + str(deleted_count), flush=True)
 
