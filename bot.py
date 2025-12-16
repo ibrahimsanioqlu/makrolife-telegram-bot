@@ -416,9 +416,9 @@ def handle_command(chat_id, command, message_text):
         items = state.get("items", {})
         daily = state.get("daily_stats", {}).get(today, {})
         
-        # Bellekteki tüm ilanları scan_seq ve timestamp'e göre sırala
+        # Sitedeki sıraya göre sırala (position küçük = daha yeni)
         all_items = [(k, v) for k, v in items.items()]
-        all_items.sort(key=lambda x: (x[1].get("scan_seq", 0), x[1].get("timestamp", 0)), reverse=True)
+        all_items.sort(key=lambda x: x[1].get("position", 999999))
         
         msg = "<b>Bugun</b> (" + today + ")\n\n"
         msg += "Yeni: " + str(daily.get("new", 0)) + "\n"
@@ -504,11 +504,10 @@ def handle_command(chat_id, command, message_text):
         count = min(int(parts[1]), 20) if len(parts) > 1 and parts[1].isdigit() else 5
         
         items = state.get("items", {})
-        # DÜZELTME: scan_seq ve timestamp'e göre sırala
+        # Sitedeki sıraya göre sırala (position küçük = daha yeni)
         sorted_items = sorted(
             items.items(),
-            key=lambda x: (x[1].get("scan_seq", 0), x[1].get("timestamp", 0)),
-            reverse=True
+            key=lambda x: x[1].get("position", 999999)
         )[:count]
         
         msg = "<b>Son " + str(count) + " Eklenen İlan</b>\n\n"
@@ -811,19 +810,25 @@ def run_scan_with_timeout():
         price_change_count = 0
         current_codes = set()
 
+        # Sitedeki sıralama = yenilik sırası
+        # Listings zaten sitedeki sıraya göre gelir (sayfa 1 > sayfa 2 > ...)
+        # Her ilanın pozisyonunu belirle
+        position_map = {kod: idx for idx, (kod, _, _, _, _) in enumerate(listings)}
+        
         # Yeni ilanları ve değişiklikleri işle
         for kod, fiyat, link, title, page_num in listings:
             current_codes.add(kod)
             
             if kod not in state["items"]:
-                # YENİ İLAN: Tarama sırası ve timestamp ekle
+                # YENİ İLAN: Pozisyonu kaydet (küçük sayı = daha yeni)
                 state["items"][kod] = {
                     "fiyat": fiyat, 
                     "tarih": today, 
                     "link": link, 
                     "title": title,
-                    "scan_seq": current_scan_seq,  # YENİ
-                    "timestamp": time.time()  # YENİ
+                    "scan_seq": current_scan_seq,
+                    "timestamp": time.time(),
+                    "position": position_map[kod]  # Sitedeki sırası
                 }
                 new_count += 1
                 
@@ -840,6 +845,9 @@ def run_scan_with_timeout():
                     send_message(msg)
                     time.sleep(0.3)
             else:
+                # MEVCUT İLAN: Position güncelle ama scan_seq/timestamp sabit kalır
+                state["items"][kod]["position"] = position_map[kod]
+                
                 eski = state["items"][kod]["fiyat"]
                 if normalize_price(eski) != normalize_price(fiyat):
                     history.setdefault("price_changes", []).append({
@@ -899,20 +907,23 @@ def run_scan_with_timeout():
         print("[OZET] Yeni: " + str(new_count) + ", Fiyat: " + str(price_change_count) + ", Silinen: " + str(deleted_count), flush=True)
 
     if now.hour == 23 and now.minute >= 30 and today not in state.get("reported_days", []):
-        # Bugün eklenen ilanları bul ve sırala
-        todays = [(k, v) for k, v in state["items"].items() if v.get("tarih") == today]
-        todays.sort(key=lambda x: (x[1].get("scan_seq", 0), x[1].get("timestamp", 0)), reverse=True)
+        # Sitedeki sıraya göre sırala (position küçük = daha yeni)
+        all_items = [(k, v) for k, v in state["items"].items()]
+        all_items.sort(key=lambda x: x[1].get("position", 999999))
+        
+        # Bugün eklenen ilanları say
+        today_new_count = state.get("daily_stats", {}).get(today, {}).get("new", 0)
         
         msg = "📊 <b>GÜNLÜK RAPOR</b> (" + today + ")\n\n"
-        msg += "🆕 Bugün eklenen: <b>" + str(len(todays)) + "</b> ilan\n"
+        msg += "🆕 Bugün eklenen: <b>" + str(today_new_count) + "</b> ilan\n"
         msg += "💾 Toplam bellekte: " + str(len(state["items"])) + " ilan\n\n"
         
-        if todays:
+        if all_items[:20]:
             msg += "📋 <b>Son Eklenen 20 İlan:</b>\n\n"
-            for i, (kod, item) in enumerate(todays[:20], 1):
+            for i, (kod, item) in enumerate(all_items[:20], 1):
                 msg += str(i) + ". " + kod + "\n"
         else:
-            msg += "Bugün yeni ilan eklenmedi."
+            msg += "Sistemde ilan bulunmuyor."
         
         send_message(msg)
         state.setdefault("reported_days", []).append(today)
