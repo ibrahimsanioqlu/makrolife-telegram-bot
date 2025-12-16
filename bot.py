@@ -8,7 +8,7 @@ from datetime import datetime, timedelta
 from concurrent.futures import ThreadPoolExecutor, TimeoutError as FuturesTimeoutError
 
 import requests
-
+from playwright.sync_api import sync_playwright, TimeoutError
 # Data klasoru
 os.makedirs("/data", exist_ok=True)
 
