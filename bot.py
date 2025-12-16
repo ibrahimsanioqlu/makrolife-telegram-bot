@@ -514,7 +514,7 @@ def handle_command(chat_id, command, message_text):
         msg += "• Akilli timeout yonetimi (25 dk)\n"
         msg += "• Container restart sonrasi sureyi hatirlar\n\n"
         msg += "<b>🔔 Bildirimler:</b>\n"
-        msg += "• Yeni ilan (ilk 4 sayfa)\n"
+        msg += "• Yeni ilan (tüm sayfalar)\n"
         msg += "• Fiyat degisiklikleri\n"
         msg += "• Silinen ilanlar\n"
         msg += "• Gunluk ozet (23:30)\n\n"
