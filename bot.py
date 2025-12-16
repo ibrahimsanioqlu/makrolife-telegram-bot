@@ -414,14 +414,25 @@ def handle_command(chat_id, command, message_text):
     
     elif command == "/bugun" or command == "/today":
         items = state.get("items", {})
-        # Bugün eklenen ilanları bul ve sırala
-        today_items = [(k, v) for k, v in items.items() if v.get("tarih") == today]
-        today_items.sort(key=lambda x: (x[1].get("scan_seq", 0), x[1].get("timestamp", 0)), reverse=True)
+        history = load_history()
+        
+        # Bugün eklenen ilanları history'den al
+        new_today = [item for item in history.get("new", []) if item.get("tarih") == today]
+        
+        # Bellekte hala mevcut olanları filtrele ve sırala
+        today_items = []
+        for new_item in new_today:
+            kod = new_item.get("kod")
+            if kod in items:
+                today_items.append((kod, items[kod]))
+        
+        # Ters çevir - en son eklenen en üstte
+        today_items.reverse()
         
         daily = state.get("daily_stats", {}).get(today, {})
         
         msg = "<b>Bugun</b> (" + today + ")\n\n"
-        msg += "Yeni: " + str(len(today_items)) + "\n"
+        msg += "Yeni: " + str(len(new_today)) + "\n"
         msg += "Fiyat degisimi: " + str(daily.get("price_changes", 0)) + "\n"
         msg += "Silinen: " + str(daily.get("deleted", 0)) + "\n"
         
@@ -434,6 +445,7 @@ def handle_command(chat_id, command, message_text):
     
     elif command == "/hafta" or command == "/week":
         items = state.get("items", {})
+        history = load_history()
         daily_stats = state.get("daily_stats", {})
         
         days_tr = {"Monday": "Pzt", "Tuesday": "Sal", "Wednesday": "Car", 
@@ -444,12 +456,16 @@ def handle_command(chat_id, command, message_text):
             date = (now - timedelta(days=i)).strftime("%Y-%m-%d")
             day = days_tr.get((now - timedelta(days=i)).strftime("%A"), "")
             
-            # O gün eklenen ilanları say (tarih alanına göre)
-            count = sum(1 for v in items.values() if v.get("tarih") == date)
+            # History'den o gün eklenen ilanları say
+            new_count = sum(1 for item in history.get("new", []) if item.get("tarih") == date)
+            
+            # daily_stats'tan fiyat değişimi ve silinen sayılarını al
             stats = daily_stats.get(date, {})
+            price_changes = stats.get("price_changes", 0)
+            deleted = stats.get("deleted", 0)
             
             label = "Bugun" if i == 0 else day + " " + date[5:]
-            msg += label + ": Yeni:" + str(count) + " Fiyat:" + str(stats.get("price_changes", 0)) + " Silinen:" + str(stats.get("deleted", 0)) + "\n"
+            msg += label + ": Yeni:" + str(new_count) + " Fiyat:" + str(price_changes) + " Silinen:" + str(deleted) + "\n"
         
         send_message(msg, chat_id)
     
