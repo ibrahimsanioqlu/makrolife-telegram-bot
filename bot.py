@@ -798,17 +798,17 @@ def run_scan_with_timeout():
                 "timestamp": time.time()
             }
         
-       state["first_run_done"] = True
+            state["first_run_done"] = True
         
-        scan_duration = time.time() - scan_start
-        msg = "✅ <b>İlk Tarama Tamamlandı!</b>\n\n"
-        msg += "📅 " + today + " " + now.strftime("%H:%M") + "\n"
-        msg += "⏱️ Tarama süresi: " + format_duration(scan_duration) + "\n"
-        msg += "📄 Taranan sayfa: " + str(bot_stats["last_scan_pages"]) + " sayfa\n"
-        msg += "📊 Toplam: <b>" + str(len(listings)) + "</b> ilan\n\n"
-        msg += "💾 Tümü belleğe kaydedildi"
-        send_message(msg)
-        print("[TARAMA] Ilk calisma: " + str(len(listings)) + " ilan", flush=True)
+            scan_duration = time.time() - scan_start
+            msg = "✅ <b>İlk Tarama Tamamlandı!</b>\n\n"
+            msg += "📅 " + today + " " + now.strftime("%H:%M") + "\n"
+            msg += "⏱️ Tarama süresi: " + format_duration(scan_duration) + "\n"
+            msg += "📄 Taranan sayfa: " + str(bot_stats["last_scan_pages"]) + " sayfa\n"
+            msg += "📊 Toplam: <b>" + str(len(listings)) + "</b> ilan\n\n"
+            msg += "💾 Tümü belleğe kaydedildi"
+            send_message(msg)
+            print("[TARAMA] Ilk calisma: " + str(len(listings)) + " ilan", flush=True)
 
     else:
         new_count = 0
@@ -846,14 +846,14 @@ def run_scan_with_timeout():
                     "kod": kod, "fiyat": fiyat, "title": title, "tarih": today, "link": link
                 })
                 
-                if page_num <= 4:
-                    msg = "🏠 <b>YENİ İLAN</b>\n\n"
-                    msg += "📋 " + kod + "\n"
-                    msg += "🏷️ " + title + "\n"
-                    msg += "💰 " + fiyat + "\n\n"
-                    msg += "🔗 " + link
-                    send_message(msg)
-                    time.sleep(0.3)
+                
+                msg = "🏠 <b>YENİ İLAN</b>\n\n"
+                msg += "📋 " + kod + "\n"
+                msg += "🏷️ " + title + "\n"
+                msg += "💰 " + fiyat + "\n\n"
+                msg += "🔗 " + link
+                send_message(msg)
+                time.sleep(0.3)
             else:
                 # MEVCUT İLAN: Position güncelle (ilan yukarı/aşağı kayabilir)
                 state["items"][kod]["position"] = position_map[kod]
