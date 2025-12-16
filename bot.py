@@ -492,9 +492,12 @@ def handle_command(chat_id, command, message_text):
         if results:
             msg = "<b>" + str(len(results)) + " sonuc</b> (" + keyword + ")\n\n"
             for kod, item in results[:10]:
-                msg += "<b>" + kod + "</b>\n  " + item.get("title", "")[:40] + "\n  " + item.get("fiyat", "-") + "\n\n"
+                msg += "<b>" + kod + "</b>\n"
+                msg += "🏷️ " + item.get("title", "")[:50] + "\n"
+                msg += "💰 " + item.get("fiyat", "-") + "\n"
+                msg += "🔗 " + item.get("link", "-") + "\n\n"
             if len(results) > 10:
-                msg += "... +" + str(len(results)-10) + " sonuc"
+                msg += "... +" + str(len(results)-10) + " sonuc daha"
         else:
             msg = "'" + keyword + "' bulunamadi."
         send_message(msg, chat_id)
