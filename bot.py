@@ -1006,10 +1006,10 @@ def main():
                 # Tarama baslamadan once bilgilendirme mesaji
                 interval = get_scan_interval() // 60
                 github_status = "Aktif" if GITHUB_TOKEN else "Kapali"
-                msg = "<b>Tarama Basladi!</b>\n\n"
-                msg += "Tarama araligi: " + str(interval) + " dk\n"
-                msg += "Bellekteki ilan: " + str(len(load_state().get("items", {}))) + "\n"
-                msg += "GitHub yedek: " + github_status
+                msg = "<b>✅Tarama Basladi!</b>\n\n"
+                msg += "⏳Tarama araligi: " + str(interval) + " dk\n"
+                msg += "🧠Bellekteki ilan: " + str(len(load_state().get("items", {}))) + "\n"
+                msg += "🗝️GitHub yedek: " + github_status
                 send_message(msg)
                 
                 run_scan()
