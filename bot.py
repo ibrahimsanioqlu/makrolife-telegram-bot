@@ -782,6 +782,8 @@ def run_scan_with_timeout():
 
     is_first_run = not state.get("first_run_done", False) or len(state["items"]) == 0
 
+    is_first_run = not state.get("first_run_done", False) or len(state["items"]) == 0
+
     if is_first_run:
         if len(listings) < 50:
             print("[UYARI] Yetersiz ilan: " + str(len(listings)), flush=True)
@@ -799,7 +801,7 @@ def run_scan_with_timeout():
                 "timestamp": time.time()
             }
         
-       state["first_run_done"] = True
+        state["first_run_done"] = True  # Bu satır düzeltildi
         
         scan_duration = time.time() - scan_start
         msg = "✅ <b>İlk Tarama Tamamlandı!</b>\n\n"
@@ -917,7 +919,7 @@ def run_scan_with_timeout():
         bot_stats["total_price_changes"] += price_change_count
         bot_stats["total_deleted"] += deleted_count
         
-       print("[OZET] Yeni: " + str(new_count) + ", Fiyat: " + str(price_change_count) + ", Silinen: " + str(deleted_count), flush=True)
+    print("[OZET] Yeni: " + str(new_count) + ", Fiyat: " + str(price_change_count) + ", Silinen: " + str(deleted_count), flush=True)
         
         # TARAMA TAMAMLANDI MESAJI
         scan_duration = time.time() - scan_start
