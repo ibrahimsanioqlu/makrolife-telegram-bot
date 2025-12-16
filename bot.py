@@ -819,43 +819,44 @@ def run_scan_with_timeout():
         current_codes = set()
 
         # Sitedeki sıralama düzeltmesi:
-        # 1. sayfa 1. sıra (index 0) = EN YENİ
-        # Son sayfa son sıra (index N) = EN ESKİ
-        # listings array'i zaten 1.sayfadan başlıyor, doğru sırada
-        position_map = {kod: idx for idx, (kod, _, _, _, _) in enumerate(listings)}
+# 1. sayfa 1. sıra (index 0) = EN YENİ
+# Son sayfa son sıra (index N) = EN ESKİ
+# listings array'i zaten 1.sayfadan başlıyor, doğru sırada
+position_map = {kod: idx for idx, (kod, _, _, _, _) in enumerate(listings)}
+
+# Yeni ilanları ve değişiklikleri işle
+for kod, fiyat, link, title, page_num in listings:
+    current_codes.add(kod)
+    
+    if kod not in state["items"]:
+        # YENİ İLAN: Position = sitedeki index (0 = en yeni)
+        state["items"][kod] = {
+            "fiyat": fiyat, 
+            "tarih": today, 
+            "link": link, 
+            "title": title,
+            "scan_seq": current_scan_seq,
+            "timestamp": time.time(),
+            "position": position_map[kod],  # 0 = en yeni, 630 = en eski
+            "first_seen_date": today
+        }
+        new_count += 1
         
-        # Yeni ilanları ve değişiklikleri işle
-        for kod, fiyat, link, title, page_num in listings:
-            current_codes.add(kod)
-            
-            if kod not in state["items"]:
-                # YENİ İLAN: Position = sitedeki index (0 = en yeni)
-                state["items"][kod] = {
-                    "fiyat": fiyat, 
-                    "tarih": today, 
-                    "link": link, 
-                    "title": title,
-                    "scan_seq": current_scan_seq,
-                    "timestamp": time.time(),
-                    "position": position_map[kod],  # 0 = en yeni, 630 = en eski
-                    "first_seen_date": today
-                }
-                new_count += 1
-                
-                # SADECE YENİ İLANLAR için daily_stats artır
-                state["daily_stats"][today]["new"] += 1
-                
-                history.setdefault("new", []).append({
-                    "kod": kod, "fiyat": fiyat, "title": title, "tarih": today, "link": link
-                })
-                
-                    msg = "🏠 <b>YENİ İLAN</b>\n\n"
-                    msg += "📋 " + kod + "\n"
-                    msg += "🏷️ " + title + "\n"
-                    msg += "💰 " + fiyat + "\n\n"
-                    msg += "🔗 " + link
-                    send_message(msg)
-                    time.sleep(0.3)
+        # SADECE YENİ İLANLAR için daily_stats artır
+        state["daily_stats"][today]["new"] += 1
+        
+        history.setdefault("new", []).append({
+            "kod": kod, "fiyat": fiyat, "title": title, "tarih": today, "link": link
+        })
+        
+        # BİLDİRİM GÖNDER (if bloğunun içinde olmalı)
+        msg = "🏠 <b>YENİ İLAN</b>\n\n"
+        msg += "📋 " + kod + "\n"
+        msg += "🏷️ " + title + "\n"
+        msg += "💰 " + fiyat + "\n\n"
+        msg += "🔗 " + link
+        send_message(msg)
+        time.sleep(0.3)
             else:
                 # MEVCUT İLAN: Position güncelle (ilan yukarı/aşağı kayabilir)
                 state["items"][kod]["position"] = position_map[kod]
