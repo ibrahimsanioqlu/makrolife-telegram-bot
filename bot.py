@@ -24,7 +24,7 @@ ADMIN_CHAT_IDS = [os.getenv("CHAT_ID"), "7449598531"]
 
 # GitHub ayarlari (veri yedekleme icin)
 GITHUB_TOKEN = os.getenv("GITHUB_TOKEN")
-GITHUB_REPO = os.getenv("GITHUB_REPO", "ibrahimsanioglu/makrolife-telegram-bot")
+GITHUB_REPO = os.getenv("GITHUB_REPO", "ibrahimsanioqlu/makrolife-telegram-bot")
 
 print("BOT_TOKEN mevcut: " + str(bool(BOT_TOKEN)), flush=True)
 print("CHAT_ID mevcut: " + str(bool(os.getenv("CHAT_ID"))), flush=True)
@@ -72,6 +72,10 @@ bot_stats = {
 
 last_update_id = 0
 
+# GitHub state cache (ilanlar.json)
+STATE_CACHE = None
+STATE_GITHUB_SHA = None
+
 
 def send_message(text, chat_id=None):
     chat_ids = [chat_id] if chat_id else CHAT_IDS
@@ -114,22 +118,74 @@ def normalize_price(fiyat):
 
 
 def github_get_file(filename):
+    """GitHub'dan dosya oku (Contents API). JSON ise parse edip döndürür.
+    Dönüş: (parsed_content_or_None, sha_or_None)
+    """
     if not GITHUB_TOKEN:
         return None, None
-    
+
     try:
-        url = "https://api.github.com/repos/" + GITHUB_REPO + "/contents/" + filename
-        headers = {"Authorization": "token " + GITHUB_TOKEN}
-        resp = requests.get(url, headers=headers, timeout=10)
-        
-        if resp.status_code == 200:
-            data = resp.json()
-            content = base64.b64decode(data["content"]).decode("utf-8")
-            return json.loads(content), data["sha"]
-        return None, None
+        url = "https://api.github.com/repos/" + GITHUB_REPO + "/contents/" + filename.lstrip("/")
+
+        headers = {
+            "Authorization": "Bearer " + GITHUB_TOKEN,
+            "Accept": "application/vnd.github+json",
+            "User-Agent": "railway-makrolife-bot"
+        }
+
+        resp = requests.get(url, headers=headers, timeout=20)
+
+        if resp.status_code != 200:
+            # 404/401 vb. durumlarda sessizce None döndür
+            print(f"[GITHUB] Okuma basarisiz: {resp.status_code} {resp.text[:200]}", flush=True)
+            return None, None
+
+        data = resp.json()
+        sha = data.get("sha")
+
+        # Bazı durumlarda 'content' gelmeyebilir (buyuk dosya vb.), download_url ile indir.
+        raw_text = None
+        if data.get("type") == "file":
+            if data.get("content") and data.get("encoding") == "base64":
+                try:
+                    raw_bytes = base64.b64decode(data["content"])
+                    raw_text = raw_bytes.decode("utf-8", errors="replace")
+                except Exception as e:
+                    print(f"[GITHUB] Base64 decode hatasi: {e}", flush=True)
+                    raw_text = None
+
+            if raw_text is None and data.get("download_url"):
+                try:
+                    dresp = requests.get(
+                        data["download_url"],
+                        headers={"Authorization": "Bearer " + GITHUB_TOKEN, "User-Agent": "railway-makrolife-bot"},
+                        timeout=20
+                    )
+                    if dresp.status_code == 200:
+                        raw_text = dresp.text
+                    else:
+                        print(f"[GITHUB] download_url okuma basarisiz: {dresp.status_code}", flush=True)
+                except Exception as e:
+                    print(f"[GITHUB] download_url okuma hatasi: {e}", flush=True)
+
+        if raw_text is None:
+            return None, sha
+
+        # JSON parse (BOM/whitespace/null temizliği)
+        cleaned = raw_text.lstrip("\ufeff").replace("\x00", "").strip()
+        try:
+            parsed = json.loads(cleaned) if cleaned else None
+        except Exception as e:
+            # JSON bozuksa yine sha döndür; parsed None
+            print(f"[GITHUB] JSON parse hatasi ({filename}): {e}", flush=True)
+            parsed = None
+
+        return parsed, sha
+
     except Exception as e:
         print("[GITHUB] Okuma hatasi: " + str(e), flush=True)
         return None, None
+
 
 
 def github_save_file(filename, content, sha=None):
@@ -203,14 +259,113 @@ def save_last_scan_time(timestamp):
         print("[LAST_SCAN] Kayit hatasi: " + str(e), flush=True)
 
 
-def load_state():
-    # 1️⃣ HER ZAMAN GITHUB ANA KAYNAK
+def load_state(force_refresh=False):
+    """State'i GitHub'daki ilanlar.json dosyasından oku.
+    NOT: Railway /data/ilanlar.json sadece cache olarak yazılabilir; kaynak GitHub'dır.
+    """
+    global STATE_CACHE, STATE_GITHUB_SHA
+
+    # Cache kullan (komutlar çok sık load_state çağırıyor)
+    if (not force_refresh) and isinstance(STATE_CACHE, dict) and STATE_CACHE.get("items") is not None:
+        return STATE_CACHE
+
+    # GitHub ana kaynak
     if GITHUB_TOKEN:
-        state, _ = github_get_file("ilanlar.json")
-        if state and state.get("items") is not None:
-            save_state_local(state)  # Railway cache
+        state, sha = github_get_file("ilanlar.json")
+        if isinstance(state, dict) and state.get("items") is not None:
+            STATE_GITHUB_SHA = sha
+            STATE_CACHE = state
+            # Railway cache'e yaz (okuma kaynağı değil, sadece yedek)
+            save_state_local(state)
             print("[STATE] GitHub ANA kaynak kullanılıyor", flush=True)
             return state
+
+        # GitHub okunamadıysa cache varsa onu kullan
+        if isinstance(STATE_CACHE, dict) and STATE_CACHE.get("items") is not None:
+            print("[STATE] GitHub okunamadi, RAM cache kullaniliyor", flush=True)
+            return STATE_CACHE
+
+        # Cache de yoksa sıfır state döndür (botun çökmesini engellemek için)
+        print("[STATE] GitHub okunamadi, yeni state olusturuldu (lokal state KULLANILMADI)", flush=True)
+        send_message("⚠️ <b>UYARI</b>\n\nGitHub'dan ilanlar.json okunamadi. Yeni state ile devam ediliyor (lokal state kullanılmadı).")
+        STATE_CACHE = {
+            "cycle_start": get_turkey_time().strftime("%Y-%m-%d"),
+            "items": {},
+            "reported_days": [],
+            "first_run_done": False,
+            "daily_stats": {},
+            "scan_sequence": 0
+        }
+        return STATE_CACHE
+
+    # Token yoksa: eski davranış (lokal cache -> yeni state)
+    if os.path.exists(DATA_FILE):
+        try:
+            with open(DATA_FILE, "r", encoding="utf-8") as f:
+                state = json.load(f)
+                print("[STATE] Lokal cache kullanılıyor (GITHUB_TOKEN yok)", flush=True)
+                STATE_CACHE = state
+                return state
+        except Exception as e:
+            print("[STATE] Lokal okuma hatası:", e, flush=True)
+
+    print("[STATE] Yeni state oluşturuldu (GITHUB_TOKEN yok)", flush=True)
+    STATE_CACHE = {
+        "cycle_start": get_turkey_time().strftime("%Y-%m-%d"),
+        "items": {},
+        "reported_days": [],
+        "first_run_done": False,
+        "daily_stats": {},
+        "scan_sequence": 0
+    }
+    return STATE_CACHE
+
+
+    # Cache kullan (komutlar çok sık load_state çağırıyor)
+    if (not force_refresh) and isinstance(STATE_CACHE, dict) and STATE_CACHE.get("items") is not None:
+        return STATE_CACHE
+
+    if not GITHUB_TOKEN:
+        # GitHub yoksa (token yoksa) eski davranış: lokal cache -> yeni state
+        if os.path.exists(DATA_FILE):
+            try:
+                with open(DATA_FILE, "r", encoding="utf-8") as f:
+                    state = json.load(f)
+                    print("[STATE] Lokal cache kullanılıyor (GITHUB_TOKEN yok)", flush=True)
+                    STATE_CACHE = state
+                    return state
+            except Exception as e:
+                print("[STATE] Lokal okuma hatası:", e, flush=True)
+
+        print("[STATE] Yeni state oluşturuldu (GITHUB_TOKEN yok)", flush=True)
+        STATE_CACHE = {
+            "cycle_start": get_turkey_time().strftime("%Y-%m-%d"),
+            "items": {},
+            "reported_days": [],
+            "first_run_done": False,
+            "daily_stats": {},
+            "scan_sequence": 0
+        }
+        return STATE_CACHE
+
+    # GitHub ana kaynak
+    state, sha = github_get_file("ilanlar.json")
+    if isinstance(state, dict) and state.get("items") is not None:
+        STATE_GITHUB_SHA = sha
+        STATE_CACHE = state
+        # Railway cache'e yaz (okuma kaynağı değil, sadece yedek)
+        save_state_local(state)
+        print("[STATE] GitHub ANA kaynak kullanılıyor", flush=True)
+        return state
+
+    # GitHub okunamazsa: Railway state kullanma (isteğiniz doğrultusunda)
+    # Cache varsa onu kullan, yoksa yeni state ile devam etme (yanlis yeni ilan spam'ini onlemek icin)
+    if isinstance(STATE_CACHE, dict) and STATE_CACHE.get("items") is not None:
+        print("[STATE] GitHub okunamadi, RAM cache kullaniliyor", flush=True)
+        return STATE_CACHE
+
+    raise RuntimeError("GitHub'dan ilanlar.json okunamadi. (Railway lokal state kullanilmiyor)")
+
 
     # 2️⃣ GitHub yoksa LOCAL CACHE
     if os.path.exists(DATA_FILE):
@@ -244,12 +399,28 @@ def save_state_local(state):
 
 
 def save_state(state):
+    global STATE_CACHE, STATE_GITHUB_SHA
+
+    # Lokal cache (opsiyonel)
     save_state_local(state)
     print("[STATE] Lokal kaydedildi - " + str(len(state.get("items", {}))) + " ilan", flush=True)
-    
+
+    # Cache'i güncelle
+    STATE_CACHE = state
+
+    # GitHub'a kaydet
     if GITHUB_TOKEN:
-        _, sha = github_get_file("ilanlar.json")
-        github_save_file("ilanlar.json", state, sha)
+        sha = STATE_GITHUB_SHA
+        if not sha:
+            # Sadece sha almak için tekrar çek
+            _, sha = github_get_file("ilanlar.json")
+        ok = github_save_file("ilanlar.json", state, sha)
+        # Başarılıysa sha'yı güncellemek için tekrar oku (sha değişir)
+        if ok:
+            _, new_sha = github_get_file("ilanlar.json")
+            if new_sha:
+                STATE_GITHUB_SHA = new_sha
+
 
 
 def load_history():
@@ -634,6 +805,7 @@ def check_telegram_commands():
 def fetch_listings_playwright():
     global SCAN_STOP_REQUESTED, ACTIVE_SCAN
 
+
     ACTIVE_SCAN = True
     SCAN_STOP_REQUESTED = False
 
@@ -735,7 +907,7 @@ def fetch_listings_playwright():
 
                         if (h3 && text.includes("₺")) {
                             title = h3.innerText.trim();
-                            for (const line of text.split("\n")) {
+                            for (const line of text.split("\\n")) {
                                 if (/^[\d.,]+\s*₺$/.test(line.trim())) {
                                     fiyat = line.trim();
                                     break;
