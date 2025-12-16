@@ -814,138 +814,138 @@ def run_scan_with_timeout():
         print("[TARAMA] Ilk calisma: " + str(len(listings)) + " ilan", flush=True)
 
     else:
-        new_count = 0
-        price_change_count = 0
-        current_codes = set()
+    new_count = 0
+    price_change_count = 0
+    current_codes = set()
 
-        # Sitedeki sıralama düzeltmesi:
-# 1. sayfa 1. sıra (index 0) = EN YENİ
-# Son sayfa son sıra (index N) = EN ESKİ
-# listings array'i zaten 1.sayfadan başlıyor, doğru sırada
-position_map = {kod: idx for idx, (kod, _, _, _, _) in enumerate(listings)}
+    # Sitedeki sıralama düzeltmesi:
+    # 1. sayfa 1. sıra (index 0) = EN YENİ
+    # Son sayfa son sıra (index N) = EN ESKİ
+    # listings array'i zaten 1.sayfadan başlıyor, doğru sırada
+    position_map = {kod: idx for idx, (kod, _, _, _, _) in enumerate(listings)}
 
-# Yeni ilanları ve değişiklikleri işle
-for kod, fiyat, link, title, page_num in listings:
-    current_codes.add(kod)
-    
-    if kod not in state["items"]:
-        # YENİ İLAN: Position = sitedeki index (0 = en yeni)
-        state["items"][kod] = {
-            "fiyat": fiyat, 
-            "tarih": today, 
-            "link": link, 
-            "title": title,
-            "scan_seq": current_scan_seq,
-            "timestamp": time.time(),
-            "position": position_map[kod],  # 0 = en yeni, 630 = en eski
-            "first_seen_date": today
-        }
-        new_count += 1
+    # Yeni ilanları ve değişiklikleri işle
+    for kod, fiyat, link, title, page_num in listings:
+        current_codes.add(kod)
         
-        # SADECE YENİ İLANLAR için daily_stats artır
-        state["daily_stats"][today]["new"] += 1
-        
-        history.setdefault("new", []).append({
-            "kod": kod, "fiyat": fiyat, "title": title, "tarih": today, "link": link
-        })
-        
-        # BİLDİRİM GÖNDER (if bloğunun içinde olmalı)
-        msg = "🏠 <b>YENİ İLAN</b>\n\n"
-        msg += "📋 " + kod + "\n"
-        msg += "🏷️ " + title + "\n"
-        msg += "💰 " + fiyat + "\n\n"
-        msg += "🔗 " + link
-        send_message(msg)
-        time.sleep(0.3)
-        
-            else:
-                # MEVCUT İLAN: Position güncelle (ilan yukarı/aşağı kayabilir)
-                state["items"][kod]["position"] = position_map[kod]
-                
-                eski = state["items"][kod]["fiyat"]
-                if normalize_price(eski) != normalize_price(fiyat):
-                    history.setdefault("price_changes", []).append({
-                        "kod": kod, "eski_fiyat": eski, "yeni_fiyat": fiyat, "tarih": today
-                    })
-                    
-                    state["items"][kod]["fiyat"] = fiyat
-                    price_change_count += 1
-                    
-                    # Fiyat değişimi için daily_stats artır
-                    state["daily_stats"][today]["price_changes"] += 1
-                    
-                    eski_num = int(normalize_price(eski)) if normalize_price(eski) else 0
-                    yeni_num = int(normalize_price(fiyat)) if normalize_price(fiyat) else 0
-                    fark = yeni_num - eski_num
-                    
-                    if fark > 0:
-                        fark_str = "📈 +" + format_number(fark) + " TL"
-                        trend = "artış"
-                    else:
-                        fark_str = "📉 " + format_number(fark) + " TL"
-                        trend = "düşüş"
-                    
-                    msg = "💱 <b>FİYAT DEĞİŞTİ</b>\n\n"
-                    msg += "📋 " + kod + "\n"
-                    msg += "💰 " + eski + " ➜ " + fiyat + "\n"
-                    msg += fark_str + " (" + trend + ")\n\n"
-                    msg += "🔗 " + state["items"][kod].get("link", "")
-                    send_message(msg)
-                    time.sleep(0.3)
-
-        deleted_count = 0
-        for kod in list(state["items"].keys()):
-            if kod not in current_codes:
-                item = state["items"][kod]
-                
-                history.setdefault("deleted", []).append({
-                    "kod": kod, "fiyat": item.get("fiyat", ""), 
-                    "title": item.get("title", ""), "tarih": today
+        if kod not in state["items"]:
+            # YENİ İLAN: Position = sitedeki index (0 = en yeni)
+            state["items"][kod] = {
+                "fiyat": fiyat, 
+                "tarih": today, 
+                "link": link, 
+                "title": title,
+                "scan_seq": current_scan_seq,
+                "timestamp": time.time(),
+                "position": position_map[kod],  # 0 = en yeni, 630 = en eski
+                "first_seen_date": today
+            }
+            new_count += 1
+            
+            # SADECE YENİ İLANLAR için daily_stats artır
+            state["daily_stats"][today]["new"] += 1
+            
+            history.setdefault("new", []).append({
+                "kod": kod, "fiyat": fiyat, "title": title, "tarih": today, "link": link
+            })
+            
+            # BİLDİRİM GÖNDER
+            msg = "🏠 <b>YENİ İLAN</b>\n\n"
+            msg += "📋 " + kod + "\n"
+            msg += "🏷️ " + title + "\n"
+            msg += "💰 " + fiyat + "\n\n"
+            msg += "🔗 " + link
+            send_message(msg)
+            time.sleep(0.3)
+            
+        else:
+            # MEVCUT İLAN: Position güncelle (ilan yukarı/aşağı kayabilir)
+            state["items"][kod]["position"] = position_map[kod]
+            
+            eski = state["items"][kod]["fiyat"]
+            if normalize_price(eski) != normalize_price(fiyat):
+                history.setdefault("price_changes", []).append({
+                    "kod": kod, "eski_fiyat": eski, "yeni_fiyat": fiyat, "tarih": today
                 })
                 
-                # Silinen ilan için daily_stats artır
-                state["daily_stats"][today]["deleted"] += 1
+                state["items"][kod]["fiyat"] = fiyat
+                price_change_count += 1
                 
-                msg = "🗑️ <b>İLAN SİLİNDİ</b>\n\n"
+                # Fiyat değişimi için daily_stats artır
+                state["daily_stats"][today]["price_changes"] += 1
+                
+                eski_num = int(normalize_price(eski)) if normalize_price(eski) else 0
+                yeni_num = int(normalize_price(fiyat)) if normalize_price(fiyat) else 0
+                fark = yeni_num - eski_num
+                
+                if fark > 0:
+                    fark_str = "📈 +" + format_number(fark) + " TL"
+                    trend = "artış"
+                else:
+                    fark_str = "📉 " + format_number(fark) + " TL"
+                    trend = "düşüş"
+                
+                msg = "💱 <b>FİYAT DEĞİŞTİ</b>\n\n"
                 msg += "📋 " + kod + "\n"
-                msg += "🏷️ " + item.get("title", "") + "\n"
-                msg += "💰 " + item.get("fiyat", "")
+                msg += "💰 " + eski + " ➜ " + fiyat + "\n"
+                msg += fark_str + " (" + trend + ")\n\n"
+                msg += "🔗 " + state["items"][kod].get("link", "")
                 send_message(msg)
-                
-                del state["items"][kod]
-                deleted_count += 1
                 time.sleep(0.3)
-        
-        bot_stats["total_new_listings"] += new_count
-        bot_stats["total_price_changes"] += price_change_count
-        bot_stats["total_deleted"] += deleted_count
-        
-        print("[OZET] Yeni: " + str(new_count) + ", Fiyat: " + str(price_change_count) + ", Silinen: " + str(deleted_count), flush=True)
-        
-        # TARAMA TAMAMLANDI MESAJI
-        scan_duration = time.time() - scan_start
-        msg = "✅ <b>Tarama Tamamlandı!</b>\n\n"
-        msg += "⏱️ Tarama süresi: " + format_duration(scan_duration) + "\n"
-        msg += "📄 Taranan sayfa: " + str(bot_stats["last_scan_pages"]) + " sayfa\n"
-        msg += "📊 Taranan ilan: " + str(len(listings)) + " ilan\n\n"
-        msg += "<b>📈 Sonuçlar:</b>\n"
-        
-        if new_count > 0:
-            msg += "🆕 Yeni ilan: <b>" + str(new_count) + "</b>\n"
-        else:
-            msg += "🆕 Yeni ilan: Bulunamadı\n"
-        
-        if deleted_count > 0:
-            msg += "🗑️ Silinen ilan: <b>" + str(deleted_count) + "</b>\n"
-        else:
-            msg += "🗑️ Silinen ilan: Bulunamadı\n"
-        
-        if price_change_count > 0:
-            msg += "💱 Fiyat değişimi: <b>" + str(price_change_count) + "</b>"
-        else:
-            msg += "💱 Fiyat değişimi: Bulunamadı"
-        
-        send_message(msg)
+
+    deleted_count = 0
+    for kod in list(state["items"].keys()):
+        if kod not in current_codes:
+            item = state["items"][kod]
+            
+            history.setdefault("deleted", []).append({
+                "kod": kod, "fiyat": item.get("fiyat", ""), 
+                "title": item.get("title", ""), "tarih": today
+            })
+            
+            # Silinen ilan için daily_stats artır
+            state["daily_stats"][today]["deleted"] += 1
+            
+            msg = "🗑️ <b>İLAN SİLİNDİ</b>\n\n"
+            msg += "📋 " + kod + "\n"
+            msg += "🏷️ " + item.get("title", "") + "\n"
+            msg += "💰 " + item.get("fiyat", "")
+            send_message(msg)
+            
+            del state["items"][kod]
+            deleted_count += 1
+            time.sleep(0.3)
+    
+    bot_stats["total_new_listings"] += new_count
+    bot_stats["total_price_changes"] += price_change_count
+    bot_stats["total_deleted"] += deleted_count
+    
+    print("[OZET] Yeni: " + str(new_count) + ", Fiyat: " + str(price_change_count) + ", Silinen: " + str(deleted_count), flush=True)
+    
+    # TARAMA TAMAMLANDI MESAJI
+    scan_duration = time.time() - scan_start
+    msg = "✅ <b>Tarama Tamamlandı!</b>\n\n"
+    msg += "⏱️ Tarama süresi: " + format_duration(scan_duration) + "\n"
+    msg += "📄 Taranan sayfa: " + str(bot_stats["last_scan_pages"]) + " sayfa\n"
+    msg += "📊 Taranan ilan: " + str(len(listings)) + " ilan\n\n"
+    msg += "<b>📈 Sonuçlar:</b>\n"
+    
+    if new_count > 0:
+        msg += "🆕 Yeni ilan: <b>" + str(new_count) + "</b>\n"
+    else:
+        msg += "🆕 Yeni ilan: Bulunamadı\n"
+    
+    if deleted_count > 0:
+        msg += "🗑️ Silinen ilan: <b>" + str(deleted_count) + "</b>\n"
+    else:
+        msg += "🗑️ Silinen ilan: Bulunamadı\n"
+    
+    if price_change_count > 0:
+        msg += "💱 Fiyat değişimi: <b>" + str(price_change_count) + "</b>"
+    else:
+        msg += "💱 Fiyat değişimi: Bulunamadı"
+    
+    send_message(msg)
 
     if now.hour == 23 and now.minute >= 30 and today not in state.get("reported_days", []):
         # Sitedeki sıraya göre sırala (position küçük = daha yeni)
