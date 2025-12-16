@@ -813,7 +813,7 @@ def run_scan_with_timeout():
         send_message(msg)
         print("[TARAMA] Ilk calisma: " + str(len(listings)) + " ilan", flush=True)
 
-    else:
+else:
     new_count = 0
     price_change_count = 0
     current_codes = set()
