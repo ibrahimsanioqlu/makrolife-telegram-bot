@@ -810,9 +810,10 @@ def run_scan_with_timeout():
         price_change_count = 0
         current_codes = set()
 
-        # Sitedeki sıralama = yenilik sırası
-        # Listings zaten sitedeki sıraya göre gelir (sayfa 1 > sayfa 2 > ...)
-        # Her ilanın pozisyonunu belirle
+        # Sitedeki sıralama düzeltmesi:
+        # 1. sayfa 1. sıra (index 0) = EN YENİ
+        # Son sayfa son sıra (index N) = EN ESKİ
+        # listings array'i zaten 1.sayfadan başlıyor, doğru sırada
         position_map = {kod: idx for idx, (kod, _, _, _, _) in enumerate(listings)}
         
         # Yeni ilanları ve değişiklikleri işle
@@ -820,7 +821,7 @@ def run_scan_with_timeout():
             current_codes.add(kod)
             
             if kod not in state["items"]:
-                # YENİ İLAN: Pozisyonu kaydet (küçük sayı = daha yeni)
+                # YENİ İLAN: Position = sitedeki index (0 = en yeni)
                 state["items"][kod] = {
                     "fiyat": fiyat, 
                     "tarih": today, 
@@ -828,8 +829,8 @@ def run_scan_with_timeout():
                     "title": title,
                     "scan_seq": current_scan_seq,
                     "timestamp": time.time(),
-                    "position": position_map[kod],
-                    "first_seen_date": today  # İlk görülme tarihi
+                    "position": position_map[kod],  # 0 = en yeni, 630 = en eski
+                    "first_seen_date": today
                 }
                 new_count += 1
                 
@@ -849,7 +850,7 @@ def run_scan_with_timeout():
                     send_message(msg)
                     time.sleep(0.3)
             else:
-                # MEVCUT İLAN: Position güncelle ama scan_seq/timestamp/first_seen_date sabit kalır
+                # MEVCUT İLAN: Position güncelle (ilan yukarı/aşağı kayabilir)
                 state["items"][kod]["position"] = position_map[kod]
                 
                 eski = state["items"][kod]["fiyat"]
