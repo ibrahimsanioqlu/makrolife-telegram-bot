@@ -919,7 +919,7 @@ def run_scan_with_timeout():
         bot_stats["total_price_changes"] += price_change_count
         bot_stats["total_deleted"] += deleted_count
         
-    print("[OZET] Yeni: " + str(new_count) + ", Fiyat: " + str(price_change_count) + ", Silinen: " + str(deleted_count), flush=True)
+        print("[OZET] Yeni: " + str(new_count) + ", Fiyat: " + str(price_change_count) + ", Silinen: " + str(deleted_count), flush=True)
         
         # TARAMA TAMAMLANDI MESAJI
         scan_duration = time.time() - scan_start
