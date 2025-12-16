@@ -38,6 +38,13 @@ LAST_SCAN_FILE = "/data/last_scan_time.json"
 # Timeout (saniye) - 25 dakika
 SCAN_TIMEOUT = 25 * 60
 
+# === YENİ GLOBAL KONTROLLER ===
+SCAN_STOP_REQUESTED = False
+ACTIVE_SCAN = False
+MANUAL_SCAN_LIMIT = None  # None = tüm sayfalar
+WAITING_PAGE_CHOICE = False
+
+
 def get_turkey_time():
     return datetime.utcnow() + timedelta(hours=3)
 
@@ -197,33 +204,35 @@ def save_last_scan_time(timestamp):
 
 
 def load_state():
+    # 1️⃣ HER ZAMAN GITHUB ANA KAYNAK
+    if GITHUB_TOKEN:
+        state, _ = github_get_file("ilanlar.json")
+        if state and state.get("items") is not None:
+            save_state_local(state)  # Railway cache
+            print("[STATE] GitHub ANA kaynak kullanılıyor", flush=True)
+            return state
+
+    # 2️⃣ GitHub yoksa LOCAL CACHE
     if os.path.exists(DATA_FILE):
         try:
             with open(DATA_FILE, "r", encoding="utf-8") as f:
                 state = json.load(f)
-                if state.get("items"):
-                    print("[STATE] Lokal yuklendi - " + str(len(state.get("items", {}))) + " ilan", flush=True)
-                    return state
+                print("[STATE] Lokal cache kullanılıyor", flush=True)
+                return state
         except Exception as e:
-            print("[STATE] Lokal yukleme hatasi: " + str(e), flush=True)
-    
-    if GITHUB_TOKEN:
-        print("[STATE] Lokal bulunamadi, GitHub dan cekiliyor...", flush=True)
-        state, _ = github_get_file("ilanlar.json")
-        if state and state.get("items"):
-            print("[STATE] GitHub dan yuklendi - " + str(len(state.get("items", {}))) + " ilan", flush=True)
-            save_state_local(state)
-            return state
-    
-    print("[STATE] Yeni state olusturuluyor", flush=True)
+            print("[STATE] Lokal okuma hatası:", e, flush=True)
+
+    # 3️⃣ TAMAMEN YENİ STATE
+    print("[STATE] Yeni state oluşturuldu", flush=True)
     return {
         "cycle_start": get_turkey_time().strftime("%Y-%m-%d"),
         "items": {},
         "reported_days": [],
         "first_run_done": False,
         "daily_stats": {},
-        "scan_sequence": 0  # YENİ: Tarama sıra numarası
+        "scan_sequence": 0
     }
+
 
 
 def save_state_local(state):
@@ -547,9 +556,27 @@ def handle_command(chat_id, command, message_text):
             msg += "<b>" + kod + "</b>\n  " + item.get("title", "")[:35] + "\n  " + item.get("fiyat", "-") + "\n\n"
         send_message(msg, chat_id)
     
-    elif command == "/tara" or command == "/scan":
-        send_message("Manuel tarama baslatiliyor...", chat_id)
-        return "SCAN"
+    elif command == "/tara":
+        global WAITING_PAGE_CHOICE
+        WAITING_PAGE_CHOICE = True
+
+        msg = "🧮 <b>Kaç sayfa taransın?</b>\n\n"
+        msg += "1️⃣ 5 sayfa\n"
+        msg += "2️⃣ 10 sayfa\n"
+        msg += "3️⃣ 20 sayfa\n"
+        msg += "4️⃣ TÜM SAYFALAR\n\n"
+        msg += "Yanıt olarak 1 / 2 / 3 / 4 gönder."
+        send_message(msg, chat_id)
+        
+    elif command == "/durdur":
+        global SCAN_STOP_REQUESTED
+        if ACTIVE_SCAN:
+            SCAN_STOP_REQUESTED = True
+            send_message("⛔ <b>Tarama durduruluyor...</b>", chat_id)
+        else:
+            send_message("ℹ️ Aktif tarama yok.", chat_id)
+
+
     
     else:
         send_message("Bilinmeyen komut. /yardim yazin.", chat_id)
@@ -558,36 +585,62 @@ def handle_command(chat_id, command, message_text):
 
 
 def check_telegram_commands():
-    global last_update_id
-    
+    global last_update_id, MANUAL_SCAN_LIMIT, WAITING_PAGE_CHOICE
+
     updates = get_updates(last_update_id + 1 if last_update_id else None)
-    
+
     result = None
     for update in updates:
         last_update_id = update.get("update_id", last_update_id)
-        
+
         message = update.get("message", {})
         chat_id = str(message.get("chat", {}).get("id", ""))
         text = message.get("text", "")
-        
+
         if not text or not chat_id:
             continue
-        
+
+        # Sadece admin'lerden komut al
         if chat_id not in ADMIN_CHAT_IDS:
             continue
-        
+
+        # /tara sonrası sayfa seçimi bekleniyor
+        if WAITING_PAGE_CHOICE and text in ["1", "2", "3", "4"]:
+            WAITING_PAGE_CHOICE = False
+
+            if text == "1":
+                MANUAL_SCAN_LIMIT = 5
+            elif text == "2":
+                MANUAL_SCAN_LIMIT = 10
+            elif text == "3":
+                MANUAL_SCAN_LIMIT = 20
+            else:
+                MANUAL_SCAN_LIMIT = None  # TÜM SAYFALAR
+
+            send_message(
+                "✅ <b>Manuel tarama başlatılıyor</b>\n\n"
+                f"📄 Sayfa limiti: {'TÜMÜ' if MANUAL_SCAN_LIMIT is None else MANUAL_SCAN_LIMIT}"
+            )
+            return "SCAN"
+
         if text.startswith("/"):
             command = text.split()[0].lower()
             cmd_result = handle_command(chat_id, command, text)
             if cmd_result == "SCAN":
                 result = "SCAN"
-    
+
     return result
 
-
 def fetch_listings_playwright():
+    global SCAN_STOP_REQUESTED, ACTIVE_SCAN
+
+    ACTIVE_SCAN = True
+    SCAN_STOP_REQUESTED = False
+
+    scan_start = time.time()
+
     print("[PLAYWRIGHT] Baslatiliyor...", flush=True)
-    
+
     results = []
     seen_codes = set()
     page_num = 0
@@ -600,20 +653,29 @@ def fetch_listings_playwright():
             args=[
                 "--disable-blink-features=AutomationControlled",
                 "--no-sandbox",
-                "--disable-dev-shm-usage"
-            ]
+                "--disable-dev-shm-usage",
+            ],
         )
 
         def new_context():
             return browser.new_context(
                 viewport={"width": 1920, "height": 1080},
-                user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+                user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
             )
 
         context = new_context()
         page = context.new_page()
 
         while True:
+            if SCAN_STOP_REQUESTED:
+                print("[PLAYWRIGHT] Kullanıcı durdurdu", flush=True)
+                send_message("⛔ <b>Tarama kullanıcı tarafından durduruldu</b>")
+                break
+
+            if MANUAL_SCAN_LIMIT is not None and page_num >= MANUAL_SCAN_LIMIT:
+                print("[PLAYWRIGHT] Manuel sayfa limiti doldu", flush=True)
+                break
+
             page_num += 1
             if page_num == 1:
                 page_url = URL
@@ -629,7 +691,7 @@ def fetch_listings_playwright():
                     success = True
                     break
                 except TimeoutError:
-                    print("[SAYFA " + str(page_num) + "] Retry " + str(attempt+1) + "/3", flush=True)
+                    print("[SAYFA " + str(page_num) + "] Retry " + str(attempt + 1) + "/3", flush=True)
                     page.wait_for_timeout(3000)
                 except Exception as e:
                     print("[SAYFA " + str(page_num) + "] Hata: " + str(e), flush=True)
@@ -644,7 +706,8 @@ def fetch_listings_playwright():
 
             consecutive_failures = 0
 
-            listings = page.evaluate("""() => {
+            listings = page.evaluate(
+                """() => {
                 const out = [];
                 const seen = new Set();
 
@@ -672,8 +735,8 @@ def fetch_listings_playwright():
 
                         if (h3 && text.includes("₺")) {
                             title = h3.innerText.trim();
-                            for (const line of text.split("\\n")) {
-                                if (/^[\\d.,]+\\s*₺$/.test(line.trim())) {
+                            for (const line of text.split("\n")) {
+                                if (/^[\d.,]+\s*₺$/.test(line.trim())) {
                                     fiyat = line.trim();
                                     break;
                                 }
@@ -691,7 +754,8 @@ def fetch_listings_playwright():
                 });
 
                 return out;
-            }""")
+            }"""
+            )
 
             if not listings:
                 print("[SAYFA " + str(page_num) + "] Bos - tarama bitti", flush=True)
@@ -700,15 +764,29 @@ def fetch_listings_playwright():
             for item in listings:
                 if item["kod"] not in seen_codes:
                     seen_codes.add(item["kod"])
-                    results.append((
-                        item["kod"],
-                        item["fiyat"],
-                        item["link"],
-                        item["title"],
-                        page_num
-                    ))
+                    results.append(
+                        (
+                            item["kod"],
+                            item["fiyat"],
+                            item["link"],
+                            item["title"],
+                            page_num,
+                        )
+                    )
 
-            print("[SAYFA " + str(page_num) + "] " + str(len(listings)) + " ilan | Toplam: " + str(len(results)), flush=True)
+            # İlerleme mesajı (sayfa bazlı)
+            if page_num % 2 == 0:
+                send_message(
+                    "🔄 <b>TARAMA DEVAM EDİYOR</b>\n\n"
+                    f"📄 Sayfa: {page_num}\n"
+                    f"📊 Toplam ilan: {len(results)}\n"
+                    f"⏱️ Süre: {format_duration(time.time() - scan_start)}"
+                )
+
+            print(
+                "[SAYFA " + str(page_num) + "] " + str(len(listings)) + " ilan | Toplam: " + str(len(results)),
+                flush=True,
+            )
 
             if len(listings) < 12:
                 print("[PLAYWRIGHT] Son sayfa", flush=True)
@@ -729,44 +807,43 @@ def fetch_listings_playwright():
     print("[PLAYWRIGHT] Tamamlandi: " + str(len(results)) + " ilan, " + str(page_num) + " sayfa", flush=True)
     return results
 
-
 def run_scan_with_timeout():
-    global bot_stats
-    
+    global bot_stats, ACTIVE_SCAN, MANUAL_SCAN_LIMIT, SCAN_STOP_REQUESTED
+
     scan_start = time.time()
     now = get_turkey_time()
     today = now.strftime("%Y-%m-%d")
-    
+
     print("\n[TARAMA] Basliyor - " + now.strftime("%Y-%m-%d %H:%M:%S"), flush=True)
 
     state = load_state()
     history = load_history()
-    
+
     if "daily_stats" not in state:
         state["daily_stats"] = {}
     if today not in state["daily_stats"]:
         state["daily_stats"][today] = {"new": 0, "price_changes": 0, "deleted": 0}
-    
+
     # YENİ: Tarama sıra numarasını artır
     state["scan_sequence"] = state.get("scan_sequence", 0) + 1
     current_scan_seq = state["scan_sequence"]
-    
+
     print(f"[TARAMA] Sira numarasi: {current_scan_seq}", flush=True)
 
     try:
         cycle_start = datetime.strptime(state["cycle_start"], "%Y-%m-%d")
         if (now - cycle_start).days >= 30:
             state = {
-                "cycle_start": today, 
-                "items": {}, 
-                "reported_days": [], 
-                "first_run_done": False, 
+                "cycle_start": today,
+                "items": {},
+                "reported_days": [],
+                "first_run_done": False,
                 "daily_stats": {today: {"new": 0, "price_changes": 0, "deleted": 0}},
-                "scan_sequence": 1
+                "scan_sequence": 1,
             }
             current_scan_seq = 1
             print("[DONGU] 30 gun sifirlandi", flush=True)
-    except:
+    except Exception:
         state["cycle_start"] = today
 
     try:
@@ -779,36 +856,36 @@ def run_scan_with_timeout():
         save_state(state)
         return
 
-    is_first_run = not state.get("first_run_done", False) or len(state["items"]) == 0
+    is_first_run = (not state.get("first_run_done", False)) or (len(state.get("items", {})) == 0)
 
     if is_first_run:
         if len(listings) < 50:
             print("[UYARI] Yetersiz ilan: " + str(len(listings)), flush=True)
             save_state(state)
             return
-        
+
         # İlk çalışmada tüm ilanları kaydet
         for kod, fiyat, link, title, page_num in listings:
             state["items"][kod] = {
-                "fiyat": fiyat, 
-                "tarih": today, 
-                "link": link, 
+                "fiyat": fiyat,
+                "tarih": today,
+                "link": link,
                 "title": title,
                 "scan_seq": current_scan_seq,
-                "timestamp": time.time()
+                "timestamp": time.time(),
             }
-        
-            state["first_run_done"] = True
-        
-            scan_duration = time.time() - scan_start
-            msg = "✅ <b>İlk Tarama Tamamlandı!</b>\n\n"
-            msg += "📅 " + today + " " + now.strftime("%H:%M") + "\n"
-            msg += "⏱️ Tarama süresi: " + format_duration(scan_duration) + "\n"
-            msg += "📄 Taranan sayfa: " + str(bot_stats["last_scan_pages"]) + " sayfa\n"
-            msg += "📊 Toplam: <b>" + str(len(listings)) + "</b> ilan\n\n"
-            msg += "💾 Tümü belleğe kaydedildi"
-            send_message(msg)
-            print("[TARAMA] Ilk calisma: " + str(len(listings)) + " ilan", flush=True)
+
+        state["first_run_done"] = True
+
+        scan_duration = time.time() - scan_start
+        msg = "✅ <b>İlk Tarama Tamamlandı!</b>\n\n"
+        msg += "📅 " + today + " " + now.strftime("%H:%M") + "\n"
+        msg += "⏱️ Tarama süresi: " + format_duration(scan_duration) + "\n"
+        msg += "📄 Taranan sayfa: " + str(bot_stats["last_scan_pages"]) + " sayfa\n"
+        msg += "📊 Toplam: <b>" + str(len(listings)) + "</b> ilan\n\n"
+        msg += "💾 Tümü belleğe kaydedildi"
+        send_message(msg)
+        print("[TARAMA] Ilk calisma: " + str(len(listings)) + " ilan", flush=True)
 
     else:
         new_count = 0
@@ -820,33 +897,32 @@ def run_scan_with_timeout():
         # Son sayfa son sıra (index N) = EN ESKİ
         # listings array'i zaten 1.sayfadan başlıyor, doğru sırada
         position_map = {kod: idx for idx, (kod, _, _, _, _) in enumerate(listings)}
-        
+
         # Yeni ilanları ve değişiklikleri işle
         for kod, fiyat, link, title, page_num in listings:
             current_codes.add(kod)
-            
+
             if kod not in state["items"]:
                 # YENİ İLAN: Position = sitedeki index (0 = en yeni)
                 state["items"][kod] = {
-                    "fiyat": fiyat, 
-                    "tarih": today, 
-                    "link": link, 
+                    "fiyat": fiyat,
+                    "tarih": today,
+                    "link": link,
                     "title": title,
                     "scan_seq": current_scan_seq,
                     "timestamp": time.time(),
                     "position": position_map[kod],  # 0 = en yeni, 630 = en eski
-                    "first_seen_date": today
+                    "first_seen_date": today,
                 }
                 new_count += 1
-                
+
                 # SADECE YENİ İLANLAR için daily_stats artır
                 state["daily_stats"][today]["new"] += 1
-                
-                history.setdefault("new", []).append({
-                    "kod": kod, "fiyat": fiyat, "title": title, "tarih": today, "link": link
-                })
-                
-                
+
+                history.setdefault("new", []).append(
+                    {"kod": kod, "fiyat": fiyat, "title": title, "tarih": today, "link": link}
+                )
+
                 msg = "🏠 <b>YENİ İLAN</b>\n\n"
                 msg += "📋 " + kod + "\n"
                 msg += "🏷️ " + title + "\n"
@@ -854,33 +930,34 @@ def run_scan_with_timeout():
                 msg += "🔗 " + link
                 send_message(msg)
                 time.sleep(0.3)
+
             else:
                 # MEVCUT İLAN: Position güncelle (ilan yukarı/aşağı kayabilir)
                 state["items"][kod]["position"] = position_map[kod]
-                
+
                 eski = state["items"][kod]["fiyat"]
                 if normalize_price(eski) != normalize_price(fiyat):
-                    history.setdefault("price_changes", []).append({
-                        "kod": kod, "eski_fiyat": eski, "yeni_fiyat": fiyat, "tarih": today
-                    })
-                    
+                    history.setdefault("price_changes", []).append(
+                        {"kod": kod, "eski_fiyat": eski, "yeni_fiyat": fiyat, "tarih": today}
+                    )
+
                     state["items"][kod]["fiyat"] = fiyat
                     price_change_count += 1
-                    
+
                     # Fiyat değişimi için daily_stats artır
                     state["daily_stats"][today]["price_changes"] += 1
-                    
+
                     eski_num = int(normalize_price(eski)) if normalize_price(eski) else 0
                     yeni_num = int(normalize_price(fiyat)) if normalize_price(fiyat) else 0
                     fark = yeni_num - eski_num
-                    
+
                     if fark > 0:
                         fark_str = "📈 +" + format_number(fark) + " TL"
                         trend = "artış"
                     else:
                         fark_str = "📉 " + format_number(fark) + " TL"
                         trend = "düşüş"
-                    
+
                     msg = "💱 <b>FİYAT DEĞİŞTİ</b>\n\n"
                     msg += "📋 " + kod + "\n"
                     msg += "💰 " + eski + " ➜ " + fiyat + "\n"
@@ -893,31 +970,33 @@ def run_scan_with_timeout():
         for kod in list(state["items"].keys()):
             if kod not in current_codes:
                 item = state["items"][kod]
-                
-                history.setdefault("deleted", []).append({
-                    "kod": kod, "fiyat": item.get("fiyat", ""), 
-                    "title": item.get("title", ""), "tarih": today
-                })
-                
+
+                history.setdefault("deleted", []).append(
+                    {"kod": kod, "fiyat": item.get("fiyat", ""), "title": item.get("title", ""), "tarih": today}
+                )
+
                 # Silinen ilan için daily_stats artır
                 state["daily_stats"][today]["deleted"] += 1
-                
+
                 msg = "🗑️ <b>İLAN SİLİNDİ</b>\n\n"
                 msg += "📋 " + kod + "\n"
                 msg += "🏷️ " + item.get("title", "") + "\n"
                 msg += "💰 " + item.get("fiyat", "")
                 send_message(msg)
-                
+
                 del state["items"][kod]
                 deleted_count += 1
                 time.sleep(0.3)
-        
+
         bot_stats["total_new_listings"] += new_count
         bot_stats["total_price_changes"] += price_change_count
         bot_stats["total_deleted"] += deleted_count
-        
-        print("[OZET] Yeni: " + str(new_count) + ", Fiyat: " + str(price_change_count) + ", Silinen: " + str(deleted_count), flush=True)
-        
+
+        print(
+            "[OZET] Yeni: " + str(new_count) + ", Fiyat: " + str(price_change_count) + ", Silinen: " + str(deleted_count),
+            flush=True,
+        )
+
         # TARAMA TAMAMLANDI MESAJI
         scan_duration = time.time() - scan_start
         msg = "✅ <b>Tarama Tamamlandı!</b>\n\n"
@@ -925,57 +1004,59 @@ def run_scan_with_timeout():
         msg += "📄 Taranan sayfa: " + str(bot_stats["last_scan_pages"]) + " sayfa\n"
         msg += "📊 Taranan ilan: " + str(len(listings)) + " ilan\n\n"
         msg += "<b>📈 Sonuçlar:</b>\n"
-        
+
         if new_count > 0:
             msg += "🆕 Yeni ilan: <b>" + str(new_count) + "</b>\n"
         else:
             msg += "🆕 Yeni ilan: Bulunamadı\n"
-        
+
         if deleted_count > 0:
             msg += "🗑️ Silinen ilan: <b>" + str(deleted_count) + "</b>\n"
         else:
             msg += "🗑️ Silinen ilan: Bulunamadı\n"
-        
+
         if price_change_count > 0:
             msg += "💱 Fiyat değişimi: <b>" + str(price_change_count) + "</b>"
         else:
             msg += "💱 Fiyat değişimi: Bulunamadı"
-        
+
         send_message(msg)
 
     if now.hour == 23 and now.minute >= 30 and today not in state.get("reported_days", []):
         # Sitedeki sıraya göre sırala (position küçük = daha yeni)
         all_items = [(k, v) for k, v in state["items"].items()]
         all_items.sort(key=lambda x: x[1].get("position", 999999))
-        
+
         # Bugün eklenen ilanları say
         today_new_count = state.get("daily_stats", {}).get(today, {}).get("new", 0)
-        
+
         msg = "📊 <b>GÜNLÜK RAPOR</b> (" + today + ")\n\n"
         msg += "🆕 Bugün eklenen: <b>" + str(today_new_count) + "</b> ilan\n"
         msg += "💾 Toplam bellekte: " + str(len(state["items"])) + " ilan\n\n"
-        
+
         if all_items[:20]:
             msg += "📋 <b>Son Eklenen 20 İlan:</b>\n\n"
             for i, (kod, item) in enumerate(all_items[:20], 1):
                 msg += str(i) + ". " + kod + "\n"
         else:
             msg += "Sistemde ilan bulunmuyor."
-        
+
         send_message(msg)
         state.setdefault("reported_days", []).append(today)
 
     save_state(state)
     save_history(history)
-    
+
     scan_duration = time.time() - scan_start
     bot_stats["total_scans"] += 1
     bot_stats["last_scan_time"] = datetime.utcnow()
     bot_stats["last_scan_duration"] = scan_duration
-    
+
     print("[TARAMA] Tamamlandi (" + format_duration(scan_duration) + ")", flush=True)
 
-
+    ACTIVE_SCAN = False
+    MANUAL_SCAN_LIMIT = None
+    SCAN_STOP_REQUESTED = False
 def run_scan():
     global bot_stats
     
