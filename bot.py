@@ -947,7 +947,7 @@ def fetch_listings_playwright():
                     )
 
             # İlerleme mesajı (sayfa bazlı)
-            if page_num % 2 == 0:
+            if page_num % 25 == 0:
                 send_message(
                     "🔄 <b>TARAMA DEVAM EDİYOR</b>\n\n"
                     f"📄 Sayfa: {page_num}\n"
