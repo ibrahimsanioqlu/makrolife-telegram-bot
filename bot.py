@@ -728,16 +728,16 @@ def handle_command(chat_id, command, message_text):
         send_message(msg, chat_id)
     
     elif command == "/tara":
-        global WAITING_PAGE_CHOICE
-        WAITING_PAGE_CHOICE = True
+        global MANUAL_SCAN_LIMIT, WAITING_PAGE_CHOICE
+        WAITING_PAGE_CHOICE = False
+        MANUAL_SCAN_LIMIT = None  # TÜM SAYFALAR
 
-        msg = "🧮 <b>Kaç sayfa taransın?</b>\n\n"
-        msg += "1️⃣ 5 sayfa\n"
-        msg += "2️⃣ 10 sayfa\n"
-        msg += "3️⃣ 20 sayfa\n"
-        msg += "4️⃣ TÜM SAYFALAR\n\n"
-        msg += "Yanıt olarak 1 / 2 / 3 / 4 gönder."
-        send_message(msg, chat_id)
+        send_message(
+            "✅ <b>Manuel tarama başlatılıyor</b>\n\n"
+            "📄 Sayfa limiti: <b>TÜMÜ</b>",
+            chat_id
+        )
+        return "SCAN"
         
     elif command == "/durdur":
         global SCAN_STOP_REQUESTED
@@ -774,25 +774,6 @@ def check_telegram_commands():
         # Sadece admin'lerden komut al
         if chat_id not in ADMIN_CHAT_IDS:
             continue
-
-        # /tara sonrası sayfa seçimi bekleniyor
-        if WAITING_PAGE_CHOICE and text in ["1", "2", "3", "4"]:
-            WAITING_PAGE_CHOICE = False
-
-            if text == "1":
-                MANUAL_SCAN_LIMIT = 5
-            elif text == "2":
-                MANUAL_SCAN_LIMIT = 10
-            elif text == "3":
-                MANUAL_SCAN_LIMIT = 20
-            else:
-                MANUAL_SCAN_LIMIT = None  # TÜM SAYFALAR
-
-            send_message(
-                "✅ <b>Manuel tarama başlatılıyor</b>\n\n"
-                f"📄 Sayfa limiti: {'TÜMÜ' if MANUAL_SCAN_LIMIT is None else MANUAL_SCAN_LIMIT}"
-            )
-            return "SCAN"
 
         if text.startswith("/"):
             command = text.split()[0].lower()
