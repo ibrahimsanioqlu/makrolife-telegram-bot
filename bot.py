@@ -799,15 +799,18 @@ def run_scan_with_timeout():
                 "timestamp": time.time()
             }
         
-        state["first_run_done"] = True
+       state["first_run_done"] = True
         
-        msg = "<b>Ilk Tarama Tamamlandi</b>\n\n"
-        msg += today + " " + now.strftime("%H:%M") + "\n"
-        msg += "Toplam: " + str(len(listings)) + " ilan\n"
-        msg += str(bot_stats["last_scan_pages"]) + " sayfa tarandi\n"
-        msg += "Tumu kaydedildi"
+        scan_duration = time.time() - scan_start
+        msg = "✅ <b>İlk Tarama Tamamlandı!</b>\n\n"
+        msg += "📅 " + today + " " + now.strftime("%H:%M") + "\n"
+        msg += "⏱️ Tarama süresi: " + format_duration(scan_duration) + "\n"
+        msg += "📄 Taranan sayfa: " + str(bot_stats["last_scan_pages"]) + " sayfa\n"
+        msg += "📊 Toplam: <b>" + str(len(listings)) + "</b> ilan\n\n"
+        msg += "💾 Tümü belleğe kaydedildi"
         send_message(msg)
         print("[TARAMA] Ilk calisma: " + str(len(listings)) + " ilan", flush=True)
+
     else:
         new_count = 0
         price_change_count = 0
@@ -914,7 +917,32 @@ def run_scan_with_timeout():
         bot_stats["total_price_changes"] += price_change_count
         bot_stats["total_deleted"] += deleted_count
         
-        print("[OZET] Yeni: " + str(new_count) + ", Fiyat: " + str(price_change_count) + ", Silinen: " + str(deleted_count), flush=True)
+       print("[OZET] Yeni: " + str(new_count) + ", Fiyat: " + str(price_change_count) + ", Silinen: " + str(deleted_count), flush=True)
+        
+        # TARAMA TAMAMLANDI MESAJI
+        scan_duration = time.time() - scan_start
+        msg = "✅ <b>Tarama Tamamlandı!</b>\n\n"
+        msg += "⏱️ Tarama süresi: " + format_duration(scan_duration) + "\n"
+        msg += "📄 Taranan sayfa: " + str(bot_stats["last_scan_pages"]) + " sayfa\n"
+        msg += "📊 Taranan ilan: " + str(len(listings)) + " ilan\n\n"
+        msg += "<b>📈 Sonuçlar:</b>\n"
+        
+        if new_count > 0:
+            msg += "🆕 Yeni ilan: <b>" + str(new_count) + "</b>\n"
+        else:
+            msg += "🆕 Yeni ilan: Bulunamadı\n"
+        
+        if deleted_count > 0:
+            msg += "🗑️ Silinen ilan: <b>" + str(deleted_count) + "</b>\n"
+        else:
+            msg += "🗑️ Silinen ilan: Bulunamadı\n"
+        
+        if price_change_count > 0:
+            msg += "💱 Fiyat değişimi: <b>" + str(price_change_count) + "</b>"
+        else:
+            msg += "💱 Fiyat değişimi: Bulunamadı"
+        
+        send_message(msg)
 
     if now.hour == 23 and now.minute >= 30 and today not in state.get("reported_days", []):
         # Sitedeki sıraya göre sırala (position küçük = daha yeni)
@@ -1004,13 +1032,13 @@ def main():
                 print("# " + get_turkey_time().strftime("%Y-%m-%d %H:%M:%S"), flush=True)
                 print("#" * 50, flush=True)
                 
-                # Tarama baslamadan once bilgilendirme mesaji
+                # TARAMA BASLADI MESAJI
                 interval = get_scan_interval() // 60
                 github_status = "Aktif" if GITHUB_TOKEN else "Kapali"
-                msg = "<b>Tarama Basladi!</b>\n\n"
-                msg += "Tarama araligi: " + str(interval) + " dk\n"
-                msg += "Bellekteki ilan: " + str(len(load_state().get("items", {}))) + "\n"
-                msg += "GitHub yedek: " + github_status
+                msg = "🔄 <b>Tarama Başladı!</b>\n\n"
+                msg += "⏰ Tarama aralığı: " + str(interval) + " dk\n"
+                msg += "💾 Bellekteki ilan: " + str(len(load_state().get("items", {}))) + "\n"
+                msg += "☁️ GitHub yedek: " + github_status
                 send_message(msg)
                 
                 run_scan()
