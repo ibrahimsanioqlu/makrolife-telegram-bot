@@ -857,6 +857,7 @@ for kod, fiyat, link, title, page_num in listings:
         msg += "🔗 " + link
         send_message(msg)
         time.sleep(0.3)
+        
             else:
                 # MEVCUT İLAN: Position güncelle (ilan yukarı/aşağı kayabilir)
                 state["items"][kod]["position"] = position_map[kod]
