@@ -132,9 +132,6 @@ def github_save_file(filename, content, sha=None):
 
     try:
         url = f"https://api.github.com/repos/{GITHUB_REPO}/contents/{filename}"
-        print(f"[GITHUB DEBUG] GITHUB_REPO = '{GITHUB_REPO}'", flush=True)
-        print(f"[GITHUB DEBUG] URL = {url}", flush=True)
-
         headers = {
             "Authorization": "token " + GITHUB_TOKEN,
             "Accept": "application/vnd.github+json",
@@ -225,7 +222,8 @@ def load_state():
         "items": {},
         "reported_days": [],
         "first_run_done": False,
-        "daily_stats": {}
+        "daily_stats": {},
+        "scan_sequence": 0  # YENİ: Tarama sıra numarası
     }
 
 
@@ -416,7 +414,10 @@ def handle_command(chat_id, command, message_text):
     
     elif command == "/bugun" or command == "/today":
         items = state.get("items", {})
-        today_items = [k for k, v in items.items() if v.get("tarih") == today]
+        today_items = [(k, v) for k, v in items.items() if v.get("tarih") == today]
+        # Tarama sırasına göre sırala (en yüksek scan_seq en yeni)
+        today_items.sort(key=lambda x: x[1].get("scan_seq", 0), reverse=True)
+        
         daily = state.get("daily_stats", {}).get(today, {})
         
         msg = "<b>Bugun</b> (" + today + ")\n\n"
@@ -426,8 +427,7 @@ def handle_command(chat_id, command, message_text):
         
         if today_items[:5]:
             msg += "\n<b>Son eklenenler:</b>\n"
-            for kod in today_items[:5]:
-                item = items.get(kod, {})
+            for kod, item in today_items[:5]:
                 msg += kod + " - " + item.get("fiyat", "-") + "\n"
         
         send_message(msg, chat_id)
@@ -498,14 +498,21 @@ def handle_command(chat_id, command, message_text):
     
     elif command.startswith("/son"):
         parts = message_text.split()
-        count = min(int(parts[1]), 15) if len(parts) > 1 and parts[1].isdigit() else 5
+        count = min(int(parts[1]), 20) if len(parts) > 1 and parts[1].isdigit() else 5
         
         items = state.get("items", {})
-        sorted_items = sorted(items.items(), key=lambda x: x[1].get("tarih", ""), reverse=True)[:count]
+        # DÜZELTME: scan_seq ve timestamp'e göre sırala
+        sorted_items = sorted(
+            items.items(),
+            key=lambda x: (x[1].get("scan_seq", 0), x[1].get("timestamp", 0)),
+            reverse=True
+        )[:count]
         
-        msg = "<b>Son " + str(count) + " Ilan</b>\n\n"
+        msg = "<b>Son " + str(count) + " Eklenen İlan</b>\n\n"
         for kod, item in sorted_items:
-            msg += "<b>" + kod + "</b> (" + item.get("tarih", "") + ")\n  " + item.get("title", "")[:35] + "\n  " + item.get("fiyat", "-") + "\n\n"
+            msg += "<b>" + kod + "</b> (" + item.get("tarih", "") + ")\n"
+            msg += "  " + item.get("title", "")[:35] + "\n"
+            msg += "  " + item.get("fiyat", "-") + "\n\n"
         send_message(msg, chat_id)
     
     elif command.startswith("/ucuz"):
@@ -735,6 +742,12 @@ def run_scan_with_timeout():
         state["daily_stats"] = {}
     if today not in state["daily_stats"]:
         state["daily_stats"][today] = {"new": 0, "price_changes": 0, "deleted": 0}
+    
+    # YENİ: Tarama sıra numarasını artır
+    state["scan_sequence"] = state.get("scan_sequence", 0) + 1
+    current_scan_seq = state["scan_sequence"]
+    
+    print(f"[TARAMA] Sira numarasi: {current_scan_seq}", flush=True)
 
     try:
         cycle_start = datetime.strptime(state["cycle_start"], "%Y-%m-%d")
@@ -744,8 +757,10 @@ def run_scan_with_timeout():
                 "items": {}, 
                 "reported_days": [], 
                 "first_run_done": False, 
-                "daily_stats": {today: {"new": 0, "price_changes": 0, "deleted": 0}}
+                "daily_stats": {today: {"new": 0, "price_changes": 0, "deleted": 0}},
+                "scan_sequence": 1
             }
+            current_scan_seq = 1
             print("[DONGU] 30 gun sifirlandi", flush=True)
     except:
         state["cycle_start"] = today
@@ -768,8 +783,16 @@ def run_scan_with_timeout():
             save_state(state)
             return
         
+        # İlk çalışmada tüm ilanları kaydet
         for kod, fiyat, link, title, page_num in listings:
-            state["items"][kod] = {"fiyat": fiyat, "tarih": today, "link": link, "title": title}
+            state["items"][kod] = {
+                "fiyat": fiyat, 
+                "tarih": today, 
+                "link": link, 
+                "title": title,
+                "scan_seq": current_scan_seq,
+                "timestamp": time.time()
+            }
         
         state["first_run_done"] = True
         
@@ -785,11 +808,20 @@ def run_scan_with_timeout():
         price_change_count = 0
         current_codes = set()
 
+        # Yeni ilanları ve değişiklikleri işle
         for kod, fiyat, link, title, page_num in listings:
             current_codes.add(kod)
             
             if kod not in state["items"]:
-                state["items"][kod] = {"fiyat": fiyat, "tarih": today, "link": link, "title": title}
+                # YENİ İLAN: Tarama sırası ve timestamp ekle
+                state["items"][kod] = {
+                    "fiyat": fiyat, 
+                    "tarih": today, 
+                    "link": link, 
+                    "title": title,
+                    "scan_seq": current_scan_seq,  # YENİ
+                    "timestamp": time.time()  # YENİ
+                }
                 new_count += 1
                 
                 history.setdefault("new", []).append({
@@ -864,12 +896,14 @@ def run_scan_with_timeout():
         print("[OZET] Yeni: " + str(new_count) + ", Fiyat: " + str(price_change_count) + ", Silinen: " + str(deleted_count), flush=True)
 
     if now.hour == 23 and now.minute >= 30 and today not in state.get("reported_days", []):
-        todays = [k for k, v in state["items"].items() if v.get("tarih") == today]
+        todays = [(k, v) for k, v in state["items"].items() if v.get("tarih") == today]
+        todays.sort(key=lambda x: x[1].get("scan_seq", 0), reverse=True)
+        
         msg = "<b>Gunluk Ozet</b> (" + today + ")\n\n"
         msg += "Toplam: " + str(len(state["items"])) + " ilan\n"
         msg += "Bugun eklenen: " + str(len(todays)) + "\n"
         if todays:
-            msg += "\n".join(todays[:40])
+            msg += "\n".join([k for k, v in todays[:40]])
         else:
             msg += "Yeni ilan yok"
         if len(todays) > 40:
