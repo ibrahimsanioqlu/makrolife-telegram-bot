@@ -844,14 +844,13 @@ def run_scan_with_timeout():
                     "kod": kod, "fiyat": fiyat, "title": title, "tarih": today, "link": link
                 })
                 
-                if page_num <= 4:
-                    msg = "🏠 <b>YENİ İLAN</b>\n\n"
-                    msg += "📋 " + kod + "\n"
-                    msg += "🏷️ " + title + "\n"
-                    msg += "💰 " + fiyat + "\n\n"
-                    msg += "🔗 " + link
-                    send_message(msg)
-                    time.sleep(0.3)
+                msg = "🏠 <b>YENİ İLAN</b>\n\n"
+                msg += "📋 " + kod + "\n"
+                msg += "🏷️ " + title + "\n"
+                msg += "💰 " + fiyat + "\n\n"
+                msg += "🔗 " + link
+                send_message(msg)
+                time.sleep(0.3)
             else:
                 # MEVCUT İLAN: Position güncelle (ilan yukarı/aşağı kayabilir)
                 state["items"][kod]["position"] = position_map[kod]
