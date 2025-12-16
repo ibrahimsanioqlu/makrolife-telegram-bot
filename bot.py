@@ -414,9 +414,9 @@ def handle_command(chat_id, command, message_text):
     
     elif command == "/bugun" or command == "/today":
         items = state.get("items", {})
+        # Bugün eklenen ilanları bul ve sırala
         today_items = [(k, v) for k, v in items.items() if v.get("tarih") == today]
-        # Tarama sırasına göre sırala (en yüksek scan_seq en yeni)
-        today_items.sort(key=lambda x: x[1].get("scan_seq", 0), reverse=True)
+        today_items.sort(key=lambda x: (x[1].get("scan_seq", 0), x[1].get("timestamp", 0)), reverse=True)
         
         daily = state.get("daily_stats", {}).get(today, {})
         
@@ -443,6 +443,8 @@ def handle_command(chat_id, command, message_text):
         for i in range(7):
             date = (now - timedelta(days=i)).strftime("%Y-%m-%d")
             day = days_tr.get((now - timedelta(days=i)).strftime("%A"), "")
+            
+            # O gün eklenen ilanları say (tarih alanına göre)
             count = sum(1 for v in items.values() if v.get("tarih") == date)
             stats = daily_stats.get(date, {})
             
@@ -896,18 +898,21 @@ def run_scan_with_timeout():
         print("[OZET] Yeni: " + str(new_count) + ", Fiyat: " + str(price_change_count) + ", Silinen: " + str(deleted_count), flush=True)
 
     if now.hour == 23 and now.minute >= 30 and today not in state.get("reported_days", []):
+        # Bugün eklenen ilanları bul ve sırala
         todays = [(k, v) for k, v in state["items"].items() if v.get("tarih") == today]
-        todays.sort(key=lambda x: x[1].get("scan_seq", 0), reverse=True)
+        todays.sort(key=lambda x: (x[1].get("scan_seq", 0), x[1].get("timestamp", 0)), reverse=True)
         
-        msg = "<b>Gunluk Ozet</b> (" + today + ")\n\n"
-        msg += "Toplam: " + str(len(state["items"])) + " ilan\n"
-        msg += "Bugun eklenen: " + str(len(todays)) + "\n"
+        msg = "📊 <b>GÜNLÜK RAPOR</b> (" + today + ")\n\n"
+        msg += "🆕 Bugün eklenen: <b>" + str(len(todays)) + "</b> ilan\n"
+        msg += "💾 Toplam bellekte: " + str(len(state["items"])) + " ilan\n\n"
+        
         if todays:
-            msg += "\n".join([k for k, v in todays[:40]])
+            msg += "📋 <b>Son Eklenen 20 İlan:</b>\n\n"
+            for i, (kod, item) in enumerate(todays[:20], 1):
+                msg += str(i) + ". " + kod + "\n"
         else:
-            msg += "Yeni ilan yok"
-        if len(todays) > 40:
-            msg += "\n..."
+            msg += "Bugün yeni ilan eklenmedi."
+        
         send_message(msg)
         state.setdefault("reported_days", []).append(today)
 
