@@ -414,38 +414,25 @@ def handle_command(chat_id, command, message_text):
     
     elif command == "/bugun" or command == "/today":
         items = state.get("items", {})
-        history = load_history()
-        
-        # Bugün eklenen ilanları history'den al
-        new_today = [item for item in history.get("new", []) if item.get("tarih") == today]
-        
-        # Bellekte hala mevcut olanları filtrele ve sırala
-        today_items = []
-        for new_item in new_today:
-            kod = new_item.get("kod")
-            if kod in items:
-                today_items.append((kod, items[kod]))
-        
-        # Ters çevir - en son eklenen en üstte
-        today_items.reverse()
-        
         daily = state.get("daily_stats", {}).get(today, {})
         
+        # Bellekteki tüm ilanları scan_seq ve timestamp'e göre sırala
+        all_items = [(k, v) for k, v in items.items()]
+        all_items.sort(key=lambda x: (x[1].get("scan_seq", 0), x[1].get("timestamp", 0)), reverse=True)
+        
         msg = "<b>Bugun</b> (" + today + ")\n\n"
-        msg += "Yeni: " + str(len(new_today)) + "\n"
+        msg += "Yeni: " + str(daily.get("new", 0)) + "\n"
         msg += "Fiyat degisimi: " + str(daily.get("price_changes", 0)) + "\n"
         msg += "Silinen: " + str(daily.get("deleted", 0)) + "\n"
         
-        if today_items[:5]:
+        if all_items[:5]:
             msg += "\n<b>Son eklenenler:</b>\n"
-            for kod, item in today_items[:5]:
+            for kod, item in all_items[:5]:
                 msg += kod + " - " + item.get("fiyat", "-") + "\n"
         
         send_message(msg, chat_id)
     
     elif command == "/hafta" or command == "/week":
-        items = state.get("items", {})
-        history = load_history()
         daily_stats = state.get("daily_stats", {})
         
         days_tr = {"Monday": "Pzt", "Tuesday": "Sal", "Wednesday": "Car", 
@@ -456,11 +443,9 @@ def handle_command(chat_id, command, message_text):
             date = (now - timedelta(days=i)).strftime("%Y-%m-%d")
             day = days_tr.get((now - timedelta(days=i)).strftime("%A"), "")
             
-            # History'den o gün eklenen ilanları say
-            new_count = sum(1 for item in history.get("new", []) if item.get("tarih") == date)
-            
-            # daily_stats'tan fiyat değişimi ve silinen sayılarını al
+            # daily_stats'tan verileri al
             stats = daily_stats.get(date, {})
+            new_count = stats.get("new", 0)
             price_changes = stats.get("price_changes", 0)
             deleted = stats.get("deleted", 0)
             
