@@ -22,16 +22,6 @@ BOT_TOKEN = os.getenv("BOT_TOKEN")
 CHAT_IDS = [os.getenv("CHAT_ID"), "7449598531"]
 ADMIN_CHAT_IDS = [os.getenv("CHAT_ID"), "7449598531"]
 
-# === 2. BOT (komut iletimi) ===
-# NOT: Telegram Bot API'de botlar, baska botlarin mesajlarini "update" olarak goremez.
-# Yani bu komutlar 2. botun calistigi chat/grup/kanala gider; 2. botun okuması icin arada kullanici (user) mesaji veya baska bir entegrasyon gerekebilir.
-SECOND_CHAT_IDS = []
-_second_raw = (os.getenv("SECOND_CHAT_IDS") or os.getenv("SECOND_CHAT_ID") or "").strip()
-if _second_raw:
-    for _cid in _second_raw.replace(",", " ").split():
-        if _cid:
-            SECOND_CHAT_IDS.append(_cid)
-
 # GitHub ayarlari (veri yedekleme icin)
 GITHUB_TOKEN = os.getenv("GITHUB_TOKEN")
 GITHUB_REPO = os.getenv("GITHUB_REPO", "ibrahimsanioqlu/makrolife-telegram-bot")
@@ -108,57 +98,6 @@ def send_message(text, chat_id=None):
             resp.raise_for_status()
         except Exception as e:
             print("[TELEGRAM] " + str(cid) + " - HATA: " + str(e), flush=True)
-
-
-def send_second_command(command_text: str):
-    """Sadece belirlenen 2. hedef(ler)e komut metni yollar.
-    SECOND_CHAT_ID / SECOND_CHAT_IDS (virgül veya boşlukla) env ile ayarlanır.
-    """
-    if not command_text:
-        return
-    if not SECOND_CHAT_IDS:
-        return
-    if not BOT_TOKEN:
-        return
-
-    for cid in SECOND_CHAT_IDS:
-        if not cid:
-            continue
-        try:
-            url = "https://api.telegram.org/bot" + BOT_TOKEN + "/sendMessage"
-            resp = requests.post(
-                url,
-                data={
-                    "chat_id": cid,
-                    "text": command_text[:4000],
-                    "disable_web_page_preview": True,
-                },
-                timeout=10
-            )
-            resp.raise_for_status()
-        except Exception as e:
-            print("[2.BOT] " + str(cid) + " - HATA: " + str(e), flush=True)
-
-
-def short_kod(kod: str) -> str:
-    """ML-2450-128 -> 2450-128 (komut icin)."""
-    if not kod:
-        return ""
-    k = str(kod).strip()
-    if k.upper().startswith("ML-"):
-        return k[3:]
-    return k
-
-
-def price_for_command(fiyat: str) -> str:
-    """'4.090.000 ₺' -> '4.090.000' (komut icin)"""
-    digits = normalize_price(fiyat or "")
-    if not digits:
-        return ""
-    try:
-        return format_number(int(digits))
-    except Exception:
-        return digits
 
 
 def get_updates(offset=None):
@@ -1143,7 +1082,6 @@ def run_scan_with_timeout():
                 msg += "💰 " + fiyat + "\n\n"
                 msg += "🔗 " + link
                 send_message(msg)
-                send_second_command("/ilanekle " + short_kod(kod))
                 time.sleep(0.3)
 
             else:
@@ -1179,7 +1117,6 @@ def run_scan_with_timeout():
                     msg += fark_str + " (" + trend + ")\n\n"
                     msg += "🔗 " + state["items"][kod].get("link", "")
                     send_message(msg)
-                    send_second_command("/fiyat " + short_kod(kod) + " " + price_for_command(fiyat))
                     time.sleep(0.3)
 
         deleted_count = 0
@@ -1199,7 +1136,6 @@ def run_scan_with_timeout():
                 msg += "🏷️ " + item.get("title", "") + "\n"
                 msg += "💰 " + item.get("fiyat", "")
                 send_message(msg)
-                send_second_command("/ilansil " + short_kod(kod))
 
                 del state["items"][kod]
                 deleted_count += 1
