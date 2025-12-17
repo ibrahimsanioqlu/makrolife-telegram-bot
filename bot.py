@@ -24,7 +24,7 @@ BOT_TOKEN = os.getenv("BOT_TOKEN")
 REAL_ADMIN_CHAT_ID = "441336964"
 
 # Web site API (tek endpoint)
-WEBSITE_API_URL = os.getenv("WEBSITE_API_URL", "https://www.diyarbakiremlakmarket.com/bot_api.php")
+WEBSITE_API_URL = os.getenv("WEBSITE_API_URL", "https://www.diyarbakiremlakmarket.com/admin/bot_api.php")
 
 # Normal bildirim alacak chat'ler (REAL_ADMIN'e ayrı, butonlu mesaj atacağız)
 CHAT_IDS = [cid for cid in [os.getenv("CHAT_ID"), "7449598531"] if cid and str(cid) != REAL_ADMIN_CHAT_ID]
@@ -130,34 +130,56 @@ def edit_message_reply_markup(chat_id: str, message_id: int, reply_markup=None):
 
 
 def call_site_api(action: str, **params):
-    """Web site tek API endpoint çağrısı. JSON döner (veya None)."""
+    """Site tek endpoint çağrısı.
+    - Hata olsa bile mümkünse JSON'u döndürür (status_code ekler).
+    - JSON değilse ham metinden kısa bir özet döndürür.
+    """
+    payload = {"action": action, **params}
     try:
-        payload = {"action": action, **params}
-        r = requests.post(WEBSITE_API_URL, data=payload, timeout=60)
-        r.raise_for_status()
-        return r.json()
+        r = requests.post(WEBSITE_API_URL, data=payload, timeout=80)
+        status = getattr(r, "status_code", None)
+        try:
+            data = r.json()
+            if isinstance(data, dict):
+                data.setdefault("_http_status", status)
+            return data
+        except Exception:
+            # JSON gelmediyse (PHP fatal / HTML vs)
+            txt = (r.text or "")[:400].strip()
+            return {"success": False, "error": "non_json_response", "_http_status": status, "snippet": txt}
     except Exception as e:
         print(f"[SITE API] HATA action={action}: {e}", flush=True)
-        return None
-
+        return {"success": False, "error": "request_failed", "detail": str(e), "_http_status": None}
 
 def site_exists(ilan_kodu: str):
     r = call_site_api("exists", ilan_kodu=ilan_kodu)
+    # r her zaman dict döndürmeye çalışır
     if not isinstance(r, dict):
-        return {"exists": False, "error": "api_error"}
+        return {"exists": None, "error": "unexpected_response"}
+    if r.get("success") is False and r.get("error"):
+        return {"exists": None, **r}
+    # normal
     return r
 
-
 def _site_status_line(exists_resp: dict) -> str:
-    if exists_resp.get("exists"):
+    # exists True/False/None
+    ex = exists_resp.get("exists", None)
+    if ex is True:
         ilan_id = exists_resp.get("ilan_id")
-        return f"🌐 <b>Sitede:</b> VAR ✅ (ID: {ilan_id})"
-    return "🌐 <b>Sitede:</b> YOK ❌"
+        table = exists_resp.get("table") or "ilanlar"
+        extra = f" (ID: {ilan_id})" if ilan_id is not None else ""
+        if table != "ilanlar":
+            extra += f" [{table}]"
+        return f"🌐 <b>Sitede:</b> VAR ✅{extra}"
+    if ex is False:
+        return "🌐 <b>Sitede:</b> YOK ❌"
+    # None / bilinmiyor
+    err = exists_resp.get("error") or "api_error"
+    status = exists_resp.get("_http_status")
+    if status:
+        return f"🌐 <b>Sitede:</b> BİLİNMİYOR ⚠️ (API HATA: {err}, HTTP {status})"
+    return f"🌐 <b>Sitede:</b> BİLİNMİYOR ⚠️ (API HATA: {err})"
 
-
-def _kb(buttons):
-    # buttons = [[("Text","callback_data"), ...], ...]
-    return {"inline_keyboard": [[{"text": t, "callback_data": d} for (t, d) in row] for row in buttons]}
 
 
 def send_real_admin_deleted(kod: str, title: str, fiyat: str):
@@ -168,7 +190,7 @@ def send_real_admin_deleted(kod: str, title: str, fiyat: str):
     msg += f"💰 {fiyat}\n\n"
     msg += _site_status_line(ex)
 
-    if ex.get("exists"):
+    if ex.get("exists") is True:
         kb = _kb([[("✅ SİL", f"site_del:{kod}"), ("❌ SİLME", f"site_cancel:{kod}")]])
         send_message(msg, chat_id=REAL_ADMIN_CHAT_ID, reply_markup=kb)
     else:
@@ -184,7 +206,7 @@ def send_real_admin_price_change(kod: str, title: str, eski_fiyat: str, yeni_fiy
     msg += f"🔺 Yeni: <b>{yeni_fiyat}</b>\n\n"
     msg += _site_status_line(ex)
 
-    if ex.get("exists"):
+    if ex.get("exists") is True:
         yeni_digits = normalize_price(yeni_fiyat)[:24]
         kb = _kb([[("✅ DEĞİŞTİR", f"site_price:{kod}:{yeni_digits}"),
                    ("❌ DEĞİŞTİRME", f"site_cancel:{kod}")]])
