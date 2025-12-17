@@ -2204,7 +2204,7 @@
       "first_seen_date": "2025-12-16"
     },
     "ML-2450-126": {
-      "fiyat": "4.000.000 ₺",
+      "fiyat": "3.990.000 ₺",
       "tarih": "2025-12-16",
       "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-2450-126",
       "title": "HAVALİMANI KAVŞAĞI'NDA SATILIK 2+1 DAİRE",
@@ -6424,9 +6424,9 @@
     },
     "2025-12-17": {
       "new": 24,
-      "price_changes": 4,
+      "price_changes": 5,
       "deleted": 3
     }
   },
-  "scan_sequence": 20
+  "scan_sequence": 21
 }
