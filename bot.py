@@ -143,11 +143,27 @@ def send_message(text: str, chat_id: str = None, reply_markup=None, disable_prev
             time.sleep(0.25)
     return ok_any
 
-def answer_callback_query(callback_query_id: str, text: str = None, show_alert: bool = False):
-    payload = {"callback_query_id": callback_query_id, "show_alert": show_alert}
-    if text:
-        payload["text"] = text[:180]
-    telegram_api("answerCallbackQuery", payload, timeout=10)
+def answer_callback_query(callback_query_id: str, text: str = "", show_alert: bool = False):
+    """Inline buton basımında 'loading' spinnerını kapatmak için ACK.
+    Tarama uzun sürerse callback geç işlenebilir ve Telegram 400 döndürebilir.
+    Bu durumda işlem yine de devam etsin diye hata fırlatmayız.
+    """
+    try:
+        telegram_api(
+            "answerCallbackQuery",
+            {
+                "callback_query_id": callback_query_id,
+                "text": text or "",
+                "show_alert": show_alert,
+                "cache_time": 0
+            },
+            timeout=5
+        )
+        return True
+    except Exception as e:
+        print("[TELEGRAM] answerCallbackQuery HATA: " + str(e), flush=True)
+        return False
+
 
 
 def edit_message_reply_markup(chat_id: str, message_id: int, reply_markup=None):
@@ -1518,12 +1534,30 @@ def run_scan_with_timeout():
     MANUAL_SCAN_LIMIT = None
     SCAN_STOP_REQUESTED = False
 def run_scan():
+    """Tarama worker thread'de çalışırken ana thread Telegram update'lerini işlemeye devam eder.
+    Böylece buton gecikmez; answerCallbackQuery 'query is too old' (400) sorunu büyük ölçüde biter.
+    """
     global bot_stats
-    
+
     with ThreadPoolExecutor(max_workers=1) as executor:
         future = executor.submit(run_scan_with_timeout)
+        start_ts = time.time()
+
         try:
-            future.result(timeout=SCAN_TIMEOUT)
+            while True:
+                try:
+                    future.result(timeout=2)  # kısa bekle
+                    break
+                except FuturesTimeoutError:
+                    # Tarama devam ederken komut/butonları kaçırma
+                    try:
+                        check_telegram_commands()
+                    except Exception as _e:
+                        print("[TELEGRAM] update loop hata: " + str(_e), flush=True)
+
+                    # Global timeout kontrolü
+                    if time.time() - start_ts > SCAN_TIMEOUT:
+                        raise FuturesTimeoutError()
         except FuturesTimeoutError:
             print("[TIMEOUT] Tarama " + str(SCAN_TIMEOUT//60) + " dakikayi asti!", flush=True)
             bot_stats["timeouts"] += 1
@@ -1534,6 +1568,7 @@ def run_scan():
         except Exception as e:
             print("[HATA] Tarama hatasi: " + str(e), flush=True)
             bot_stats["errors"] += 1
+
 
 
 def main():
