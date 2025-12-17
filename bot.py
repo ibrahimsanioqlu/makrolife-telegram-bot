@@ -3,6 +3,7 @@ import sys
 import json
 import time
 import random
+from urllib.parse import urlparse, urlunparse
 import base64
 from datetime import datetime, timedelta
 from concurrent.futures import ThreadPoolExecutor, TimeoutError as FuturesTimeoutError
@@ -24,7 +25,7 @@ BOT_TOKEN = os.getenv("BOT_TOKEN")
 REAL_ADMIN_CHAT_ID = "441336964"
 
 # Web site API (tek endpoint)
-WEBSITE_API_URL = os.getenv("WEBSITE_API_URL", "https://www.diyarbakiremlakmarket.com/bot_api.php")
+WEBSITE_API_URL = os.getenv("WEBSITE_API_URL", "https://www.diyarbakiremlakmarket.com/admin/bot_api.php")
 
 # Normal bildirim alacak chat'ler (REAL_ADMIN'e ayrı, butonlu mesaj atacağız)
 CHAT_IDS = [cid for cid in [os.getenv("CHAT_ID"), "7449598531"] if cid and str(cid) != REAL_ADMIN_CHAT_ID]
@@ -156,27 +157,57 @@ def edit_message_reply_markup(chat_id: str, message_id: int, reply_markup=None):
 
 
 def call_site_api(action: str, **params):
-    """Site tek endpoint çağrısı.
-    - Hata olsa bile mümkünse JSON'u döndürür (status_code ekler).
-    - JSON değilse ham metinden kısa bir özet döndürür.
-    """
-    payload = {"action": action, **params}
-    try:
-        r = requests.post(WEBSITE_API_URL, data=payload, timeout=80)
-        status = getattr(r, "status_code", None)
+    """Web site bot_api.php ile konuş. Hata olursa detay döndür."""
+    def _post(url: str):
         try:
-            data = r.json()
-            if isinstance(data, dict):
-                data.setdefault("_http_status", status)
-            return data
-        except Exception:
-            # JSON gelmediyse (PHP fatal / HTML vs)
-            txt = (r.text or "")[:400].strip()
-            return {"success": False, "error": "non_json_response", "_http_status": status, "snippet": txt}
-    except Exception as e:
-        print(f"[SITE API] HATA action={action}: {e}", flush=True)
-        return {"success": False, "error": "request_failed", "detail": str(e), "_http_status": None}
+            r = requests.post(url, data={"action": action, **params}, timeout=25)
+            return r
+        except Exception as e:
+            return e
 
+    url = WEBSITE_API_URL
+
+    # 1) İlk deneme
+    r1 = _post(url)
+    # Exception
+    if isinstance(r1, Exception):
+        return {"success": False, "error": "request_failed", "detail": str(r1), "url": url}
+
+    # 404 ise ve URL'de /admin/ yoksa: /admin/bot_api.php ile bir kere daha dene
+    if r1.status_code == 404:
+        try:
+            pu = urlparse(url)
+            path = pu.path or "/"
+            if "/admin/" not in path:
+                if path.startswith("/"):
+                    new_path = "/admin" + path
+                else:
+                    new_path = "/admin/" + path
+                alt = urlunparse((pu.scheme, pu.netloc, new_path, pu.params, pu.query, pu.fragment))
+                r2 = _post(alt)
+                if not isinstance(r2, Exception):
+                    url = alt
+                    r1 = r2
+        except Exception:
+            pass
+
+    # JSON parse
+    try:
+        data = r1.json()
+    except Exception:
+        return {
+            "success": False,
+            "error": "non_json_response",
+            "http_status": r1.status_code,
+            "url": url,
+            "snippet": (r1.text or "")[:400]
+        }
+
+    # bot_api.php bazen success=false döndürür; bunu üst katman yorumlar
+    if r1.status_code >= 400:
+        data["_http_status"] = r1.status_code
+        data["_url"] = url
+    return data
 def site_exists(ilan_kodu: str):
     r = call_site_api("exists", ilan_kodu=ilan_kodu)
     # r her zaman dict döndürmeye çalışır
@@ -1354,7 +1385,7 @@ def run_scan_with_timeout():
                 msg += "🏷️ " + title + "\n"
                 msg += "💰 " + fiyat + "\n\n"
                 msg += "🔗 " + link
-                send_message(msg)
+                send_message(msg, include_real_admin=False)
                 send_real_admin_new_listing(kod, title, fiyat, link)
                 time.sleep(0.3)
 
@@ -1390,7 +1421,7 @@ def run_scan_with_timeout():
                     msg += "💰 " + eski + " ➜ " + fiyat + "\n"
                     msg += fark_str + " (" + trend + ")\n\n"
                     msg += "🔗 " + state["items"][kod].get("link", "")
-                    send_message(msg, include_real_admin=False)
+                    send_message(msg, include_real_admin=False)  # real admin de alsın (ayrıca butonlu mesaj da gider)
                     send_real_admin_price_change(kod, state["items"][kod].get("title", ""), eski, fiyat)
                     time.sleep(0.3)
 
@@ -1410,7 +1441,7 @@ def run_scan_with_timeout():
                 msg += "📋 " + kod + "\n"
                 msg += "🏷️ " + item.get("title", "") + "\n"
                 msg += "💰 " + item.get("fiyat", "")
-                send_message(msg)
+                send_message(msg, include_real_admin=False)
                 send_real_admin_deleted(kod, item.get("title", ""), item.get("fiyat", ""))
 
                 del state["items"][kod]
