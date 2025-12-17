@@ -6323,6 +6323,16 @@
       "timestamp": 1765998016.4496136,
       "position": 0,
       "first_seen_date": "2025-12-17"
+    },
+    "ML-1324-409": {
+      "fiyat": "4.250.000 ₺",
+      "tarih": "2025-12-17",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-1324-409",
+      "title": "YENİ CEZAEVİ KARŞISI 2+1 ULTRA LÜX SIFIR DAİRE",
+      "scan_seq": 27,
+      "timestamp": 1766001242.5076113,
+      "position": 6,
+      "first_seen_date": "2025-12-17"
     }
   },
   "reported_days": [],
@@ -6334,10 +6344,10 @@
       "deleted": 2
     },
     "2025-12-17": {
-      "new": 30,
+      "new": 31,
       "price_changes": 8,
       "deleted": 15
     }
   },
-  "scan_sequence": 26
+  "scan_sequence": 27
 }
