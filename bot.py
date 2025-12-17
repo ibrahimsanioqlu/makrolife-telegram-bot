@@ -471,16 +471,31 @@ def handle_callback_query(update):
 
     except Exception as e:
         print(f"[CALLBACK] Hata: {e}", flush=True)
-def get_updates(offset=None):
+def get_updates(offset=None, timeout=1, limit=10):
+    """Telegram getUpdates wrapper.
+
+    timeout: Telegram long-poll seconds (server-side wait). 0 = no wait.
+    limit: max updates to return.
+    """
     try:
         url = "https://api.telegram.org/bot" + BOT_TOKEN + "/getUpdates"
-        params = {"timeout": 1, "limit": 10}
-        if offset:
-            params["offset"] = offset
-        resp = requests.get(url, params=params, timeout=5)
+
+        # Telegram API params
+        t = 1 if timeout is None else int(timeout)
+        l = 10 if limit is None else int(limit)
+        params = {"timeout": max(0, t), "limit": max(1, l)}
+
+        # offset=0 is valid; only skip when None
+        if offset is not None:
+            params["offset"] = int(offset)
+
+        # HTTP timeout should be a bit larger than long-poll timeout
+        req_timeout = max(5, params["timeout"] + 10)
+        resp = requests.get(url, params=params, timeout=req_timeout)
         resp.raise_for_status()
-        return resp.json().get("result", [])
-    except:
+        data = resp.json()
+        return data.get("result", []) if isinstance(data, dict) else []
+    except Exception:
         return []
 
 
