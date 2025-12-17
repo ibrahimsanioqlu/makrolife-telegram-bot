@@ -250,14 +250,20 @@ def call_site_api(action: str, params: dict):
 
     return ok_flag, data
 def site_exists(ilan_kodu: str):
-    r = call_site_api("exists", {"ilan_kodu": ilan_kodu})
-    # r her zaman dict döndürmeye çalışır
+    """Site DB'de ilan var mı? bot_api.php?action=exists endpoint'i."""
+    ok, r = call_site_api("exists", {"ilan_kodu": ilan_kodu})
+
     if not isinstance(r, dict):
         return {"exists": None, "error": "unexpected_response"}
-    if r.get("success") is False and r.get("error"):
-        return {"exists": None, **r}
-    # normal
-    return r
+
+    if not ok:
+        err = r.get("error") or "api_error"
+        return {"exists": None, "error": err, "detail": r}
+
+    if "exists" in r:
+        return r
+
+    return {"exists": None, "error": "unexpected_response", "detail": r}
 
 def _site_status_line(exists_resp: dict):
     """Site API'den gelen exists cevabını okunur metne çevirir."""
@@ -1210,57 +1216,50 @@ def handle_command(chat_id, command, message_text):
 
 
 def check_telegram_commands():
-    """Telegram mesajlarını (admin komutları) ve inline buton callback'lerini dinle."""
+    """Telegram mesajlarını ve callback butonlarını dinle."""
     global last_update_id
-    cmd_result = None
     try:
-        offset = (last_update_id + 1) if last_update_id else None
+        offset = last_update_id + 1 if last_update_id else None
         updates = get_updates(offset=offset, timeout=1, limit=50)
         if not updates:
-            return None
+            return
 
         processed_any = False
+
         for upd in updates:
             update_id = upd.get("update_id", 0)
             if update_id:
                 last_update_id = max(last_update_id, update_id)
                 processed_any = True
 
-            # Inline buton callback
-            cq = upd.get("callback_query")
-            if isinstance(cq, dict):
-                handle_callback_query(cq)
+            # Callback Query (inline buton)
+            if "callback_query" in upd:
+                handle_callback_query(upd)
                 continue
 
-            msg = upd.get("message") or upd.get("edited_message")
-            if not isinstance(msg, dict):
+            msg = upd.get("message") or {}
+            if not msg:
                 continue
 
-            chat = msg.get("chat") or {}
-            chat_id = chat.get("id")
-            if chat_id is None:
-                continue
-
-            text = (msg.get("text") or "").strip()
-            if not text:
-                continue
+            chat_id = msg.get("chat", {}).get("id")
+            text = msg.get("text", "") or ""
 
             # Sadece admin komutlar
             if str(chat_id) not in [str(x) for x in ADMIN_CHAT_IDS]:
                 continue
 
+            # Komutlar
             if text.startswith("/"):
-                command = text.split()[0].lower()
-                res = handle_command(chat_id, command, text)
-                if res == "SCAN":
-                    cmd_result = "SCAN"
+                full_text = text.strip()
+                cmd = full_text.split()[0] if full_text else ""
+                cmd = cmd.split("@")[0]  # /komut@BotAdi durumları
+                handle_command(chat_id, cmd, full_text)
 
         if processed_any:
             save_telegram_offset(last_update_id)
-        return cmd_result
+
     except Exception as e:
         print(f"[TELEGRAM] Komut kontrol hatası: {e}", flush=True)
-        return None
 def fetch_listings_playwright():
     global SCAN_STOP_REQUESTED, ACTIVE_SCAN
 
@@ -1269,7 +1268,6 @@ def fetch_listings_playwright():
     SCAN_STOP_REQUESTED = False
 
     scan_start = time.time()
-    last_poll = 0  # tarama sırasında buton/komutları kaçırmamak için
 
     print("[PLAYWRIGHT] Baslatiliyor...", flush=True)
 
@@ -1307,13 +1305,6 @@ def fetch_listings_playwright():
             if MANUAL_SCAN_LIMIT is not None and page_num >= MANUAL_SCAN_LIMIT:
                 print("[PLAYWRIGHT] Manuel sayfa limiti doldu", flush=True)
                 break
-            # Tarama sürerken Telegram buton/komutlarını hızlı işle (callback timeout olmasın)
-            if time.time() - last_poll >= 2:
-                try:
-                    check_telegram_commands()
-                except Exception:
-                    pass
-                last_poll = time.time()
 
             page_num += 1
             if page_num == 1:
@@ -1647,21 +1638,10 @@ def run_scan_with_timeout():
         msg += "📊 Taranan ilan: " + str(len(listings)) + " ilan\n\n"
         msg += "<b>📈 Sonuçlar:</b>\n"
 
-        if new_count > 0:
-            msg += "🆕 Yeni ilan: <b>" + str(new_count) + "</b>\n"
-        else:
-            msg += "🆕 Yeni ilan: Bulunamadı\n"
 
-        if deleted_count > 0:
-            msg += "🗑️ Silinen ilan: <b>" + str(deleted_count) + "</b>\n"
-        else:
-            msg += "🗑️ Silinen ilan: Bulunamadı\n"
-
-        if price_change_count > 0:
-            msg += "💱 Fiyat değişimi: <b>" + str(price_change_count) + "</b>"
-        else:
-            msg += "💱 Fiyat değişimi: Bulunamadı"
-
+        msg += "🆕 Yeni ilan: " + ("<b>" + str(new_count) + "</b>" if new_count > 0 else "0") + "\n"
+        msg += "🗑️ Silinen ilan: " + ("<b>" + str(deleted_count) + "</b>" if deleted_count > 0 else "0") + "\n"
+        msg += "💱 Fiyat değişimi: " + ("<b>" + str(price_change_count) + "</b>" if price_change_count > 0 else "0")
         send_message(msg)
 
     if now.hour == 23 and now.minute >= 30 and today not in state.get("reported_days", []):
