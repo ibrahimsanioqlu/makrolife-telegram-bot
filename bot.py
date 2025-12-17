@@ -3,7 +3,6 @@ import sys
 import json
 import time
 import random
-import hashlib
 import base64
 from datetime import datetime, timedelta
 from concurrent.futures import ThreadPoolExecutor, TimeoutError as FuturesTimeoutError
@@ -19,27 +18,15 @@ print("Python version: " + sys.version, flush=True)
 print("Calisma zamani: " + datetime.utcnow().isoformat(), flush=True)
 print("=" * 60, flush=True)
 
-PRIMARY_BOT_TOKEN = os.getenv("BOT_TOKEN")
-MIRROR_BOT_TOKEN = os.getenv("BOT_TOKEN2")  # opsiyonel: ikinci bot token
-
-# Bildirimlerin gideceği bot tokenları (primary + mirror)
-BROADCAST_BOT_TOKENS = [t for t in [PRIMARY_BOT_TOKEN, MIRROR_BOT_TOKEN] if t]
-
-# Not: CHAT_ID ve CHAT_ID2 ikisini de verebilirsin. Aşağıdaki sabit id (7449598531) korunuyor.
-CHAT_IDS = [os.getenv("CHAT_ID"), os.getenv("CHAT_ID2"), "7449598531"]
-CHAT_IDS = [c for c in CHAT_IDS if c]
-ADMIN_CHAT_IDS = [os.getenv("CHAT_ID"), os.getenv("CHAT_ID2"), "7449598531"]
-ADMIN_CHAT_IDS = [c for c in ADMIN_CHAT_IDS if c]
-
-# Inline butonları hangi bot göndersin? (Şimdilik primary üzerinden yönetiyoruz)
-BUTTON_BOT_TOKEN = PRIMARY_BOT_TOKEN
+BOT_TOKEN = os.getenv("BOT_TOKEN")
+CHAT_IDS = [os.getenv("CHAT_ID"), "7449598531"]
+ADMIN_CHAT_IDS = [os.getenv("CHAT_ID"), "7449598531"]
 
 # GitHub ayarlari (veri yedekleme icin)
 GITHUB_TOKEN = os.getenv("GITHUB_TOKEN")
 GITHUB_REPO = os.getenv("GITHUB_REPO", "ibrahimsanioqlu/makrolife-telegram-bot")
 
-print("PRIMARY_BOT_TOKEN mevcut: " + str(bool(PRIMARY_BOT_TOKEN)), flush=True)
-print("MIRROR_BOT_TOKEN mevcut: " + str(bool(MIRROR_BOT_TOKEN)), flush=True)
+print("BOT_TOKEN mevcut: " + str(bool(BOT_TOKEN)), flush=True)
 print("CHAT_ID mevcut: " + str(bool(os.getenv("CHAT_ID"))), flush=True)
 print("GITHUB_TOKEN mevcut: " + str(bool(GITHUB_TOKEN)), flush=True)
 
@@ -47,20 +34,6 @@ URL = "https://www.makrolife.com.tr/tumilanlar"
 DATA_FILE = "/data/ilanlar.json"
 HISTORY_FILE = "/data/history.json"
 LAST_SCAN_FILE = "/data/last_scan_time.json"
-
-# ------------------------------------------------------------
-# WEB SİTESİ ENTEGRASYONU (admin klasörü altındaki PHP endpointler)
-# ------------------------------------------------------------
-SITE_BASE_URL = os.getenv("SITE_BASE_URL", "https://www.diyarbakiremlakmarket.com/admin").rstrip("/")
-SITE_API_KEY = os.getenv("SITE_API_KEY", "")  # istersen boş bırak (ama önerilen: gizli anahtar)
-
-SITE_SCRAPER_URL = SITE_BASE_URL + "/listing_scraper.php"
-SITE_ADD_URL = SITE_BASE_URL + "/ilan-kaydet.php"
-SITE_DELETE_URL = SITE_BASE_URL + "/ilan-sil.php"
-SITE_PRICE_URL = SITE_BASE_URL + "/ilan-fiyat-guncelle.php"  # yeni ekleyeceğiz (aşağıda kodunu verdim)
-
-PENDING_FILE = "/data/pending_actions.json"
-
 
 # Timeout (saniye) - 25 dakika
 SCAN_TIMEOUT = 25 * 60
@@ -104,118 +77,120 @@ STATE_CACHE = None
 STATE_GITHUB_SHA = None
 
 
+def send_message(text, chat_id=None):
+    chat_ids = [chat_id] if chat_id else CHAT_IDS
+    
+    for cid in chat_ids:
+        if not cid:
+            continue
+        try:
+            url = "https://api.telegram.org/bot" + BOT_TOKEN + "/sendMessage"
+            resp = requests.post(
+                url,
+                data={
+                    "chat_id": cid,
+                    "text": text[:4000],
+                    "disable_web_page_preview": True,
+                    "parse_mode": "HTML"
+                },
+                timeout=10
+            )
+            resp.raise_for_status()
+        except Exception as e:
+            print("[TELEGRAM] " + str(cid) + " - HATA: " + str(e), flush=True)
 
-def send_message(text, chat_id=None, reply_markup=None, token=None):
-    """Telegram'a mesaj gönder.
-    - token verilmezse PRIMARY_BOT_TOKEN kullanır
-    - chat_id verilmezse CHAT_IDS'e yollar
-    - reply_markup verilirse inline buton vs. ekler
-    """
+
+def get_updates(offset=None):
     try:
-        token = token or PRIMARY_BOT_TOKEN
-        if not token:
-            print("[TELEGRAM] BOT_TOKEN yok, mesaj gonderilemedi!", flush=True)
-            return False
-
-        url = "https://api.telegram.org/bot" + token + "/sendMessage"
-
-        target_chat_ids = [chat_id] if chat_id is not None else CHAT_IDS
-
-        ok = True
-        for cid in target_chat_ids:
-            data = {
-                "chat_id": cid,
-                "text": text[:4000],
-                "disable_web_page_preview": True,
-                "parse_mode": "HTML",
-            }
-            if reply_markup is not None:
-                data["reply_markup"] = json.dumps(reply_markup, ensure_ascii=False)
-
-            resp = requests.post(url, data=data, timeout=30)
-            if resp.status_code != 200:
-                ok = False
-                print("[TELEGRAM] sendMessage hatasi:", resp.status_code, resp.text[:500], flush=True)
-
-        return ok
-    except Exception as e:
-        print("[TELEGRAM] Mesaj hatasi:", str(e), flush=True)
-        return False
-
-
-def send_message_all(text, reply_markup=None):
-    """Bildirimleri hem primary bota hem de (varsa) mirror bota gönder.
-    - Inline butonları sadece BUTTON_BOT_TOKEN ile gönderir.
-    """
-    ok = True
-
-    # Butonlu mesaj (primary)
-    ok = send_message(text, reply_markup=reply_markup, token=BUTTON_BOT_TOKEN) and ok
-
-    # Mirror bot (butonsuz)
-    if MIRROR_BOT_TOKEN and MIRROR_BOT_TOKEN != BUTTON_BOT_TOKEN:
-        ok = send_message(text, token=MIRROR_BOT_TOKEN) and ok
-
-    return ok
-
-
-def answer_callback_query(callback_query_id, text=None, show_alert=False, token=None):
-    """Inline buton basıldığında Telegram'daki 'yükleniyor' durumunu kapat."""
-    try:
-        token = token or BUTTON_BOT_TOKEN
-        if not token:
-            return False
-        url = "https://api.telegram.org/bot" + token + "/answerCallbackQuery"
-        data = {"callback_query_id": callback_query_id, "show_alert": "true" if show_alert else "false"}
-        if text:
-            data["text"] = text[:200]
-        resp = requests.post(url, data=data, timeout=15)
-        return resp.status_code == 200
-    except Exception as e:
-        print("[TELEGRAM] answerCallbackQuery hatasi:", str(e), flush=True)
-        return False
-
-
-def edit_message_reply_markup(chat_id, message_id, reply_markup=None, token=None):
-    """Mesajın altındaki inline butonları güncelle/kaldır."""
-    try:
-        token = token or BUTTON_BOT_TOKEN
-        if not token:
-            return False
-        url = "https://api.telegram.org/bot" + token + "/editMessageReplyMarkup"
-        data = {"chat_id": chat_id, "message_id": message_id}
-
-        if reply_markup is None:
-            data["reply_markup"] = json.dumps({"inline_keyboard": []}, ensure_ascii=False)
-        else:
-            data["reply_markup"] = json.dumps(reply_markup, ensure_ascii=False)
-
-        resp = requests.post(url, data=data, timeout=20)
-        return resp.status_code == 200
-    except Exception as e:
-        print("[TELEGRAM] editMessageReplyMarkup hatasi:", str(e), flush=True)
-        return False
-
-def normalize_price(fiyat):
-    return "".join(c for c in str(fiyat) if c.isdigit())
-
-
-def get_updates(offset=None, token=None):
-    """Telegram getUpdates (primary/buton bot)."""
-    try:
-        token = token or BUTTON_BOT_TOKEN
-        if not token:
-            return []
-        url = "https://api.telegram.org/bot" + token + "/getUpdates"
-        params = {"timeout": 25}
+        url = "https://api.telegram.org/bot" + BOT_TOKEN + "/getUpdates"
+        params = {"timeout": 1, "limit": 10}
         if offset:
             params["offset"] = offset
-        resp = requests.get(url, params=params, timeout=30)
+        resp = requests.get(url, params=params, timeout=5)
+        resp.raise_for_status()
         return resp.json().get("result", [])
     except:
         return []
 
 
+def normalize_price(fiyat):
+    return "".join(c for c in fiyat if c.isdigit())
+
+
+def github_get_file(filename):
+    """GitHub'dan dosya oku (Contents API). JSON ise parse edip döndürür.
+    Dönüş: (parsed_content_or_None, sha_or_None)
+    """
+    if not GITHUB_TOKEN:
+        return None, None
+
+    try:
+        url = "https://api.github.com/repos/" + GITHUB_REPO + "/contents/" + filename.lstrip("/")
+
+        headers = {
+            "Authorization": "Bearer " + GITHUB_TOKEN,
+            "Accept": "application/vnd.github+json",
+            "User-Agent": "railway-makrolife-bot"
+        }
+
+        resp = requests.get(url, headers=headers, timeout=20)
+
+        if resp.status_code != 200:
+            # 404/401 vb. durumlarda sessizce None döndür
+            print(f"[GITHUB] Okuma basarisiz: {resp.status_code} {resp.text[:200]}", flush=True)
+            return None, None
+
+        data = resp.json()
+        sha = data.get("sha")
+
+        # Bazı durumlarda 'content' gelmeyebilir (buyuk dosya vb.), download_url ile indir.
+        raw_text = None
+        if data.get("type") == "file":
+            if data.get("content") and data.get("encoding") == "base64":
+                try:
+                    raw_bytes = base64.b64decode(data["content"])
+                    raw_text = raw_bytes.decode("utf-8", errors="replace")
+                except Exception as e:
+                    print(f"[GITHUB] Base64 decode hatasi: {e}", flush=True)
+                    raw_text = None
+
+            if raw_text is None and data.get("download_url"):
+                try:
+                    dresp = requests.get(
+                        data["download_url"],
+                        headers={"Authorization": "Bearer " + GITHUB_TOKEN, "User-Agent": "railway-makrolife-bot"},
+                        timeout=20
+                    )
+                    if dresp.status_code == 200:
+                        raw_text = dresp.text
+                    else:
+                        print(f"[GITHUB] download_url okuma basarisiz: {dresp.status_code}", flush=True)
+                except Exception as e:
+                    print(f"[GITHUB] download_url okuma hatasi: {e}", flush=True)
+
+        if raw_text is None:
+            return None, sha
+
+        # JSON parse (BOM/whitespace/null temizliği)
+        cleaned = raw_text.lstrip("\ufeff").replace("\x00", "").strip()
+        try:
+            parsed = json.loads(cleaned) if cleaned else None
+        except Exception as e:
+            # JSON bozuksa yine sha döndür; parsed None
+            print(f"[GITHUB] JSON parse hatasi ({filename}): {e}", flush=True)
+            parsed = None
+
+        return parsed, sha
+
+    except Exception as e:
+        print("[GITHUB] Okuma hatasi: " + str(e), flush=True)
+        return None, None
+
+
+
+def github_save_file(filename, content, sha=None):
+    if not GITHUB_TOKEN:
+        return False
 
     try:
         url = f"https://api.github.com/repos/{GITHUB_REPO}/contents/{filename}"
@@ -468,314 +443,6 @@ def save_history(history):
             json.dump(history, f, ensure_ascii=False, indent=2)
     except Exception as e:
         print("[HISTORY] Kayit hatasi: " + str(e), flush=True)
-
-
-
-# ------------------------------------------------------------
-# Inline buton + site entegrasyonu (pending action mantığı)
-# ------------------------------------------------------------
-
-def load_pending_actions():
-    try:
-        if os.path.exists(PENDING_FILE):
-            with open(PENDING_FILE, "r", encoding="utf-8") as f:
-                return json.load(f)
-    except Exception as e:
-        print("[PENDING] Okuma hatasi:", str(e), flush=True)
-    return {}
-
-
-def save_pending_actions(pending):
-    try:
-        with open(PENDING_FILE, "w", encoding="utf-8") as f:
-            json.dump(pending, f, ensure_ascii=False, indent=2)
-    except Exception as e:
-        print("[PENDING] Yazma hatasi:", str(e), flush=True)
-
-
-def make_action_id(action_type, kod):
-    seed = f"{action_type}|{kod}|{time.time()}|{random.random()}"
-    return hashlib.sha1(seed.encode("utf-8")).hexdigest()[:12]
-
-
-def register_action(action_type, payload):
-    pending = load_pending_actions()
-    action_id = make_action_id(action_type, payload.get("kod", ""))
-    pending[action_id] = {
-        "type": action_type,
-        "status": "pending",
-        "created_at": time.time(),
-        **payload,
-    }
-    # Çok eski kayıtları temizle (7 gün)
-    cutoff = time.time() - 7 * 24 * 3600
-    for k in list(pending.keys()):
-        if pending[k].get("created_at", 0) < cutoff:
-            pending.pop(k, None)
-
-    save_pending_actions(pending)
-    return action_id
-
-
-def mark_action(action_id, status, note=""):
-    pending = load_pending_actions()
-    if action_id in pending:
-        pending[action_id]["status"] = status
-        if note:
-            pending[action_id]["note"] = note
-        pending[action_id]["done_at"] = time.time()
-        save_pending_actions(pending)
-
-
-def build_inline_keyboard_for_event(event_type, action_id, link=""):
-    # event_type: add | price | delete
-    if event_type == "add":
-        row = [
-            {"text": "✅ Siteye Ekle", "callback_data": f"site:add:{action_id}"},
-            {"text": "❌ Ekleme", "callback_data": f"site:skip:{action_id}"},
-        ]
-    elif event_type == "price":
-        row = [
-            {"text": "✅ Sitede Güncelle", "callback_data": f"site:price:{action_id}"},
-            {"text": "❌ Atla", "callback_data": f"site:skip:{action_id}"},
-        ]
-    else:  # delete
-        row = [
-            {"text": "✅ Siteden Sil", "callback_data": f"site:delete:{action_id}"},
-            {"text": "❌ Atla", "callback_data": f"site:skip:{action_id}"},
-        ]
-
-    kb = {"inline_keyboard": [row]}
-    if link:
-        kb["inline_keyboard"].append([{"text": "🔗 İlanı Aç", "url": link}])
-    return kb
-
-
-def site_request(method, url, data=None, params=None, timeout=90):
-    headers = {"User-Agent": "railway-telegram-bot/1.0"}
-    data = data or {}
-    params = params or {}
-
-    if SITE_API_KEY:
-        # PHP tarafında kullanmak istersen
-        data.setdefault("api_key", SITE_API_KEY)
-        params.setdefault("api_key", SITE_API_KEY)
-
-    if method == "GET":
-        return requests.get(url, params=params, headers=headers, timeout=timeout)
-    return requests.post(url, data=data, headers=headers, timeout=timeout)
-
-
-def scrape_listing_details_for_site(kod_full, fallback_title="", fallback_price=""):
-    """listing_scraper.php ML- prefixini kendisi eklediği için biz burada kırpıyoruz."""
-    kod = str(kod_full)
-    kod_short = kod[3:] if kod.upper().startswith("ML-") else kod
-
-    resp = site_request("GET", SITE_SCRAPER_URL, params={"listing_code": kod_short}, timeout=120)
-    j = None
-    try:
-        j = resp.json()
-    except Exception:
-        pass
-
-    if not j or not j.get("success"):
-        return {
-            "title": fallback_title,
-            "price": fallback_price,
-            "photos": [],
-        }
-
-    data = j.get("data", {}) or {}
-    title = data.get("title") or fallback_title
-    price = data.get("price") or fallback_price
-    photos = data.get("photos") or data.get("photos_urls") or []
-    # photos bazen dict gelebilir, listeye çevir
-    if isinstance(photos, dict):
-        photos = list(photos.values())
-    if not isinstance(photos, list):
-        photos = []
-
-    # En fazla 20 foto gönder (payload şişmesin)
-    photos = [p for p in photos if isinstance(p, str) and p.strip()][:20]
-    return {"title": title, "price": price, "photos": photos}
-
-
-def site_add_listing(kod, title, price, link=""):
-    details = scrape_listing_details_for_site(kod, fallback_title=title, fallback_price=price)
-
-    resim_listesi = json.dumps([{"url": u} for u in details["photos"]], ensure_ascii=False)
-
-    data = {
-        "ilan_kodu": kod,
-        "baslik": details["title"] or title,
-        "fiyat": normalize_price(details["price"] or price),
-        "resim_listesi": resim_listesi,
-    }
-    resp = site_request("POST", SITE_ADD_URL, data=data, timeout=120)
-    # ilan-kaydet.php HTML dönüyor; başarılı metin var mı bakıyoruz
-    ok = (resp.status_code == 200) and ("alert-success" in resp.text or "başarı" in resp.text.lower())
-    return ok, (resp.text[:500] if resp is not None else "")
-
-
-def site_update_price(kod, new_price):
-    data = {
-        "ilan_kodu": kod,
-        "fiyat": normalize_price(new_price),
-    }
-    resp = site_request("POST", SITE_PRICE_URL, data=data, timeout=60)
-    try:
-        j = resp.json()
-        return bool(j.get("basarili")), j.get("mesaj", "")
-    except Exception:
-        ok = resp.status_code == 200
-        return ok, resp.text[:300]
-
-
-def site_delete_listing(kod):
-    data = {"ilan_kodu": kod}
-    resp = site_request("POST", SITE_DELETE_URL, data=data, timeout=60)
-    try:
-        j = resp.json()
-        return bool(j.get("basarili")), j.get("mesaj", "")
-    except Exception:
-        ok = resp.status_code == 200
-        return ok, resp.text[:300]
-
-
-def notify_new_listing(kod, title, fiyat, link):
-    action_id = register_action("add", {"kod": kod, "title": title, "fiyat": fiyat, "link": link})
-    kb = build_inline_keyboard_for_event("add", action_id, link=link)
-
-    msg = "🏠 <b>YENİ İLAN</b>\n\n"
-    msg += "📋 " + kod + "\n"
-    msg += "🏷️ " + title + "\n"
-    msg += "💰 " + fiyat + "\n\n"
-    msg += "🔗 " + link
-
-    send_message_all(msg, reply_markup=kb)
-    time.sleep(0.3)
-
-
-def notify_price_change(kod, eski, yeni, link, fark_str, trend):
-    action_id = register_action("price", {"kod": kod, "eski_fiyat": eski, "yeni_fiyat": yeni, "link": link})
-    kb = build_inline_keyboard_for_event("price", action_id, link=link)
-
-    msg = "💱 <b>FİYAT DEĞİŞTİ</b>\n\n"
-    msg += "📋 " + kod + "\n"
-    msg += "💰 " + eski + " ➜ " + yeni + "\n"
-    msg += fark_str + " (" + trend + ")\n\n"
-    msg += "🔗 " + (link or "")
-
-    send_message_all(msg, reply_markup=kb)
-    time.sleep(0.3)
-
-
-def notify_deleted_listing(kod, title, fiyat, link=""):
-    action_id = register_action("delete", {"kod": kod, "title": title, "fiyat": fiyat, "link": link})
-    kb = build_inline_keyboard_for_event("delete", action_id, link=link)
-
-    msg = "🗑️ <b>İLAN SİLİNDİ</b>\n\n"
-    msg += "📋 " + kod + "\n"
-    msg += "🏷️ " + (title or "") + "\n"
-    msg += "💰 " + (fiyat or "")
-
-    send_message_all(msg, reply_markup=kb)
-    time.sleep(0.3)
-
-
-def handle_callback_query(cb):
-    """Inline buton tıklamalarını işle."""
-    try:
-        cb_id = cb.get("id")
-        data = cb.get("data", "")
-        msg = cb.get("message", {}) or {}
-        chat_id = msg.get("chat", {}).get("id")
-        message_id = msg.get("message_id")
-
-        if not cb_id:
-            return
-
-        # Yetki kontrolü (admin chat'leri)
-        if str(chat_id) not in [str(x) for x in ADMIN_CHAT_IDS]:
-            answer_callback_query(cb_id, "Yetkin yok.", show_alert=True)
-            return
-
-        if not data.startswith("site:"):
-            return
-
-        parts = data.split(":")
-        if len(parts) < 3:
-            answer_callback_query(cb_id, "Hatalı buton verisi.", show_alert=True)
-            return
-
-        action = parts[1]  # add/price/delete/skip
-        action_id = parts[2]
-
-        pending = load_pending_actions()
-        item = pending.get(action_id)
-        if not item:
-            answer_callback_query(cb_id, "İşlem bulunamadı (süresi dolmuş olabilir).", show_alert=True)
-            # Butonları kaldır
-            if chat_id and message_id:
-                edit_message_reply_markup(chat_id, message_id)
-            return
-
-        if item.get("status") != "pending":
-            answer_callback_query(cb_id, f"Bu işlem zaten işlendi: {item.get('status')}", show_alert=True)
-            if chat_id and message_id:
-                edit_message_reply_markup(chat_id, message_id)
-            return
-
-        kod = item.get("kod", "")
-        link = item.get("link", "")
-
-        if action == "skip":
-            mark_action(action_id, "skipped", "Kullanıcı atladı")
-            answer_callback_query(cb_id, "Tamam, işlem yapılmadı.")
-            if chat_id and message_id:
-                edit_message_reply_markup(chat_id, message_id)
-            return
-
-        # İşlem yap
-        if action == "add":
-            ok, detail = site_add_listing(kod, item.get("title", ""), item.get("fiyat", ""), link=link)
-            if ok:
-                mark_action(action_id, "done", "site:add")
-                answer_callback_query(cb_id, "✅ Siteye eklendi.")
-                send_message("✅ <b>Siteye eklendi</b>\n📋 " + kod, chat_id=chat_id)
-            else:
-                mark_action(action_id, "failed", "site:add failed")
-                answer_callback_query(cb_id, "❌ Siteye eklenemedi.", show_alert=True)
-                send_message("❌ <b>Siteye ekleme başarısız</b>\n📋 " + kod + "\n\n" + str(detail), chat_id=chat_id)
-
-        elif action == "price":
-            ok, msgtxt = site_update_price(kod, item.get("yeni_fiyat", ""))
-            if ok:
-                mark_action(action_id, "done", "site:price")
-                answer_callback_query(cb_id, "✅ Sitede güncellendi.")
-                send_message("✅ <b>Fiyat güncellendi</b>\n📋 " + kod, chat_id=chat_id)
-            else:
-                mark_action(action_id, "failed", "site:price failed")
-                answer_callback_query(cb_id, "❌ Fiyat güncellenemedi.", show_alert=True)
-                send_message("❌ <b>Fiyat güncelleme başarısız</b>\n📋 " + kod + "\n\n" + str(msgtxt), chat_id=chat_id)
-
-        elif action == "delete":
-            ok, msgtxt = site_delete_listing(kod)
-            if ok:
-                mark_action(action_id, "done", "site:delete")
-                answer_callback_query(cb_id, "✅ Siteden silindi.")
-                send_message("✅ <b>Siteden silindi</b>\n📋 " + kod, chat_id=chat_id)
-            else:
-                mark_action(action_id, "failed", "site:delete failed")
-                answer_callback_query(cb_id, "❌ Siteden silinemedi.", show_alert=True)
-                send_message("❌ <b>Silme başarısız</b>\n📋 " + kod + "\n\n" + str(msgtxt), chat_id=chat_id)
-
-        # Butonları kaldır
-        if chat_id and message_id:
-            edit_message_reply_markup(chat_id, message_id)
-
-    except Exception as e:
-        print("[CALLBACK] Hata:", str(e), flush=True)
 
 
 def format_duration(seconds):
@@ -1097,37 +764,14 @@ def check_telegram_commands():
     for update in updates:
         last_update_id = update.get("update_id", last_update_id)
 
-        # Inline buton callback
-        if "callback_query" in update:
-            handle_callback_query(update.get("callback_query") or {})
-            continue
-
-        message = update.get("message", {}) or {}
+        message = update.get("message", {})
         chat_id = str(message.get("chat", {}).get("id", ""))
         text = message.get("text", "")
 
         if not text or not chat_id:
             continue
 
-        # Sayfa seçimi bekleniyorsa (eskiden /tara)
-        if WAITING_PAGE_CHOICE and text in ["1", "2", "3", "4"]:
-            if text == "1":
-                MANUAL_SCAN_LIMIT = 5
-            elif text == "2":
-                MANUAL_SCAN_LIMIT = 10
-            elif text == "3":
-                MANUAL_SCAN_LIMIT = 20
-            elif text == "4":
-                MANUAL_SCAN_LIMIT = None
-
-            WAITING_PAGE_CHOICE = False
-            send_message(
-                "✅ Ayarlandı. Manuel taramada: <b>" + ("TÜM SAYFALAR" if MANUAL_SCAN_LIMIT is None else str(MANUAL_SCAN_LIMIT)) + "</b>",
-                chat_id
-            )
-            result = "SCAN"
-            continue
-
+        # Sadece admin'lerden komut al
         if chat_id not in ADMIN_CHAT_IDS:
             continue
 
@@ -1285,7 +929,7 @@ def fetch_listings_playwright():
 
             # İlerleme mesajı (sayfa bazlı)
             if page_num % 25 == 0:
-                send_message_all(
+                send_message(
                     "🔄 <b>TARAMA DEVAM EDİYOR</b>\n\n"
                     f"📄 Sayfa: {page_num}\n"
                     f"📊 Toplam ilan: {len(results)}\n"
@@ -1393,7 +1037,7 @@ def run_scan_with_timeout():
         msg += "📄 Taranan sayfa: " + str(bot_stats["last_scan_pages"]) + " sayfa\n"
         msg += "📊 Toplam: <b>" + str(len(listings)) + "</b> ilan\n\n"
         msg += "💾 Tümü belleğe kaydedildi"
-        send_message_all(msg)
+        send_message(msg)
         print("[TARAMA] Ilk calisma: " + str(len(listings)) + " ilan", flush=True)
 
     else:
@@ -1432,7 +1076,13 @@ def run_scan_with_timeout():
                     {"kod": kod, "fiyat": fiyat, "title": title, "tarih": today, "link": link}
                 )
 
-                notify_new_listing(kod, title, fiyat, link)
+                msg = "🏠 <b>YENİ İLAN</b>\n\n"
+                msg += "📋 " + kod + "\n"
+                msg += "🏷️ " + title + "\n"
+                msg += "💰 " + fiyat + "\n\n"
+                msg += "🔗 " + link
+                send_message(msg)
+                time.sleep(0.3)
 
             else:
                 # MEVCUT İLAN: Position güncelle (ilan yukarı/aşağı kayabilir)
@@ -1461,7 +1111,13 @@ def run_scan_with_timeout():
                         fark_str = "📉 " + format_number(fark) + " TL"
                         trend = "düşüş"
 
-                    notify_price_change(kod, eski, fiyat, state["items"][kod].get("link", ""), fark_str, trend)
+                    msg = "💱 <b>FİYAT DEĞİŞTİ</b>\n\n"
+                    msg += "📋 " + kod + "\n"
+                    msg += "💰 " + eski + " ➜ " + fiyat + "\n"
+                    msg += fark_str + " (" + trend + ")\n\n"
+                    msg += "🔗 " + state["items"][kod].get("link", "")
+                    send_message(msg)
+                    time.sleep(0.3)
 
         deleted_count = 0
         for kod in list(state["items"].keys()):
@@ -1475,10 +1131,15 @@ def run_scan_with_timeout():
                 # Silinen ilan için daily_stats artır
                 state["daily_stats"][today]["deleted"] += 1
 
-                notify_deleted_listing(kod, item.get("title", ""), item.get("fiyat", ""), item.get("link", ""))
+                msg = "🗑️ <b>İLAN SİLİNDİ</b>\n\n"
+                msg += "📋 " + kod + "\n"
+                msg += "🏷️ " + item.get("title", "") + "\n"
+                msg += "💰 " + item.get("fiyat", "")
+                send_message(msg)
 
                 del state["items"][kod]
                 deleted_count += 1
+                time.sleep(0.3)
 
         bot_stats["total_new_listings"] += new_count
         bot_stats["total_price_changes"] += price_change_count
@@ -1512,7 +1173,7 @@ def run_scan_with_timeout():
         else:
             msg += "💱 Fiyat değişimi: Bulunamadı"
 
-        send_message_all(msg)
+        send_message(msg)
 
     if now.hour == 23 and now.minute >= 30 and today not in state.get("reported_days", []):
         # Sitedeki sıraya göre sırala (position küçük = daha yeni)
@@ -1533,7 +1194,7 @@ def run_scan_with_timeout():
         else:
             msg += "Sistemde ilan bulunmuyor."
 
-        send_message_all(msg)
+        send_message(msg)
         state.setdefault("reported_days", []).append(today)
 
     save_state(state)
@@ -1562,7 +1223,7 @@ def run_scan():
             msg = "<b>TIMEOUT</b>\n\n"
             msg += "Tarama " + str(SCAN_TIMEOUT//60) + " dakikayi asti.\n"
             msg += "Sonraki tarama bekleniyor..."
-            send_message_all(msg)
+            send_message(msg)
         except Exception as e:
             print("[HATA] Tarama hatasi: " + str(e), flush=True)
             bot_stats["errors"] += 1
