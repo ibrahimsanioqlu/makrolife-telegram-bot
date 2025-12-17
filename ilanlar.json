@@ -6323,26 +6323,6 @@
       "timestamp": 1766003391.1526194,
       "position": 315,
       "first_seen_date": "2025-12-17"
-    },
-    "ML-0429-239": {
-      "fiyat": "20.000 ₺",
-      "tarih": "2025-12-17",
-      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-0429-239",
-      "title": "ELAZIĞ YOLU ALTINDAĞ DİNLENME TESİSLERİ KARŞISI İS...",
-      "scan_seq": 29,
-      "timestamp": 1766003392.619549,
-      "position": 485,
-      "first_seen_date": "2025-12-17"
-    },
-    "ML-0429-238": {
-      "fiyat": "3.150.000 ₺",
-      "tarih": "2025-12-17",
-      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-0429-238",
-      "title": "YENİŞEHİR ÜÇKUYULAR 1.ETAP TOKİ KONUTLARIDA  3+1 SATILI...",
-      "scan_seq": 29,
-      "timestamp": 1766003393.785054,
-      "position": 486,
-      "first_seen_date": "2025-12-17"
     }
   },
   "reported_days": [],
