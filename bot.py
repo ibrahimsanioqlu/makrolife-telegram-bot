@@ -19,9 +19,18 @@ print("Calisma zamani: " + datetime.utcnow().isoformat(), flush=True)
 print("=" * 60, flush=True)
 
 BOT_TOKEN = os.getenv("BOT_TOKEN")
-CHAT_IDS = [os.getenv("CHAT_ID"), "7449598531"]
-ADMIN_CHAT_IDS = [os.getenv("CHAT_ID"), "7449598531"]
 
+# Railway'de görünen gerçek admin chat id
+REAL_ADMIN_CHAT_ID = "441336964"
+
+# Web site API (tek endpoint)
+WEBSITE_API_URL = os.getenv("WEBSITE_API_URL", "https://www.diyarbakiremlakmarket.com/bot_api.php")
+
+# Normal bildirim alacak chat'ler (REAL_ADMIN'e ayrı, butonlu mesaj atacağız)
+CHAT_IDS = [cid for cid in [os.getenv("CHAT_ID"), "7449598531"] if cid and str(cid) != REAL_ADMIN_CHAT_ID]
+
+# Komut + buton callback'leri için admin listesi
+ADMIN_CHAT_IDS = [cid for cid in {os.getenv("CHAT_ID"), "7449598531", REAL_ADMIN_CHAT_ID} if cid]
 # GitHub ayarlari (veri yedekleme icin)
 GITHUB_TOKEN = os.getenv("GITHUB_TOKEN")
 GITHUB_REPO = os.getenv("GITHUB_REPO", "ibrahimsanioqlu/makrolife-telegram-bot")
@@ -77,28 +86,198 @@ STATE_CACHE = None
 STATE_GITHUB_SHA = None
 
 
-def send_message(text, chat_id=None):
+def telegram_api(method: str, data: dict, timeout: int = 10):
+    """Telegram API çağrısı (POST)."""
+    try:
+        url = f"https://api.telegram.org/bot{BOT_TOKEN}/{method}"
+        resp = requests.post(url, data=data, timeout=timeout)
+        resp.raise_for_status()
+        return resp.json()
+    except Exception as e:
+        print(f"[TELEGRAM] {method} HATA: {e}", flush=True)
+        return None
+
+
+def send_message(text, chat_id=None, reply_markup=None, disable_preview=True):
+    """Varsayılan CHAT_IDS'e veya tek chat_id'ye mesaj gönderir."""
     chat_ids = [chat_id] if chat_id else CHAT_IDS
-    
+
     for cid in chat_ids:
         if not cid:
             continue
-        try:
-            url = "https://api.telegram.org/bot" + BOT_TOKEN + "/sendMessage"
-            resp = requests.post(
-                url,
-                data={
-                    "chat_id": cid,
-                    "text": text[:4000],
-                    "disable_web_page_preview": True,
-                    "parse_mode": "HTML"
-                },
-                timeout=10
-            )
-            resp.raise_for_status()
-        except Exception as e:
-            print("[TELEGRAM] " + str(cid) + " - HATA: " + str(e), flush=True)
+        payload = {
+            "chat_id": cid,
+            "text": text[:4000],
+            "disable_web_page_preview": bool(disable_preview),
+            "parse_mode": "HTML",
+        }
+        if reply_markup is not None:
+            payload["reply_markup"] = json.dumps(reply_markup, ensure_ascii=False)
+        telegram_api("sendMessage", payload, timeout=15)
 
+
+def answer_callback_query(callback_query_id: str, text: str = None, show_alert: bool = False):
+    payload = {"callback_query_id": callback_query_id, "show_alert": show_alert}
+    if text:
+        payload["text"] = text[:180]
+    telegram_api("answerCallbackQuery", payload, timeout=10)
+
+
+def edit_message_reply_markup(chat_id: str, message_id: int, reply_markup=None):
+    payload = {"chat_id": chat_id, "message_id": message_id}
+    payload["reply_markup"] = json.dumps(reply_markup or {"inline_keyboard": []}, ensure_ascii=False)
+    telegram_api("editMessageReplyMarkup", payload, timeout=10)
+
+
+def call_site_api(action: str, **params):
+    """Web site tek API endpoint çağrısı. JSON döner (veya None)."""
+    try:
+        payload = {"action": action, **params}
+        r = requests.post(WEBSITE_API_URL, data=payload, timeout=60)
+        r.raise_for_status()
+        return r.json()
+    except Exception as e:
+        print(f"[SITE API] HATA action={action}: {e}", flush=True)
+        return None
+
+
+def site_exists(ilan_kodu: str):
+    r = call_site_api("exists", ilan_kodu=ilan_kodu)
+    if not isinstance(r, dict):
+        return {"exists": False, "error": "api_error"}
+    return r
+
+
+def _site_status_line(exists_resp: dict) -> str:
+    if exists_resp.get("exists"):
+        ilan_id = exists_resp.get("ilan_id")
+        return f"🌐 <b>Sitede:</b> VAR ✅ (ID: {ilan_id})"
+    return "🌐 <b>Sitede:</b> YOK ❌"
+
+
+def _kb(buttons):
+    # buttons = [[("Text","callback_data"), ...], ...]
+    return {"inline_keyboard": [[{"text": t, "callback_data": d} for (t, d) in row] for row in buttons]}
+
+
+def send_real_admin_deleted(kod: str, title: str, fiyat: str):
+    ex = site_exists(kod)
+    msg = "🗑️ <b>İLAN SİLİNDİ</b>\n\n"
+    msg += f"📋 {kod}\n"
+    msg += f"🏷️ {title}\n"
+    msg += f"💰 {fiyat}\n\n"
+    msg += _site_status_line(ex)
+
+    if ex.get("exists"):
+        kb = _kb([[("✅ SİL", f"site_del:{kod}"), ("❌ SİLME", f"site_cancel:{kod}")]])
+        send_message(msg, chat_id=REAL_ADMIN_CHAT_ID, reply_markup=kb)
+    else:
+        send_message(msg, chat_id=REAL_ADMIN_CHAT_ID)
+
+
+def send_real_admin_price_change(kod: str, title: str, eski_fiyat: str, yeni_fiyat: str):
+    ex = site_exists(kod)
+    msg = "💸 <b>FİYAT DEĞİŞTİ</b>\n\n"
+    msg += f"📋 {kod}\n"
+    msg += f"🏷️ {title}\n"
+    msg += f"🔻 Eski: <b>{eski_fiyat}</b>\n"
+    msg += f"🔺 Yeni: <b>{yeni_fiyat}</b>\n\n"
+    msg += _site_status_line(ex)
+
+    if ex.get("exists"):
+        yeni_digits = normalize_price(yeni_fiyat)[:24]
+        kb = _kb([[("✅ DEĞİŞTİR", f"site_price:{kod}:{yeni_digits}"),
+                   ("❌ DEĞİŞTİRME", f"site_cancel:{kod}")]])
+        send_message(msg, chat_id=REAL_ADMIN_CHAT_ID, reply_markup=kb)
+    else:
+        send_message(msg, chat_id=REAL_ADMIN_CHAT_ID)
+
+
+def send_real_admin_new_listing(kod: str, title: str, fiyat: str, link: str):
+    # Yeni ilan: otomatik ekle
+    ex_before = site_exists(kod)
+    add_res = None
+    if not ex_before.get("exists"):
+        add_res = call_site_api("add", ilan_kodu=kod, kaynak="Web siteden", url=link)
+    else:
+        add_res = {"success": True, "already_exists": True}
+
+    msg = "🏠 <b>YENİ İLAN</b>\n\n"
+    msg += f"📋 {kod}\n"
+    msg += f"🏷️ {title}\n"
+    msg += f"💰 {fiyat}\n\n"
+    msg += f"🔗 {link}\n\n"
+
+    if ex_before.get("exists"):
+        msg += "🌐 <b>Sitede:</b> ZATEN VAR ✅\n"
+    else:
+        msg += "🌐 <b>Sitede:</b> YOK ❌\n"
+
+    if isinstance(add_res, dict) and add_res.get("success"):
+        if add_res.get("already_exists"):
+            msg += "➕ <b>Siteye ekleme:</b> Atlandı (zaten vardı)"
+        else:
+            msg += "➕ <b>Siteye ekleme:</b> BAŞARILI ✅"
+    else:
+        err = add_res.get("error") if isinstance(add_res, dict) else "api_error"
+        msg += f"➕ <b>Siteye ekleme:</b> HATA ❌ ({err})"
+
+    send_message(msg, chat_id=REAL_ADMIN_CHAT_ID)
+
+
+def handle_callback_query(cb: dict):
+    """Inline buton tıklamaları."""
+    try:
+        cb_id = cb.get("id")
+        data = cb.get("data", "")
+        msg_obj = cb.get("message", {}) or {}
+        chat_id = str((msg_obj.get("chat") or {}).get("id", ""))
+        message_id = msg_obj.get("message_id")
+
+        # Sadece gerçek adminin butonlarını kabul et
+        if chat_id != str(REAL_ADMIN_CHAT_ID):
+            answer_callback_query(cb_id, "Bu buton sadece admin için.", show_alert=True)
+            return
+
+        if not data:
+            answer_callback_query(cb_id, "Geçersiz işlem.", show_alert=True)
+            return
+
+        parts = data.split(":")
+        action = parts[0]
+
+        if action == "site_cancel":
+            answer_callback_query(cb_id, "İşlem iptal edildi.")
+            if message_id:
+                edit_message_reply_markup(chat_id, message_id, reply_markup={"inline_keyboard": []})
+            return
+
+        if action == "site_del" and len(parts) >= 2:
+            kod = parts[1]
+            r = call_site_api("delete", ilan_kodu=kod, reason="Bot onayı ile silindi")
+            if isinstance(r, dict) and r.get("success"):
+                answer_callback_query(cb_id, "Siteden silindi ✅")
+            else:
+                answer_callback_query(cb_id, "Silme hatası ❌", show_alert=True)
+            if message_id:
+                edit_message_reply_markup(chat_id, message_id, reply_markup={"inline_keyboard": []})
+            return
+
+        if action == "site_price" and len(parts) >= 3:
+            kod = parts[1]
+            new_price = parts[2]
+            r = call_site_api("update_price", ilan_kodu=kod, new_price=new_price)
+            if isinstance(r, dict) and r.get("success"):
+                answer_callback_query(cb_id, "Fiyat güncellendi ✅")
+            else:
+                answer_callback_query(cb_id, "Fiyat güncelleme hatası ❌", show_alert=True)
+            if message_id:
+                edit_message_reply_markup(chat_id, message_id, reply_markup={"inline_keyboard": []})
+            return
+
+        answer_callback_query(cb_id, "Bilinmeyen işlem.", show_alert=True)
+    except Exception as e:
+        print(f"[CALLBACK] HATA: {e}", flush=True)
 
 def get_updates(offset=None):
     try:
@@ -764,6 +943,11 @@ def check_telegram_commands():
     for update in updates:
         last_update_id = update.get("update_id", last_update_id)
 
+        # Inline buton tıklaması
+        if "callback_query" in update:
+            handle_callback_query(update.get("callback_query") or {})
+            continue
+
         message = update.get("message", {})
         chat_id = str(message.get("chat", {}).get("id", ""))
         text = message.get("text", "")
@@ -1082,6 +1266,7 @@ def run_scan_with_timeout():
                 msg += "💰 " + fiyat + "\n\n"
                 msg += "🔗 " + link
                 send_message(msg)
+                send_real_admin_new_listing(kod, title, fiyat, link)
                 time.sleep(0.3)
 
             else:
@@ -1117,6 +1302,7 @@ def run_scan_with_timeout():
                     msg += fark_str + " (" + trend + ")\n\n"
                     msg += "🔗 " + state["items"][kod].get("link", "")
                     send_message(msg)
+                    send_real_admin_price_change(kod, state["items"][kod].get("title", ""), eski, fiyat)
                     time.sleep(0.3)
 
         deleted_count = 0
@@ -1136,6 +1322,7 @@ def run_scan_with_timeout():
                 msg += "🏷️ " + item.get("title", "") + "\n"
                 msg += "💰 " + item.get("fiyat", "")
                 send_message(msg)
+                send_real_admin_deleted(kod, item.get("title", ""), item.get("fiyat", ""))
 
                 del state["items"][kod]
                 deleted_count += 1
