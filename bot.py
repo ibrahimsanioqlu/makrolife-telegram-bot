@@ -156,58 +156,7 @@ def edit_message_reply_markup(chat_id: str, message_id: int, reply_markup=None):
     telegram_api("editMessageReplyMarkup", payload, timeout=10)
 
 
-def call_site_api(action: str, **params):
-    """Web site bot_api.php ile konuş. Hata olursa detay döndür."""
-    def _post(url: str):
-        try:
-            r = requests.post(url, data={"action": action, **params}, timeout=25)
-            return r
-        except Exception as e:
-            return e
-
-    url = WEBSITE_API_URL
-
-    # 1) İlk deneme
-    r1 = _post(url)
-    # Exception
-    if isinstance(r1, Exception):
-        return {"success": False, "error": "request_failed", "detail": str(r1), "url": url}
-
-    # 404 ise ve URL'de /admin/ yoksa: /admin/bot_api.php ile bir kere daha dene
-    if r1.status_code == 404:
-        try:
-            pu = urlparse(url)
-            path = pu.path or "/"
-            if "/admin/" not in path:
-                if path.startswith("/"):
-                    new_path = "/admin" + path
-                else:
-                    new_path = "/admin/" + path
-                alt = urlunparse((pu.scheme, pu.netloc, new_path, pu.params, pu.query, pu.fragment))
-                r2 = _post(alt)
-                if not isinstance(r2, Exception):
-                    url = alt
-                    r1 = r2
-        except Exception:
-            pass
-
-    # JSON parse
-    try:
-        data = r1.json()
-    except Exception:
-        return {
-            "success": False,
-            "error": "non_json_response",
-            "http_status": r1.status_code,
-            "url": url,
-            "snippet": (r1.text or "")[:400]
-        }
-
-    # bot_api.php bazen success=false döndürür; bunu üst katman yorumlar
-    if r1.status_code >= 400:
-        data["_http_status"] = r1.status_code
-        data["_url"] = url
-    return data
+data["_http_status"] = r1.status_code
 def site_exists(ilan_kodu: str):
     r = call_site_api("exists", ilan_kodu=ilan_kodu)
     # r her zaman dict döndürmeye çalışır
@@ -295,8 +244,6 @@ def send_real_admin_new_listing(kod: str, title: str, fiyat: str, link: str):
 
     send_message(msg, chat_id=REAL_ADMIN_CHAT_ID)
 
-import threading
-
 def handle_callback_query(cb: dict):
     """Inline buton tıklamaları."""
     try:
@@ -308,64 +255,85 @@ def handle_callback_query(cb: dict):
 
         # Sadece gerçek adminin butonlarını kabul et
         if chat_id != str(REAL_ADMIN_CHAT_ID):
-            answer_callback_query(cb_id, "Bu buton sadece admin içindir.")
+            try:
+                answer_callback_query(cb_id, "Bu buton sadece admin içindir.")
+            except Exception:
+                pass
             return
 
         if not data:
-            answer_callback_query(cb_id, "Geçersiz işlem.")
+            try:
+                answer_callback_query(cb_id, "Geçersiz işlem.")
+            except Exception:
+                pass
             return
 
         parts = data.split(":")
         action = parts[0]
         kod = parts[1] if len(parts) > 1 else ""
 
-        # ✅ CANCEL - hemen yanıt ver ve dön
-        if action == "site_cancel":
-            answer_callback_query(cb_id, "İşlem iptal edildi.")
+        def _clear_buttons():
             try:
                 if message_id:
                     edit_message_reply_markup(chat_id, message_id, None)
             except Exception as e:
                 print(f"[CALLBACK] buton kaldırma hatası: {e}", flush=True)
+
+        if action == "site_cancel":
+            _clear_buttons()
+            answer_callback_query(cb_id, "İşlem iptal edildi.")
             return
 
         if kod == "":
             answer_callback_query(cb_id, "İlan kodu yok.")
             return
 
-        # ✅ HEMEN YANIT VER (Telegram 5 saniye timeout var)
-        answer_callback_query(cb_id, "⏳ İşleniyor...")
+        if action == "site_add":
+            answer_callback_query(cb_id, "Ekleniyor...")
+            link = f"https://www.makrolife.com.tr/ilandetay?ilan_kodu={kod}"
+            r = call_site_api("add", ilan_kodu=kod, url=link, kimden="Web siteden")
+            if r.get("success"):
+                _clear_buttons()
+                answer_callback_query(cb_id, "✅ Siteye eklendi.")
+            else:
+                err = r.get("error") or "api_error"
+                answer_callback_query(cb_id, f"❌ Ekleme hatası: {err}")
+            return
 
-        # ✅ ARKAPLANDA İŞLE
-        def process_action():
-            try:
-                if action == "site_add":
-                    link = f"https://www.makrolife.com.tr/ilandetay?ilan_kodu={kod}"
-                    call_site_api("add", ilan_kodu=kod, url=link, kimden="Web siteden")
+        if action == "site_price":
+            if len(parts) < 3:
+                answer_callback_query(cb_id, "Yeni fiyat yok.")
+                return
+            new_price = parts[2]
+            answer_callback_query(cb_id, "Fiyat güncelleniyor...")
+            r = call_site_api("update_price", ilan_kodu=kod, new_price=new_price)
+            if r.get("success") and r.get("updated"):
+                _clear_buttons()
+                answer_callback_query(cb_id, "✅ Fiyat güncellendi.")
+            else:
+                err = r.get("error") or r.get("reason") or "api_error"
+                answer_callback_query(cb_id, f"❌ Hata: {err}")
+            return
 
-                elif action == "site_price":
-                    if len(parts) >= 3:
-                        new_price = parts[2]
-                        call_site_api("update_price", ilan_kodu=kod, new_price=new_price)
+        if action == "site_del":
+            answer_callback_query(cb_id, "Siliniyor...")
+            r = call_site_api("delete", ilan_kodu=kod, reason="Bot: ilan silindi")
+            if r.get("success") and r.get("deleted"):
+                _clear_buttons()
+                answer_callback_query(cb_id, "✅ İlan silindi.")
+            else:
+                err = r.get("error") or r.get("reason") or "api_error"
+                answer_callback_query(cb_id, f"❌ Silme hatası: {err}")
+            return
 
-                elif action == "site_del":
-                    call_site_api("delete", ilan_kodu=kod, reason="Bot: ilan silindi")
-
-                # İşlem tamamlandı, butonları kaldır
-                try:
-                    if message_id:
-                        edit_message_reply_markup(chat_id, message_id, None)
-                except Exception as e:
-                    print(f"[CALLBACK] buton kaldırma hatası: {e}", flush=True)
-
-            except Exception as e:
-                print(f"[CALLBACK] İşlem hatası: {e}", flush=True)
-
-        # Thread başlat
-        threading.Thread(target=process_action, daemon=True).start()
+        answer_callback_query(cb_id, "Bilinmeyen işlem.")
 
     except Exception as e:
         print(f"[CALLBACK] Hata: {e}", flush=True)
+        try:
+            answer_callback_query(cb.get("id"), "Hata oluştu.")
+        except Exception:
+            pass
 
 def get_updates(offset=None):
     try:
