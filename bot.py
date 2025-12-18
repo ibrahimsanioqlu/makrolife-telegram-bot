@@ -295,6 +295,8 @@ def send_real_admin_new_listing(kod: str, title: str, fiyat: str, link: str):
 
     send_message(msg, chat_id=REAL_ADMIN_CHAT_ID)
 
+import threading
+
 def handle_callback_query(cb: dict):
     """Inline buton tıklamaları."""
     try:
@@ -335,36 +337,32 @@ def handle_callback_query(cb: dict):
             answer_callback_query(cb_id, "İlan kodu yok.")
             return
 
-        # ✅ ADD
-        if action == "site_add":
-            answer_callback_query(cb_id, "Ekleniyor...")  # 1. yanıt
-            link = f"https://www.makrolife.com.tr/ilandetay?ilan_kodu={kod}"
-            r = call_site_api("add", ilan_kodu=kod, url=link, kimden="Web siteden")
-            _clear_buttons()
-            # İkinci answer_callback_query çağırma, sadece butonları temizle
-            return
+        # ✅ ÖNCE HEMEN YANIT VER
+        answer_callback_query(cb_id, "⏳ İşleniyor...")
 
-        # ✅ PRICE
-        if action == "site_price":
-            if len(parts) < 3:
-                answer_callback_query(cb_id, "Yeni fiyat yok.")
-                return
-            new_price = parts[2]
-            answer_callback_query(cb_id, "Fiyat güncelleniyor...")  # 1. yanıt
-            r = call_site_api("update_price", ilan_kodu=kod, new_price=new_price)
-            _clear_buttons()
-            # İkinci answer_callback_query çağırma
-            return
+        # ✅ ARKAPLANDA İŞLE
+        def process_action():
+            try:
+                if action == "site_add":
+                    link = f"https://www.makrolife.com.tr/ilandetay?ilan_kodu={kod}"
+                    call_site_api("add", ilan_kodu=kod, url=link, kimden="Web siteden")
+                    _clear_buttons()
 
-        # ✅ DELETE
-        if action == "site_del":
-            answer_callback_query(cb_id, "Siliniyor...")  # 1. yanıt
-            r = call_site_api("delete", ilan_kodu=kod, reason="Bot: ilan silindi")
-            _clear_buttons()
-            # İkinci answer_callback_query çağırma
-            return
+                elif action == "site_price":
+                    if len(parts) >= 3:
+                        new_price = parts[2]
+                        call_site_api("update_price", ilan_kodu=kod, new_price=new_price)
+                        _clear_buttons()
 
-        answer_callback_query(cb_id, "Bilinmeyen işlem.")
+                elif action == "site_del":
+                    call_site_api("delete", ilan_kodu=kod, reason="Bot: ilan silindi")
+                    _clear_buttons()
+
+            except Exception as e:
+                print(f"[CALLBACK] İşlem hatası: {e}", flush=True)
+
+        # Thread başlat
+        threading.Thread(target=process_action, daemon=True).start()
 
     except Exception as e:
         print(f"[CALLBACK] Hata: {e}", flush=True)
