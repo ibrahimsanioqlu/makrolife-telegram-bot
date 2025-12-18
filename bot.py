@@ -319,25 +319,21 @@ def handle_callback_query(cb: dict):
         action = parts[0]
         kod = parts[1] if len(parts) > 1 else ""
 
-        # ✅ Butonları temizle (güvenli)
-        def _clear_buttons():
+        # ✅ CANCEL - hemen yanıt ver ve dön
+        if action == "site_cancel":
+            answer_callback_query(cb_id, "İşlem iptal edildi.")
             try:
                 if message_id:
                     edit_message_reply_markup(chat_id, message_id, None)
             except Exception as e:
                 print(f"[CALLBACK] buton kaldırma hatası: {e}", flush=True)
-
-        # ✅ CANCEL
-        if action == "site_cancel":
-            answer_callback_query(cb_id, "İşlem iptal edildi.")
-            _clear_buttons()
             return
 
         if kod == "":
             answer_callback_query(cb_id, "İlan kodu yok.")
             return
 
-        # ✅ ÖNCE HEMEN YANIT VER
+        # ✅ HEMEN YANIT VER (Telegram 5 saniye timeout var)
         answer_callback_query(cb_id, "⏳ İşleniyor...")
 
         # ✅ ARKAPLANDA İŞLE
@@ -346,17 +342,21 @@ def handle_callback_query(cb: dict):
                 if action == "site_add":
                     link = f"https://www.makrolife.com.tr/ilandetay?ilan_kodu={kod}"
                     call_site_api("add", ilan_kodu=kod, url=link, kimden="Web siteden")
-                    _clear_buttons()
 
                 elif action == "site_price":
                     if len(parts) >= 3:
                         new_price = parts[2]
                         call_site_api("update_price", ilan_kodu=kod, new_price=new_price)
-                        _clear_buttons()
 
                 elif action == "site_del":
                     call_site_api("delete", ilan_kodu=kod, reason="Bot: ilan silindi")
-                    _clear_buttons()
+
+                # İşlem tamamlandı, butonları kaldır
+                try:
+                    if message_id:
+                        edit_message_reply_markup(chat_id, message_id, None)
+                except Exception as e:
+                    print(f"[CALLBACK] buton kaldırma hatası: {e}", flush=True)
 
             except Exception as e:
                 print(f"[CALLBACK] İşlem hatası: {e}", flush=True)
