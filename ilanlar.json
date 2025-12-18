@@ -4215,7 +4215,7 @@
       "first_seen_date": "2025-12-16"
     },
     "ML-7416-078": {
-      "fiyat": "4.500.000 ₺",
+      "fiyat": "4.800.000 ₺",
       "tarih": "2025-12-16",
       "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-7416-078",
       "title": "ÜÇKUYULAR  3+1  LÜKS DAİRE",
@@ -6372,9 +6372,9 @@
     },
     "2025-12-18": {
       "new": 24,
-      "price_changes": 0,
+      "price_changes": 1,
       "deleted": 0
     }
   },
-  "scan_sequence": 41
+  "scan_sequence": 42
 }
