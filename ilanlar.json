@@ -1215,7 +1215,7 @@
       "first_seen_date": "2025-12-16"
     },
     "ML-3621-27": {
-      "fiyat": "19.000 ₺",
+      "fiyat": "18.000 ₺",
       "tarih": "2025-12-16",
       "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-3621-27",
       "title": "SEYRANTEPE TOPLU KONUTLARDA 3+1 OTURUMA HAZIR KİRALIK D...",
@@ -6343,6 +6343,16 @@
       "timestamp": 1766045239.7910697,
       "position": 6,
       "first_seen_date": "2025-12-18"
+    },
+    "ML-7113-328": {
+      "fiyat": "26.000 ₺",
+      "tarih": "2025-12-18",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-7113-328",
+      "title": "NEVROZ PARK AŞAĞISINDA EŞYALI KİRALIK 2+1 DAİRE",
+      "scan_seq": 47,
+      "timestamp": 1766048139.5827725,
+      "position": 11,
+      "first_seen_date": "2025-12-18"
     }
   },
   "reported_days": [
@@ -6361,10 +6371,10 @@
       "deleted": 15
     },
     "2025-12-18": {
-      "new": 34,
-      "price_changes": 4,
+      "new": 35,
+      "price_changes": 5,
       "deleted": 7
     }
   },
-  "scan_sequence": 46
+  "scan_sequence": 47
 }
