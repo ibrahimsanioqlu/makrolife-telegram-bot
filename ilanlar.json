@@ -6333,6 +6333,26 @@
       "timestamp": 1766023412.737947,
       "position": 486,
       "first_seen_date": "2025-12-18"
+    },
+    "ML-4765-190": {
+      "fiyat": "5.550.000 ₺",
+      "tarih": "2025-12-18",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-4765-190",
+      "title": "SUR BÖLGESİNDE VİLLA İMARLI İFRAZLI ACİL SATILIK ARSA",
+      "scan_seq": 43,
+      "timestamp": 1766041812.3858986,
+      "position": 316,
+      "first_seen_date": "2025-12-18"
+    },
+    "ML-0429-238": {
+      "fiyat": "3.150.000 ₺",
+      "tarih": "2025-12-18",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-0429-238",
+      "title": "YENİŞEHİR ÜÇKUYULAR 1.ETAP TOKİ KONUTLARIDA  3+1 SATILI...",
+      "scan_seq": 43,
+      "timestamp": 1766041813.6685474,
+      "position": 487,
+      "first_seen_date": "2025-12-18"
     }
   },
   "reported_days": [
@@ -6351,10 +6371,10 @@
       "deleted": 15
     },
     "2025-12-18": {
-      "new": 24,
+      "new": 26,
       "price_changes": 1,
       "deleted": 0
     }
   },
-  "scan_sequence": 42
+  "scan_sequence": 43
 }
