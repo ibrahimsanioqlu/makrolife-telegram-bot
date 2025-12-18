@@ -6245,7 +6245,7 @@
       "first_seen_date": "2025-12-17"
     },
     "ML-4765-188": {
-      "fiyat": "4.060.000 ₺",
+      "fiyat": "4.055.000 ₺",
       "tarih": "2025-12-17",
       "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-4765-188",
       "title": "URFA YOLUNA 3. PARSELDE KAYAPINARDA ACİL SATILIK 3+1",
@@ -6363,6 +6363,16 @@
       "timestamp": 1766052359.159814,
       "position": 13,
       "first_seen_date": "2025-12-18"
+    },
+    "ML-0429-285": {
+      "fiyat": "22.000 ₺",
+      "tarih": "2025-12-18",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-0429-285",
+      "title": "YENİŞEHİR FABRİKA MAHALLESİ AKABE KONUTLARINDA 2,5+1 Kİ...",
+      "scan_seq": 51,
+      "timestamp": 1766056574.2559717,
+      "position": 4,
+      "first_seen_date": "2025-12-18"
     }
   },
   "reported_days": [
@@ -6381,10 +6391,10 @@
       "deleted": 15
     },
     "2025-12-18": {
-      "new": 40,
-      "price_changes": 5,
+      "new": 41,
+      "price_changes": 6,
       "deleted": 7
     }
   },
-  "scan_sequence": 50
+  "scan_sequence": 51
 }
