@@ -156,21 +156,11 @@ def edit_message_reply_markup(chat_id: str, message_id: int, reply_markup=None):
     telegram_api("editMessageReplyMarkup", payload, timeout=10)
 
 
-def call_site_api(action: str, timeout: int = 25, **params):
-    """
-    Web site bot_api.php ile konuş.
-    
-    timeout parametresi:
-    - Varsayılan 25s: Tarama işlemleri için (site_exists vb.)
-    - 8s: Buton işlemleri için (add, delete, update_price)
-    
-    Kullanım:
-    call_site_api("add", timeout=8, ilan_kodu=kod, ...)
-    call_site_api("exists", ilan_kodu=kod)  # varsayılan 25s
-    """
+def call_site_api(action: str, **params):
+    """Web site bot_api.php ile konuş. Hata olursa detay döndür."""
     def _post(url: str):
         try:
-            r = requests.post(url, data={"action": action, **params}, timeout=timeout)
+            r = requests.post(url, data={"action": action, **params}, timeout=25)
             return r
         except Exception as e:
             return e
@@ -218,67 +208,95 @@ def call_site_api(action: str, timeout: int = 25, **params):
         data["_http_status"] = r1.status_code
         data["_url"] = url
     return data
+def site_exists(ilan_kodu: str):
+    r = call_site_api("exists", ilan_kodu=ilan_kodu)
+    # r her zaman dict döndürmeye çalışır
+    if not isinstance(r, dict):
+        return {"exists": None, "error": "unexpected_response"}
+    if r.get("success") is False and r.get("error"):
+        return {"exists": None, **r}
+    # normal
+    return r
+
+def _site_status_line(exists_resp: dict) -> str:
+    # exists True/False/None
+    ex = exists_resp.get("exists", None)
+    if ex is True:
+        ilan_id = exists_resp.get("ilan_id")
+        table = exists_resp.get("table") or "ilanlar"
+        extra = f" (ID: {ilan_id})" if ilan_id is not None else ""
+        if table != "ilanlar":
+            extra += f" [{table}]"
+        return f"🌐 <b>Sitede:</b> VAR ✅{extra}"
+    if ex is False:
+        return "🌐 <b>Sitede:</b> YOK ❌"
+    # None / bilinmiyor
+    err = exists_resp.get("error") or "api_error"
+    status = exists_resp.get("_http_status")
+    if status:
+        return f"🌐 <b>Sitede:</b> BİLİNMİYOR ⚠️ (API HATA: {err}, HTTP {status})"
+    return f"🌐 <b>Sitede:</b> BİLİNMİYOR ⚠️ (API HATA: {err})"
 
 
-# ============================================
-# ADIM 2: YENİ FONKSIYON EKLE (import threading gerekli)
-# ============================================
-# Bu fonksiyonu kodunuzun handle_callback_query'den ÖNCE ekleyin:
 
-def async_site_operation(operation_type: str, chat_id: str, message_id: int, kod: str, **kwargs):
-    """
-    Arka planda API işlemini yap, sonucu mesajla bildir.
-    Buton hemen kaldırılır, işlem sonucu yeni mesajla gelir.
-    """
-    try:
-        # BUTON İŞLEMLERİ İÇİN KISA TIMEOUT (8 saniye)
-        if operation_type == "add":
-            link = kwargs.get("link")
-            r = call_site_api("add", timeout=8, ilan_kodu=kod, url=link, kimden="Web siteden")
-            
-            if r.get("success"):
-                msg = f"✅ <b>İLAN EKLENDİ</b>\n\n📋 {kod}\n\n✨ Başarıyla siteye eklendi."
-            else:
-                err = r.get("error") or "api_error"
-                msg = f"❌ <b>EKLEME HATASI</b>\n\n📋 {kod}\n\n⚠️ Hata: {err}"
-        
-        elif operation_type == "price":
-            new_price = kwargs.get("new_price")
-            r = call_site_api("update_price", timeout=8, ilan_kodu=kod, new_price=new_price)
-            
-            if r.get("success") and r.get("updated"):
-                msg = f"✅ <b>FİYAT GÜNCELLENDİ</b>\n\n📋 {kod}\n💰 Yeni fiyat: {new_price} TL\n\n✨ Başarıyla güncellendi."
-            else:
-                err = r.get("error") or r.get("reason") or "api_error"
-                msg = f"❌ <b>GÜNCELLEME HATASI</b>\n\n📋 {kod}\n\n⚠️ Hata: {err}"
-        
-        elif operation_type == "delete":
-            r = call_site_api("delete", timeout=8, ilan_kodu=kod, reason="Bot: ilan silindi")
-            
-            if r.get("success") and r.get("deleted"):
-                msg = f"✅ <b>İLAN SİLİNDİ</b>\n\n📋 {kod}\n\n✨ Başarıyla silindi."
-            else:
-                err = r.get("error") or r.get("reason") or "api_error"
-                msg = f"❌ <b>SİLME HATASI</b>\n\n📋 {kod}\n\n⚠️ Hata: {err}"
-        
-        else:
-            msg = f"❌ Bilinmeyen işlem tipi: {operation_type}"
-        
-        # Sonucu bildir
-        send_message(msg, chat_id=chat_id)
-        
-    except Exception as e:
-        print(f"[ASYNC] Hata: {e}", flush=True)
-        send_message(f"❌ <b>İŞLEM HATASI</b>\n\n📋 {kod}\n\n⚠️ {str(e)[:100]}", chat_id=chat_id)
+def send_real_admin_deleted(kod: str, title: str, fiyat: str):
+    ex = site_exists(kod)
+    msg = "🗑️ <b>İLAN SİLİNDİ</b>\n\n"
+    msg += f"📋 {kod}\n"
+    msg += f"🏷️ {title}\n"
+    msg += f"💰 {fiyat}\n\n"
+    msg += _site_status_line(ex)
+
+    if ex.get("exists") is True:
+        kb = _kb([[("✅ SİL", f"site_del:{kod}"), ("❌ SİLME", f"site_cancel:{kod}")]])
+        send_message(msg, chat_id=REAL_ADMIN_CHAT_ID, reply_markup=kb)
+    else:
+        send_message(msg, chat_id=REAL_ADMIN_CHAT_ID)
 
 
-# ============================================
-# ADIM 3: handle_callback_query fonksiyonunu DEĞİŞTİR
-# ============================================
-# Mevcut kodunuzdaki handle_callback_query fonksiyonunu bu ile DEĞİŞTİRİN:
+def send_real_admin_price_change(kod: str, title: str, eski_fiyat: str, yeni_fiyat: str):
+    ex = site_exists(kod)
+    msg = "💸 <b>FİYAT DEĞİŞTİ</b>\n\n"
+    msg += f"📋 {kod}\n"
+    msg += f"🏷️ {title}\n"
+    msg += f"🔻 Eski: <b>{eski_fiyat}</b>\n"
+    msg += f"🔺 Yeni: <b>{yeni_fiyat}</b>\n\n"
+    msg += _site_status_line(ex)
+
+    if ex.get("exists") is True:
+        yeni_digits = normalize_price(yeni_fiyat)[:24]
+        kb = _kb([[("✅ DEĞİŞTİR", f"site_price:{kod}:{yeni_digits}"),
+                   ("❌ DEĞİŞTİRME", f"site_cancel:{kod}")]])
+        send_message(msg, chat_id=REAL_ADMIN_CHAT_ID, reply_markup=kb)
+    else:
+        send_message(msg, chat_id=REAL_ADMIN_CHAT_ID)
+
+
+def send_real_admin_new_listing(kod: str, title: str, fiyat: str, link: str):
+    """Gerçek admin için: yeni ilan geldiğinde otomatik işlem yapma, butonla onay iste."""
+    ex = site_exists(kod)
+    msg = "🏠 <b>YENİ İLAN</b>\n\n"
+    msg += f"📋 {kod}\n"
+    msg += f"🏷️ {title}\n"
+    msg += f"💰 {fiyat}\n\n"
+    msg += f"🔗 {link}\n\n"
+    msg += _site_status_line(ex)
+
+    if ex.get("exists") is False:
+        msg += "\n➕ <b>Siteye ekleme:</b> ONAY BEKLENİYOR ⏳"
+        kb = _kb([[("✅ EKLE", f"site_add:{kod}"), ("❌ EKLEME", f"site_cancel:{kod}")]])
+        send_message(msg, chat_id=REAL_ADMIN_CHAT_ID, reply_markup=kb)
+        return
+
+    if ex.get("exists") is True:
+        msg += "\n➕ <b>Siteye ekleme:</b> Atlandı (zaten var) ✅"
+    else:
+        msg += "\n➕ <b>Siteye ekleme:</b> Atlandı (site durumu bilinmiyor) ⚠️"
+
+    send_message(msg, chat_id=REAL_ADMIN_CHAT_ID)
 
 def handle_callback_query(cb: dict):
-    """Inline buton tıklamaları - HIZLI YANIT."""
+    """Inline buton tıklamaları."""
     try:
         cb_id = cb.get("id")
         data = cb.get("data", "") or ""
@@ -312,85 +330,51 @@ def handle_callback_query(cb: dict):
             except Exception as e:
                 print(f"[CALLBACK] buton kaldırma hatası: {e}", flush=True)
 
-        # ============================================
-        # İPTAL İŞLEMİ - HEMEN YANIT
-        # ============================================
         if action == "site_cancel":
             _clear_buttons()
-            answer_callback_query(cb_id, "❌ İşlem iptal edildi.")
+            answer_callback_query(cb_id, "İşlem iptal edildi.")
             return
 
         if kod == "":
             answer_callback_query(cb_id, "İlan kodu yok.")
             return
 
-        # ============================================
-        # EKLEME İŞLEMİ - ASENKRON
-        # ============================================
         if action == "site_add":
-            # 1. Hemen yanıt ver (kullanıcı beklemez)
-            answer_callback_query(cb_id, "⏳ İşleniyor...")
-            
-            # 2. Butonu kaldır
-            _clear_buttons()
-            
-            # 3. Arka planda işle
+            answer_callback_query(cb_id, "Ekleniyor...")
             link = f"https://www.makrolife.com.tr/ilandetay?ilan_kodu={kod}"
-            thread = threading.Thread(
-                target=async_site_operation,
-                args=("add", chat_id, message_id, kod),
-                kwargs={"link": link}
-            )
-            thread.daemon = True
-            thread.start()
-            
+            r = call_site_api("add", ilan_kodu=kod, url=link, kimden="Web siteden")
+            if r.get("success"):
+                _clear_buttons()
+                answer_callback_query(cb_id, "✅ Siteye eklendi.")
+            else:
+                err = r.get("error") or "api_error"
+                answer_callback_query(cb_id, f"❌ Ekleme hatası: {err}")
             return
 
-        # ============================================
-        # FİYAT DEĞİŞİMİ - ASENKRON
-        # ============================================
         if action == "site_price":
             if len(parts) < 3:
                 answer_callback_query(cb_id, "Yeni fiyat yok.")
                 return
-            
             new_price = parts[2]
-            
-            # 1. Hemen yanıt ver
-            answer_callback_query(cb_id, "⏳ Güncelleniyor...")
-            
-            # 2. Butonu kaldır
-            _clear_buttons()
-            
-            # 3. Arka planda işle
-            thread = threading.Thread(
-                target=async_site_operation,
-                args=("price", chat_id, message_id, kod),
-                kwargs={"new_price": new_price}
-            )
-            thread.daemon = True
-            thread.start()
-            
+            answer_callback_query(cb_id, "Fiyat güncelleniyor...")
+            r = call_site_api("update_price", ilan_kodu=kod, new_price=new_price)
+            if r.get("success") and r.get("updated"):
+                _clear_buttons()
+                answer_callback_query(cb_id, "✅ Fiyat güncellendi.")
+            else:
+                err = r.get("error") or r.get("reason") or "api_error"
+                answer_callback_query(cb_id, f"❌ Hata: {err}")
             return
 
-        # ============================================
-        # SİLME İŞLEMİ - ASENKRON
-        # ============================================
         if action == "site_del":
-            # 1. Hemen yanıt ver
-            answer_callback_query(cb_id, "⏳ Siliniyor...")
-            
-            # 2. Butonu kaldır
-            _clear_buttons()
-            
-            # 3. Arka planda işle
-            thread = threading.Thread(
-                target=async_site_operation,
-                args=("delete", chat_id, message_id, kod)
-            )
-            thread.daemon = True
-            thread.start()
-            
+            answer_callback_query(cb_id, "Siliniyor...")
+            r = call_site_api("delete", ilan_kodu=kod, reason="Bot: ilan silindi")
+            if r.get("success") and r.get("deleted"):
+                _clear_buttons()
+                answer_callback_query(cb_id, "✅ İlan silindi.")
+            else:
+                err = r.get("error") or r.get("reason") or "api_error"
+                answer_callback_query(cb_id, f"❌ Silme hatası: {err}")
             return
 
         answer_callback_query(cb_id, "Bilinmeyen işlem.")
@@ -398,7 +382,7 @@ def handle_callback_query(cb: dict):
     except Exception as e:
         print(f"[CALLBACK] Hata: {e}", flush=True)
         try:
-            answer_callback_query(cb.get("id"), "❌ Hata oluştu.")
+            answer_callback_query(cb.get("id"), "Hata oluştu.")
         except Exception:
             pass
 
