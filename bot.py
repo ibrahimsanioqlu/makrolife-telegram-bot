@@ -306,23 +306,18 @@ def handle_callback_query(cb: dict):
 
         # Sadece gerçek adminin butonlarını kabul et
         if chat_id != str(REAL_ADMIN_CHAT_ID):
-            try:
-                answer_callback_query(cb_id, "Bu buton sadece admin içindir.")
-            except Exception:
-                pass
+            answer_callback_query(cb_id, "Bu buton sadece admin içindir.")
             return
 
         if not data:
-            try:
-                answer_callback_query(cb_id, "Geçersiz işlem.")
-            except Exception:
-                pass
+            answer_callback_query(cb_id, "Geçersiz işlem.")
             return
 
         parts = data.split(":")
         action = parts[0]
         kod = parts[1] if len(parts) > 1 else ""
 
+        # ✅ Butonları temizle (güvenli)
         def _clear_buttons():
             try:
                 if message_id:
@@ -330,61 +325,49 @@ def handle_callback_query(cb: dict):
             except Exception as e:
                 print(f"[CALLBACK] buton kaldırma hatası: {e}", flush=True)
 
+        # ✅ CANCEL
         if action == "site_cancel":
-            _clear_buttons()
             answer_callback_query(cb_id, "İşlem iptal edildi.")
+            _clear_buttons()
             return
 
         if kod == "":
             answer_callback_query(cb_id, "İlan kodu yok.")
             return
 
+        # ✅ ADD
         if action == "site_add":
-            answer_callback_query(cb_id, "Ekleniyor...")
+            answer_callback_query(cb_id, "Ekleniyor...")  # 1. yanıt
             link = f"https://www.makrolife.com.tr/ilandetay?ilan_kodu={kod}"
             r = call_site_api("add", ilan_kodu=kod, url=link, kimden="Web siteden")
-            if r.get("success"):
-                _clear_buttons()
-                answer_callback_query(cb_id, "✅ Siteye eklendi.")
-            else:
-                err = r.get("error") or "api_error"
-                answer_callback_query(cb_id, f"❌ Ekleme hatası: {err}")
+            _clear_buttons()
+            # İkinci answer_callback_query çağırma, sadece butonları temizle
             return
 
+        # ✅ PRICE
         if action == "site_price":
             if len(parts) < 3:
                 answer_callback_query(cb_id, "Yeni fiyat yok.")
                 return
             new_price = parts[2]
-            answer_callback_query(cb_id, "Fiyat güncelleniyor...")
+            answer_callback_query(cb_id, "Fiyat güncelleniyor...")  # 1. yanıt
             r = call_site_api("update_price", ilan_kodu=kod, new_price=new_price)
-            if r.get("success") and r.get("updated"):
-                _clear_buttons()
-                answer_callback_query(cb_id, "✅ Fiyat güncellendi.")
-            else:
-                err = r.get("error") or r.get("reason") or "api_error"
-                answer_callback_query(cb_id, f"❌ Hata: {err}")
+            _clear_buttons()
+            # İkinci answer_callback_query çağırma
             return
 
+        # ✅ DELETE
         if action == "site_del":
-            answer_callback_query(cb_id, "Siliniyor...")
+            answer_callback_query(cb_id, "Siliniyor...")  # 1. yanıt
             r = call_site_api("delete", ilan_kodu=kod, reason="Bot: ilan silindi")
-            if r.get("success") and r.get("deleted"):
-                _clear_buttons()
-                answer_callback_query(cb_id, "✅ İlan silindi.")
-            else:
-                err = r.get("error") or r.get("reason") or "api_error"
-                answer_callback_query(cb_id, f"❌ Silme hatası: {err}")
+            _clear_buttons()
+            # İkinci answer_callback_query çağırma
             return
 
         answer_callback_query(cb_id, "Bilinmeyen işlem.")
 
     except Exception as e:
         print(f"[CALLBACK] Hata: {e}", flush=True)
-        try:
-            answer_callback_query(cb.get("id"), "Hata oluştu.")
-        except Exception:
-            pass
 
 def get_updates(offset=None):
     try:
