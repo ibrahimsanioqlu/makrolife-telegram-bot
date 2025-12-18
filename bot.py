@@ -147,7 +147,7 @@ def answer_callback_query(callback_query_id: str, text: str = None, show_alert: 
     payload = {"callback_query_id": callback_query_id, "show_alert": show_alert}
     if text:
         payload["text"] = text[:180]
-    telegram_api("answerCallbackQuery", payload, timeout=10)
+    telegram_api("answerCallbackQuery", payload, timeout=5)
 
 
 def edit_message_reply_markup(chat_id: str, message_id: int, reply_markup=None):
@@ -156,7 +156,59 @@ def edit_message_reply_markup(chat_id: str, message_id: int, reply_markup=None):
     telegram_api("editMessageReplyMarkup", payload, timeout=10)
 
 
-data["_http_status"] = r1.status_code
+def call_site_api(action: str, **params):
+    """Web site bot_api.php ile konuş. Hata olursa detay döndür."""
+    def _post(url: str, timeout: int = 15):
+        try:
+            r = requests.post(url, data={"action": action, **params}, timeout=timeout)
+            return r
+        except Exception as e:
+            return e
+
+    url = WEBSITE_API_URL
+
+    # 1) İlk deneme - hızlı timeout
+    r1 = _post(url, timeout=10)
+    # Exception
+    if isinstance(r1, Exception):
+        return {"success": False, "error": "request_failed", "detail": str(r1), "url": url}
+
+    # 404 ise ve URL'de /admin/ yoksa: /admin/bot_api.php ile bir kere daha dene
+    if r1.status_code == 404:
+        try:
+            pu = urlparse(url)
+            path = pu.path or "/"
+            if "/admin/" not in path:
+                if path.startswith("/"):
+                    new_path = "/admin" + path
+                else:
+                    new_path = "/admin/" + path
+                alt = urlunparse((pu.scheme, pu.netloc, new_path, pu.params, pu.query, pu.fragment))
+                r2 = _post(alt, timeout=10)
+                if not isinstance(r2, Exception):
+                    url = alt
+                    r1 = r2
+        except Exception:
+            pass
+
+    # JSON parse
+    try:
+        data = r1.json()
+    except Exception:
+        return {
+            "success": False,
+            "error": "non_json_response",
+            "http_status": r1.status_code,
+            "url": url,
+            "snippet": (r1.text or "")[:400]
+        }
+
+    # bot_api.php bazen success=false döndürür; bunu üst katman yorumlar
+    if r1.status_code >= 400:
+        data["_http_status"] = r1.status_code
+        data["_url"] = url
+    return data
+
 def site_exists(ilan_kodu: str):
     r = call_site_api("exists", ilan_kodu=ilan_kodu)
     # r her zaman dict döndürmeye çalışır
@@ -289,15 +341,25 @@ def handle_callback_query(cb: dict):
             return
 
         if action == "site_add":
-            answer_callback_query(cb_id, "Ekleniyor...")
+            # HIZLI YANIT VER
+            answer_callback_query(cb_id, "⏳ Ekleniyor...", show_alert=False)
+            
             link = f"https://www.makrolife.com.tr/ilandetay?ilan_kodu={kod}"
             r = call_site_api("add", ilan_kodu=kod, url=link, kimden="Web siteden")
+            
             if r.get("success"):
                 _clear_buttons()
-                answer_callback_query(cb_id, "✅ Siteye eklendi.")
+                # İkinci yanıt (opsiyonel, kullanıcı zaten görecek)
+                try:
+                    telegram_api("answerCallbackQuery", {"callback_query_id": cb_id, "text": "✅ Eklendi", "show_alert": False}, timeout=3)
+                except:
+                    pass
             else:
                 err = r.get("error") or "api_error"
-                answer_callback_query(cb_id, f"❌ Ekleme hatası: {err}")
+                try:
+                    telegram_api("answerCallbackQuery", {"callback_query_id": cb_id, "text": f"❌ Hata: {err}", "show_alert": True}, timeout=3)
+                except:
+                    pass
             return
 
         if action == "site_price":
@@ -305,25 +367,42 @@ def handle_callback_query(cb: dict):
                 answer_callback_query(cb_id, "Yeni fiyat yok.")
                 return
             new_price = parts[2]
-            answer_callback_query(cb_id, "Fiyat güncelleniyor...")
+            
+            # HIZLI YANIT VER
+            answer_callback_query(cb_id, "⏳ Güncelleniyor...", show_alert=False)
+            
             r = call_site_api("update_price", ilan_kodu=kod, new_price=new_price)
             if r.get("success") and r.get("updated"):
                 _clear_buttons()
-                answer_callback_query(cb_id, "✅ Fiyat güncellendi.")
+                try:
+                    telegram_api("answerCallbackQuery", {"callback_query_id": cb_id, "text": "✅ Güncellendi", "show_alert": False}, timeout=3)
+                except:
+                    pass
             else:
                 err = r.get("error") or r.get("reason") or "api_error"
-                answer_callback_query(cb_id, f"❌ Hata: {err}")
+                try:
+                    telegram_api("answerCallbackQuery", {"callback_query_id": cb_id, "text": f"❌ Hata: {err}", "show_alert": True}, timeout=3)
+                except:
+                    pass
             return
 
         if action == "site_del":
-            answer_callback_query(cb_id, "Siliniyor...")
+            # HIZLI YANIT VER
+            answer_callback_query(cb_id, "⏳ Siliniyor...", show_alert=False)
+            
             r = call_site_api("delete", ilan_kodu=kod, reason="Bot: ilan silindi")
             if r.get("success") and r.get("deleted"):
                 _clear_buttons()
-                answer_callback_query(cb_id, "✅ İlan silindi.")
+                try:
+                    telegram_api("answerCallbackQuery", {"callback_query_id": cb_id, "text": "✅ Silindi", "show_alert": False}, timeout=3)
+                except:
+                    pass
             else:
                 err = r.get("error") or r.get("reason") or "api_error"
-                answer_callback_query(cb_id, f"❌ Silme hatası: {err}")
+                try:
+                    telegram_api("answerCallbackQuery", {"callback_query_id": cb_id, "text": f"❌ Hata: {err}", "show_alert": True}, timeout=3)
+                except:
+                    pass
             return
 
         answer_callback_query(cb_id, "Bilinmeyen işlem.")
@@ -567,75 +646,6 @@ def load_state(force_refresh=False):
         "scan_sequence": 0
     }
     return STATE_CACHE
-
-
-    # Cache kullan (komutlar çok sık load_state çağırıyor)
-    if (not force_refresh) and isinstance(STATE_CACHE, dict) and STATE_CACHE.get("items") is not None:
-        return STATE_CACHE
-
-    if not GITHUB_TOKEN:
-        # GitHub yoksa (token yoksa) eski davranış: lokal cache -> yeni state
-        if os.path.exists(DATA_FILE):
-            try:
-                with open(DATA_FILE, "r", encoding="utf-8") as f:
-                    state = json.load(f)
-                    print("[STATE] Lokal cache kullanılıyor (GITHUB_TOKEN yok)", flush=True)
-                    STATE_CACHE = state
-                    return state
-            except Exception as e:
-                print("[STATE] Lokal okuma hatası:", e, flush=True)
-
-        print("[STATE] Yeni state oluşturuldu (GITHUB_TOKEN yok)", flush=True)
-        STATE_CACHE = {
-            "cycle_start": get_turkey_time().strftime("%Y-%m-%d"),
-            "items": {},
-            "reported_days": [],
-            "first_run_done": False,
-            "daily_stats": {},
-            "scan_sequence": 0
-        }
-        return STATE_CACHE
-
-    # GitHub ana kaynak
-    state, sha = github_get_file("ilanlar.json")
-    if isinstance(state, dict) and state.get("items") is not None:
-        STATE_GITHUB_SHA = sha
-        STATE_CACHE = state
-        # Railway cache'e yaz (okuma kaynağı değil, sadece yedek)
-        save_state_local(state)
-        print("[STATE] GitHub ANA kaynak kullanılıyor", flush=True)
-        return state
-
-    # GitHub okunamazsa: Railway state kullanma (isteğiniz doğrultusunda)
-    # Cache varsa onu kullan, yoksa yeni state ile devam etme (yanlis yeni ilan spam'ini onlemek icin)
-    if isinstance(STATE_CACHE, dict) and STATE_CACHE.get("items") is not None:
-        print("[STATE] GitHub okunamadi, RAM cache kullaniliyor", flush=True)
-        return STATE_CACHE
-
-    raise RuntimeError("GitHub'dan ilanlar.json okunamadi. (Railway lokal state kullanilmiyor)")
-
-
-    # 2️⃣ GitHub yoksa LOCAL CACHE
-    if os.path.exists(DATA_FILE):
-        try:
-            with open(DATA_FILE, "r", encoding="utf-8") as f:
-                state = json.load(f)
-                print("[STATE] Lokal cache kullanılıyor", flush=True)
-                return state
-        except Exception as e:
-            print("[STATE] Lokal okuma hatası:", e, flush=True)
-
-    # 3️⃣ TAMAMEN YENİ STATE
-    print("[STATE] Yeni state oluşturuldu", flush=True)
-    return {
-        "cycle_start": get_turkey_time().strftime("%Y-%m-%d"),
-        "items": {},
-        "reported_days": [],
-        "first_run_done": False,
-        "daily_stats": {},
-        "scan_sequence": 0
-    }
-
 
 
 def save_state_local(state):
