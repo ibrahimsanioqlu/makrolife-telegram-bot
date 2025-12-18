@@ -6245,7 +6245,7 @@
       "first_seen_date": "2025-12-17"
     },
     "ML-4765-188": {
-      "fiyat": "4.055.000 ₺",
+      "fiyat": "4.050.000 ₺",
       "tarih": "2025-12-17",
       "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-4765-188",
       "title": "URFA YOLUNA 3. PARSELDE KAYAPINARDA ACİL SATILIK 3+1",
@@ -6353,6 +6353,26 @@
       "timestamp": 1766052356.2919014,
       "position": 3,
       "first_seen_date": "2025-12-18"
+    },
+    "ML-0429-285": {
+      "fiyat": "22.000 ₺",
+      "tarih": "2025-12-18",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-0429-285",
+      "title": "YENİŞEHİR FABRİKA MAHALLESİ AKABE KONUTLARINDA 2,5+1 Kİ...",
+      "scan_seq": 52,
+      "timestamp": 1766058313.4337168,
+      "position": 4,
+      "first_seen_date": "2025-12-18"
+    },
+    "ML-7113-328": {
+      "fiyat": "26.000 ₺",
+      "tarih": "2025-12-18",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-7113-328",
+      "title": "NEVROZ PARK AŞAĞISINDA EŞYALI KİRALIK 2+1 DAİRE",
+      "scan_seq": 52,
+      "timestamp": 1766058314.7731283,
+      "position": 13,
+      "first_seen_date": "2025-12-18"
     }
   },
   "reported_days": [
@@ -6371,10 +6391,10 @@
       "deleted": 15
     },
     "2025-12-18": {
-      "new": 41,
-      "price_changes": 6,
+      "new": 43,
+      "price_changes": 7,
       "deleted": 7
     }
   },
-  "scan_sequence": 51
+  "scan_sequence": 52
 }
