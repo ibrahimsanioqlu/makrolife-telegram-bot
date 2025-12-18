@@ -1222,9 +1222,10 @@ def check_telegram_commands():
         offset = last_update_id + 1 if last_update_id else None
         updates = get_updates(offset=offset, timeout=1, limit=50)
         if not updates:
-            return
+            return None
 
         processed_any = False
+        scan_requested = False
 
         for upd in updates:
             update_id = upd.get("update_id", 0)
@@ -1232,34 +1233,48 @@ def check_telegram_commands():
                 last_update_id = max(last_update_id, update_id)
                 processed_any = True
 
-            # Callback Query (inline buton)
+            # Callback (inline buton)
             if "callback_query" in upd:
-                handle_callback_query(upd)
+                try:
+                    handle_callback_query(upd["callback_query"])
+                except Exception as e:
+                    print(f"[TELEGRAM] callback handler hata: {e}", flush=True)
                 continue
 
-            msg = upd.get("message") or {}
+            msg = upd.get("message") or upd.get("edited_message")
             if not msg:
                 continue
 
-            chat_id = msg.get("chat", {}).get("id")
-            text = msg.get("text", "") or ""
+            chat = msg.get("chat") or {}
+            chat_id = chat.get("id")
+            if not chat_id:
+                continue
 
-            # Sadece admin komutlar
-            if str(chat_id) not in [str(x) for x in ADMIN_CHAT_IDS]:
+            text = (msg.get("text") or "").strip()
+            if not text:
                 continue
 
             # Komutlar
             if text.startswith("/"):
-                full_text = text.strip()
+                full_text = text
                 cmd = full_text.split()[0] if full_text else ""
-                cmd = cmd.split("@")[0]  # /komut@BotAdi durumları
-                handle_command(chat_id, cmd, full_text)
+                cmd = cmd.split("@")[0]  # /komut@BotAdi
+                try:
+                    res = handle_command(chat_id, cmd, full_text)
+                    if res == "SCAN":
+                        scan_requested = True
+                except Exception as e:
+                    print(f"[TELEGRAM] Komut handler hata: {e}", flush=True)
 
         if processed_any:
             save_telegram_offset(last_update_id)
 
+        return "SCAN" if scan_requested else None
+
     except Exception as e:
         print(f"[TELEGRAM] Komut kontrol hatası: {e}", flush=True)
+        return None
+
 def fetch_listings_playwright():
     global SCAN_STOP_REQUESTED, ACTIVE_SCAN
 
