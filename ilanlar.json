@@ -6343,6 +6343,16 @@
       "timestamp": 1766045239.7910697,
       "position": 6,
       "first_seen_date": "2025-12-18"
+    },
+    "ML-7113-328": {
+      "fiyat": "26.000 ₺",
+      "tarih": "2025-12-18",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-7113-328",
+      "title": "NEVROZ PARK AŞAĞISINDA EŞYALI KİRALIK 2+1 DAİRE",
+      "scan_seq": 48,
+      "timestamp": 1766050130.6916704,
+      "position": 11,
+      "first_seen_date": "2025-12-18"
     }
   },
   "reported_days": [
@@ -6361,10 +6371,10 @@
       "deleted": 15
     },
     "2025-12-18": {
-      "new": 35,
+      "new": 36,
       "price_changes": 5,
       "deleted": 7
     }
   },
-  "scan_sequence": 47
+  "scan_sequence": 48
 }
