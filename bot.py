@@ -91,7 +91,7 @@ def telegram_api(method: str, data: dict, timeout: int = 10):
     """Telegram API çağrısı (POST)."""
     try:
         url = f"https://api.telegram.org/bot{BOT_TOKEN}/{method}"
-        resp = requests.post(url, data=data, timeout=timeout)
+        resp = requests.post(url, json=data, timeout=timeout)
         resp.raise_for_status()
         return resp.json()
     except Exception as e:
