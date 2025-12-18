@@ -3,6 +3,7 @@ import sys
 import json
 import time
 import random
+from urllib.parse import urlparse, urlunparse
 import base64
 from datetime import datetime, timedelta
 from concurrent.futures import ThreadPoolExecutor, TimeoutError as FuturesTimeoutError
@@ -43,6 +44,7 @@ URL = "https://www.makrolife.com.tr/tumilanlar"
 DATA_FILE = "/data/ilanlar.json"
 HISTORY_FILE = "/data/history.json"
 LAST_SCAN_FILE = "/data/last_scan_time.json"
+TELEGRAM_OFFSET_FILE = "/data/telegram_offset.json"  # Telegram update offset (callback/query backlog önlemek için)
 
 # Timeout (saniye) - 25 dakika
 SCAN_TIMEOUT = 25 * 60
@@ -86,102 +88,208 @@ STATE_CACHE = None
 STATE_GITHUB_SHA = None
 
 
-def telegram_api(method: str, data: dict, timeout: int = 10):
-    """Telegram API çağrısı (POST)."""
+def telegram_api(method, payload, timeout=30):
+    """Telegram Bot API çağrısı.
+
+    Not: answerCallbackQuery için 400 hatası çok sık olur (callback çok eski / zaten cevaplandı).
+    Bu durumda log spam yapmamak için sessizce geçiyoruz.
+    """
+    url = f"https://api.telegram.org/bot{BOT_TOKEN}/{method}"
     try:
-        url = f"https://api.telegram.org/bot{BOT_TOKEN}/{method}"
-        resp = requests.post(url, data=data, timeout=timeout)
-        resp.raise_for_status()
-        return resp.json()
+        resp = requests.post(url, data=payload, timeout=timeout)
+
+        # Bazı hatalarda Telegram HTML / boş dönebiliyor
+        if resp.status_code >= 400:
+            if method == "answerCallbackQuery" and resp.status_code == 400:
+                return None
+            snippet = (resp.text or "")[:250]
+            print(f"[TELEGRAM] {method} HATA: HTTP {resp.status_code} - {snippet}", flush=True)
+            return None
+
+        try:
+            return resp.json()
+        except Exception:
+            return {"ok": False, "error": "non_json_response", "http_status": resp.status_code, "text_snippet": (resp.text or "")[:250]}
     except Exception as e:
         print(f"[TELEGRAM] {method} HATA: {e}", flush=True)
         return None
+def send_message(text: str, chat_id: str = None, reply_markup=None, disable_preview: bool = True, include_real_admin: bool = True):
+    """Telegram'a mesaj gönder.
+    - chat_id verilirse sadece o kişiye gider.
+    - chat_id yoksa broadcast: CHAT_IDS + (include_real_admin True ise) REAL_ADMIN_CHAT_ID
+    """
+    if not BOT_TOKEN:
+        print("[TELEGRAM] BOT_TOKEN yok, mesaj atlanıyor", flush=True)
+        return False
 
+    payload = {
+        "text": text[:4000],
+        "parse_mode": "HTML",
+        "disable_web_page_preview": True if disable_preview else False,
+    }
+    if reply_markup:
+        payload["reply_markup"] = json.dumps(reply_markup, ensure_ascii=False)
 
-def send_message(text, chat_id=None, reply_markup=None, disable_preview=True):
-    """Varsayılan CHAT_IDS'e veya tek chat_id'ye mesaj gönderir."""
-    chat_ids = [chat_id] if chat_id else CHAT_IDS
+    def _post(one_chat_id: str):
+        try:
+            payload2 = dict(payload)
+            payload2["chat_id"] = one_chat_id
+            r = requests.post(f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage", data=payload2, timeout=30)
+            if r.status_code != 200:
+                print(f"[TELEGRAM] sendMessage hata {r.status_code}: {r.text[:200]}", flush=True)
+                return False
+            return True
+        except Exception as e:
+            print(f"[TELEGRAM] sendMessage exception: {e}", flush=True)
+            return False
 
-    for cid in chat_ids:
-        if not cid:
-            continue
-        payload = {
-            "chat_id": cid,
-            "text": text[:4000],
-            "disable_web_page_preview": bool(disable_preview),
-            "parse_mode": "HTML",
-        }
-        if reply_markup is not None:
-            payload["reply_markup"] = json.dumps(reply_markup, ensure_ascii=False)
-        telegram_api("sendMessage", payload, timeout=15)
+    if chat_id:
+        return _post(str(chat_id))
 
+    targets = list(CHAT_IDS)
+    if include_real_admin and str(REAL_ADMIN_CHAT_ID) not in targets:
+        targets.append(str(REAL_ADMIN_CHAT_ID))
 
-def answer_callback_query(callback_query_id: str, text: str = None, show_alert: bool = False):
-    payload = {"callback_query_id": callback_query_id, "show_alert": show_alert}
+    ok_any = False
+    for cid in targets:
+        if cid and str(cid).strip():
+            ok_any = _post(str(cid)) or ok_any
+            time.sleep(0.25)
+    return ok_any
+
+def answer_callback_query(callback_query_id, text="", show_alert=False):
+    """Callback butona basılınca Telegram'a hemen ACK döner (loading'ı kapatır)."""
+    if not callback_query_id:
+        return False
+    payload = {"callback_query_id": callback_query_id}
     if text:
-        payload["text"] = text[:180]
+        payload["text"] = text[:190]  # Telegram limit güvenliği
+    if show_alert:
+        payload["show_alert"] = True
     telegram_api("answerCallbackQuery", payload, timeout=10)
-
-
+    return True
 def edit_message_reply_markup(chat_id: str, message_id: int, reply_markup=None):
     payload = {"chat_id": chat_id, "message_id": message_id}
     payload["reply_markup"] = json.dumps(reply_markup or {"inline_keyboard": []}, ensure_ascii=False)
     telegram_api("editMessageReplyMarkup", payload, timeout=10)
 
 
-def call_site_api(action: str, **params):
-    """Site tek endpoint çağrısı.
-    - Hata olsa bile mümkünse JSON'u döndürür (status_code ekler).
-    - JSON değilse ham metinden kısa bir özet döndürür.
-    """
-    payload = {"action": action, **params}
-    try:
-        r = requests.post(WEBSITE_API_URL, data=payload, timeout=80)
-        status = getattr(r, "status_code", None)
-        try:
-            data = r.json()
-            if isinstance(data, dict):
-                data.setdefault("_http_status", status)
-            return data
-        except Exception:
-            # JSON gelmediyse (PHP fatal / HTML vs)
-            txt = (r.text or "")[:400].strip()
-            return {"success": False, "error": "non_json_response", "_http_status": status, "snippet": txt}
-    except Exception as e:
-        print(f"[SITE API] HATA action={action}: {e}", flush=True)
-        return {"success": False, "error": "request_failed", "detail": str(e), "_http_status": None}
+def call_site_api(action: str, params: dict):
+    """diyarbakiremlakmarket.com bot_api.php ile konuşur.
 
+    Bazı sunucularda POST istekleri WAF/mod_security yüzünden 404/HTML dönebilir.
+    Bu yüzden önce POST dener, JSON gelmezse GET (querystring) ile tekrar dener.
+    """
+
+    base = WEBSITE_API_URL.strip()
+
+    # Güvenli normalize: kullanıcının env'de /admin/bot_api.php vermesi bekleniyor
+    # ama yanlış verilmişse düzeltmeye çalış.
+    if base.endswith("/"):
+        base = base[:-1]
+    if base.endswith(".php") is False:
+        # base bir klasör verilmiş olabilir
+        if base.endswith("/admin"):
+            base = base + "/bot_api.php"
+        else:
+            base = base + "/admin/bot_api.php"
+
+    def try_json_response(resp):
+        try:
+            return resp.json()
+        except Exception:
+            return None
+
+    def post_then_get(url, data, timeout=20):
+        # 1) POST
+        try:
+            r = requests.post(url, data=data, timeout=timeout, headers={"User-Agent": "MakroLifeBot/1.0"})
+            j = try_json_response(r)
+            if j is not None:
+                # HTTP hata olsa bile JSON döndüyse verelim
+                if r.status_code >= 400 and isinstance(j, dict) and "_http_status" not in j:
+                    j["_http_status"] = r.status_code
+                return j, r.status_code, "POST"
+        except Exception as e:
+            # POST bağlantı hatası -> GET'e düş
+            r = None
+            j = {"success": False, "error": "post_exception", "detail": str(e)}
+
+        # 2) GET fallback
+        try:
+            r2 = requests.get(url, params=data, timeout=timeout, headers={"User-Agent": "MakroLifeBot/1.0"})
+            j2 = try_json_response(r2)
+            if j2 is not None:
+                if r2.status_code >= 400 and isinstance(j2, dict) and "_http_status" not in j2:
+                    j2["_http_status"] = r2.status_code
+                return j2, r2.status_code, "GET"
+            # GET de JSON değilse
+            return {
+                "success": False,
+                "error": "non_json_response",
+                "_http_status": r2.status_code if r2 is not None else None,
+                "method_tried": "POST->GET",
+                "text_snippet": (r2.text or "")[:250] if r2 is not None else ""
+            }, (r2.status_code if r2 is not None else 0), "GET"
+        except Exception as e2:
+            return {"success": False, "error": "get_exception", "detail": str(e2)}, 0, "GET"
+
+    payload = {"action": action}
+    payload.update(params or {})
+
+    data, http_status, used_method = post_then_get(base, payload, timeout=25)
+
+    # Standartlaştırılmış dönüş
+    if not isinstance(data, dict):
+        return False, {"success": False, "error": "bad_response", "detail": "not_a_dict", "_http_status": http_status, "used_method": used_method}
+
+    # site API'nin kendi success bayrağı
+    ok_flag = bool(data.get("success") is True)
+    data.setdefault("_http_status", http_status)
+    data.setdefault("_used_method", used_method)
+
+    return ok_flag, data
 def site_exists(ilan_kodu: str):
-    r = call_site_api("exists", ilan_kodu=ilan_kodu)
-    # r her zaman dict döndürmeye çalışır
+    """Site DB'de ilan var mı? bot_api.php?action=exists endpoint'i."""
+    ok, r = call_site_api("exists", {"ilan_kodu": ilan_kodu})
+
     if not isinstance(r, dict):
         return {"exists": None, "error": "unexpected_response"}
-    if r.get("success") is False and r.get("error"):
-        return {"exists": None, **r}
-    # normal
-    return r
 
-def _site_status_line(exists_resp: dict) -> str:
-    # exists True/False/None
-    ex = exists_resp.get("exists", None)
-    if ex is True:
-        ilan_id = exists_resp.get("ilan_id")
-        table = exists_resp.get("table") or "ilanlar"
-        extra = f" (ID: {ilan_id})" if ilan_id is not None else ""
-        if table != "ilanlar":
-            extra += f" [{table}]"
-        return f"🌐 <b>Sitede:</b> VAR ✅{extra}"
-    if ex is False:
-        return "🌐 <b>Sitede:</b> YOK ❌"
-    # None / bilinmiyor
-    err = exists_resp.get("error") or "api_error"
-    status = exists_resp.get("_http_status")
+    if not ok:
+        err = r.get("error") or "api_error"
+        return {"exists": None, "error": err, "detail": r}
+
+    if "exists" in r:
+        return r
+
+    return {"exists": None, "error": "unexpected_response", "detail": r}
+
+def _site_status_line(exists_resp: dict):
+    """Site API'den gelen exists cevabını okunur metne çevirir."""
+    if not isinstance(exists_resp, dict):
+        return "🌐 Sitede: BİLİNMİYOR ⚠️"
+
+    if exists_resp.get("exists") is True:
+        tbl = exists_resp.get("table") or "ilanlar"
+        return f"🌐 Sitede: VAR ✅ ({tbl})"
+
+    if exists_resp.get("exists") is False:
+        return "🌐 Sitede: YOK ❌"
+
+    err = exists_resp.get("error") or exists_resp.get("message") or "bilinmiyor"
+    status = exists_resp.get("_http_status") or exists_resp.get("http_status")
+    used = exists_resp.get("_used_method") or exists_resp.get("used_method")
+
     if status:
-        return f"🌐 <b>Sitede:</b> BİLİNMİYOR ⚠️ (API HATA: {err}, HTTP {status})"
-    return f"🌐 <b>Sitede:</b> BİLİNMİYOR ⚠️ (API HATA: {err})"
+        if used:
+            return f"🌐 Sitede: BİLİNMİYOR ⚠️ (API HATA: {err}, HTTP {status}, {used})"
+        return f"🌐 Sitede: BİLİNMİYOR ⚠️ (API HATA: {err}, HTTP {status})"
 
+    if used:
+        return f"🌐 Sitede: BİLİNMİYOR ⚠️ (API HATA: {err}, {used})"
 
-
+    return f"🌐 Sitede: BİLİNMİYOR ⚠️ (API HATA: {err})"
 def send_real_admin_deleted(kod: str, title: str, fiyat: str):
     ex = site_exists(kod)
     msg = "🗑️ <b>İLAN SİLİNDİ</b>\n\n"
@@ -216,106 +324,202 @@ def send_real_admin_price_change(kod: str, title: str, eski_fiyat: str, yeni_fiy
 
 
 def send_real_admin_new_listing(kod: str, title: str, fiyat: str, link: str):
-    # Yeni ilan: otomatik ekle
-    ex_before = site_exists(kod)
-    add_res = None
-    if not ex_before.get("exists"):
-        add_res = call_site_api("add", ilan_kodu=kod, kaynak="Web siteden", url=link)
-    else:
-        add_res = {"success": True, "already_exists": True}
-
+    """Gerçek admin için: yeni ilan geldiğinde otomatik işlem yapma, butonla onay iste."""
+    ex = site_exists(kod)
     msg = "🏠 <b>YENİ İLAN</b>\n\n"
     msg += f"📋 {kod}\n"
     msg += f"🏷️ {title}\n"
     msg += f"💰 {fiyat}\n\n"
     msg += f"🔗 {link}\n\n"
+    msg += _site_status_line(ex)
 
-    if ex_before.get("exists"):
-        msg += "🌐 <b>Sitede:</b> ZATEN VAR ✅\n"
-    else:
-        msg += "🌐 <b>Sitede:</b> YOK ❌\n"
+    if ex.get("exists") is False:
+        msg += "\n➕ <b>Siteye ekleme:</b> ONAY BEKLENİYOR ⏳"
+        kb = _kb([[("✅ EKLE", f"site_add:{kod}"), ("❌ EKLEME", f"site_cancel:{kod}")]])
+        send_message(msg, chat_id=REAL_ADMIN_CHAT_ID, reply_markup=kb)
+        return
 
-    if isinstance(add_res, dict) and add_res.get("success"):
-        if add_res.get("already_exists"):
-            msg += "➕ <b>Siteye ekleme:</b> Atlandı (zaten vardı)"
-        else:
-            msg += "➕ <b>Siteye ekleme:</b> BAŞARILI ✅"
+    if ex.get("exists") is True:
+        msg += "\n➕ <b>Siteye ekleme:</b> Atlandı (zaten var) ✅"
     else:
-        err = add_res.get("error") if isinstance(add_res, dict) else "api_error"
-        msg += f"➕ <b>Siteye ekleme:</b> HATA ❌ ({err})"
+        msg += "\n➕ <b>Siteye ekleme:</b> Atlandı (site durumu bilinmiyor) ⚠️"
 
     send_message(msg, chat_id=REAL_ADMIN_CHAT_ID)
 
+def handle_callback_query(update):
+    """Inline buton callback handler.
 
-def handle_callback_query(cb: dict):
-    """Inline buton tıklamaları."""
+    Not: answerCallbackQuery aynı callback için birden fazla çağrılırsa 400 hatası üretebilir.
+    Bu yüzden 1 kez ACK gönderiyoruz; sonuçları mesaj olarak bildiriyoruz ve butonları kapatıyoruz.
+    """
     try:
+        cb = update.get("callback_query") or {}
         cb_id = cb.get("id")
-        data = cb.get("data", "")
-        msg_obj = cb.get("message", {}) or {}
-        chat_id = str((msg_obj.get("chat") or {}).get("id", ""))
-        message_id = msg_obj.get("message_id")
+        data = (cb.get("data") or "").strip()
 
-        # Sadece gerçek adminin butonlarını kabul et
-        if chat_id != str(REAL_ADMIN_CHAT_ID):
-            answer_callback_query(cb_id, "Bu buton sadece admin için.", show_alert=True)
+        msg = cb.get("message") or {}
+        chat = msg.get("chat") or {}
+        chat_id = chat.get("id")
+        message_id = msg.get("message_id")
+
+        if not cb_id or not data or not chat_id or not message_id:
             return
 
-        if not data:
-            answer_callback_query(cb_id, "Geçersiz işlem.", show_alert=True)
+        # Sadece gerçek admin butonları kullanabilsin
+        if str(chat_id) != str(REAL_ADMIN_CHAT_ID):
+            answer_callback_query(cb_id, "Bu işlem sadece admin için.", show_alert=True)
             return
 
-        parts = data.split(":")
+        # Örnek callback_data:
+        #   site_add:ML-1234-56
+        #   site_cancel:ML-1234-56
+        #   site_price:ML-1234-56:4050000
+        #   site_del:ML-1234-56
+        parts = data.split(":", 2)
         action = parts[0]
+        kod = parts[1] if len(parts) > 1 else ""
+        extra = parts[2] if len(parts) > 2 else ""
 
-        if action == "site_cancel":
-            answer_callback_query(cb_id, "İşlem iptal edildi.")
-            if message_id:
-                edit_message_reply_markup(chat_id, message_id, reply_markup={"inline_keyboard": []})
-            return
+        # İlk ACK (loading'ı kapat)
+        answer_callback_query(cb_id, "⏳ İşleniyor...")
 
-        if action == "site_del" and len(parts) >= 2:
-            kod = parts[1]
-            r = call_site_api("delete", ilan_kodu=kod, reason="Bot onayı ile silindi")
-            if isinstance(r, dict) and r.get("success"):
-                answer_callback_query(cb_id, "Siteden silindi ✅")
+        # -------------- ORTAK İPTAL (EKLE / FİYAT / SİL) --------------
+        if action in ("site_cancel", "site_skip", "price_skip", "del_skip", "del_cancel"):
+            edit_message_reply_markup(chat_id, message_id, None)
+            if kod:
+                send_message(f"⏭️ Atlandı: {kod}", chat_id)
             else:
-                answer_callback_query(cb_id, "Silme hatası ❌", show_alert=True)
-            if message_id:
-                edit_message_reply_markup(chat_id, message_id, reply_markup={"inline_keyboard": []})
+                send_message("⏭️ Atlandı.", chat_id)
             return
 
-        if action == "site_price" and len(parts) >= 3:
-            kod = parts[1]
-            new_price = parts[2]
-            r = call_site_api("update_price", ilan_kodu=kod, new_price=new_price)
-            if isinstance(r, dict) and r.get("success"):
-                answer_callback_query(cb_id, "Fiyat güncellendi ✅")
+        # -------------- YENİ İLAN: EKLE --------------
+        if action == "site_add":
+            if not kod:
+                send_message("❌ Kod boş geldi (site_add).", chat_id)
+                edit_message_reply_markup(chat_id, message_id, None)
+                return
+
+            ok, resp = call_site_api("add", {"ilan_kodu": kod})
+            if ok:
+                if (resp or {}).get("already_exists"):
+                    send_message(f"ℹ️ Zaten sitede var: {kod}", chat_id)
+                else:
+                    send_message(f"✅ Siteye eklendi: {kod}", chat_id)
             else:
-                answer_callback_query(cb_id, "Fiyat güncelleme hatası ❌", show_alert=True)
-            if message_id:
-                edit_message_reply_markup(chat_id, message_id, reply_markup={"inline_keyboard": []})
+                err = (resp or {}).get("message") or (resp or {}).get("error") or "bilinmiyor"
+                hs = (resp or {}).get("_http_status")
+                used = (resp or {}).get("_used_method")
+                extra2 = f" (HTTP {hs}, {used})" if hs else (f" ({used})" if used else "")
+                send_message(f"❌ Siteye eklenemedi: {kod}\nHata: {err}{extra2}", chat_id)
+
+            edit_message_reply_markup(chat_id, message_id, None)
             return
 
-        answer_callback_query(cb_id, "Bilinmeyen işlem.", show_alert=True)
+        # -------------- FİYAT DEĞİŞTİ: GÜNCELLE --------------
+        if action in ("site_price", "price_update"):
+            if not kod:
+                send_message("❌ Kod boş geldi (price).", chat_id)
+                edit_message_reply_markup(chat_id, message_id, None)
+                return
+
+            new_price = extra
+            # eski format destek: price_update:ML-xxx|NEWPRICE
+            if not new_price and "|" in kod:
+                kod, new_price = kod.split("|", 1)
+
+            if not new_price:
+                send_message(f"❌ Yeni fiyat boş: {kod}", chat_id)
+                edit_message_reply_markup(chat_id, message_id, None)
+                return
+
+            ok, resp = call_site_api("update_price", {"ilan_kodu": kod, "new_price": new_price})
+            if ok:
+                if (resp or {}).get("updated") is False:
+                    send_message(f"ℹ️ Fiyat güncellenmedi (sitede ilan bulunamadı): {kod}", chat_id)
+                else:
+                    send_message(f"✅ Fiyat güncellendi: {kod}\nYeni fiyat: {format_price(new_price)}", chat_id)
+            else:
+                err = (resp or {}).get("message") or (resp or {}).get("error") or "bilinmiyor"
+                hs = (resp or {}).get("_http_status")
+                used = (resp or {}).get("_used_method")
+                extra2 = f" (HTTP {hs}, {used})" if hs else (f" ({used})" if used else "")
+                send_message(f"❌ Fiyat güncellenemedi: {kod}\nHata: {err}{extra2}", chat_id)
+
+            edit_message_reply_markup(chat_id, message_id, None)
+            return
+
+        # -------------- İLAN SİLİNDİ: SİL --------------
+        if action in ("site_del", "del_confirm"):
+            if not kod:
+                send_message("❌ Kod boş geldi (del).", chat_id)
+                edit_message_reply_markup(chat_id, message_id, None)
+                return
+
+            ok, resp = call_site_api("delete", {"ilan_kodu": kod, "reason": "MakroLife ilan silindi"})
+            if ok:
+                if (resp or {}).get("deleted") is False:
+                    send_message(f"ℹ️ Silinmedi (sitede ilan bulunamadı): {kod}", chat_id)
+                else:
+                    send_message(f"🗑️ Siteden silindi: {kod}", chat_id)
+            else:
+                err = (resp or {}).get("message") or (resp or {}).get("error") or "bilinmiyor"
+                hs = (resp or {}).get("_http_status")
+                used = (resp or {}).get("_used_method")
+                extra2 = f" (HTTP {hs}, {used})" if hs else (f" ({used})" if used else "")
+                send_message(f"❌ Siteden silinemedi: {kod}\nHata: {err}{extra2}", chat_id)
+
+            edit_message_reply_markup(chat_id, message_id, None)
+            return
+
+        # Bilinmeyen
+        send_message(f"⚠️ Bilinmeyen buton: {data}", chat_id)
+        edit_message_reply_markup(chat_id, message_id, None)
+
     except Exception as e:
-        print(f"[CALLBACK] HATA: {e}", flush=True)
+        print(f"[CALLBACK] Hata: {e}", flush=True)
+def get_updates(offset=None, timeout=1, limit=10):
+    """Telegram getUpdates wrapper.
 
-def get_updates(offset=None):
+    timeout: Telegram long-poll seconds (server-side wait). 0 = no wait.
+    limit: max updates to return.
+    """
     try:
         url = "https://api.telegram.org/bot" + BOT_TOKEN + "/getUpdates"
-        params = {"timeout": 1, "limit": 10}
-        if offset:
-            params["offset"] = offset
-        resp = requests.get(url, params=params, timeout=5)
+
+        # Telegram API params
+        t = 1 if timeout is None else int(timeout)
+        l = 10 if limit is None else int(limit)
+        params = {"timeout": max(0, t), "limit": max(1, l)}
+
+        # offset=0 is valid; only skip when None
+        if offset is not None:
+            params["offset"] = int(offset)
+
+        # HTTP timeout should be a bit larger than long-poll timeout
+        req_timeout = max(5, params["timeout"] + 10)
+        resp = requests.get(url, params=params, timeout=req_timeout)
         resp.raise_for_status()
-        return resp.json().get("result", [])
-    except:
+        data = resp.json()
+        return data.get("result", []) if isinstance(data, dict) else []
+    except Exception:
         return []
 
 
 def normalize_price(fiyat):
     return "".join(c for c in fiyat if c.isdigit())
+
+
+def _kb(rows):
+    """Inline keyboard helper.
+    rows = [[(text, callback_data), ...], ...]
+    """
+    return {
+        "inline_keyboard": [
+            [{"text": t, "callback_data": d} for (t, d) in row]
+            for row in rows
+        ]
+    }
+
 
 
 def github_get_file(filename):
@@ -460,6 +664,61 @@ def save_last_scan_time(timestamp):
         print("[LAST_SCAN] Kayit hatasi: " + str(e), flush=True)
 
 
+def load_telegram_offset():
+    """Son işlenen Telegram update_id değerini diskten okur."""
+    try:
+        if not os.path.isfile(TELEGRAM_OFFSET_FILE):
+            return 0
+        with open(TELEGRAM_OFFSET_FILE, "r", encoding="utf-8") as f:
+            data = json.load(f) or {}
+        return int(data.get("last_update_id", 0) or 0)
+    except Exception:
+        return 0
+
+
+def save_telegram_offset(last_update_id: int):
+    """Telegram update offset kaydeder (restart sonrası callback backlog olmasın)."""
+    try:
+        os.makedirs(os.path.dirname(TELEGRAM_OFFSET_FILE), exist_ok=True)
+        with open(TELEGRAM_OFFSET_FILE, "w", encoding="utf-8") as f:
+            json.dump({"last_update_id": int(last_update_id or 0)}, f)
+        return True
+    except Exception:
+        return False
+
+
+def init_telegram_offset():
+    """İlk açılışta eski update birikmesini temizler; sonraki açılışlarda dosyadan devam eder."""
+    global last_update_id
+    try:
+        if os.path.isfile(TELEGRAM_OFFSET_FILE):
+            last_update_id = load_telegram_offset()
+            return last_update_id
+
+        # İlk kurulum: çok eski update/callback birikmiş olabilir -> temizle (butonlar geç açılmasın).
+        updates = get_updates(offset=None, timeout=0, limit=100)
+        if updates:
+            max_id = 0
+            for u in updates:
+                try:
+                    max_id = max(max_id, int(u.get("update_id", 0) or 0))
+                except Exception:
+                    pass
+            last_update_id = max_id
+            # Onaylamak için bir kez offset ile çağır
+            try:
+                get_updates(offset=last_update_id + 1, timeout=0, limit=1)
+            except Exception:
+                pass
+        else:
+            last_update_id = 0
+
+        save_telegram_offset(last_update_id)
+        return last_update_id
+    except Exception as e:
+        print(f"[TELEGRAM] offset init hata: {e}", flush=True)
+        last_update_id = 0
+        return 0
 def load_state(force_refresh=False):
     """State'i GitHub'daki ilanlar.json dosyasından oku.
     NOT: Railway /data/ilanlar.json sadece cache olarak yazılabilir; kaynak GitHub'dır.
@@ -957,38 +1216,50 @@ def handle_command(chat_id, command, message_text):
 
 
 def check_telegram_commands():
-    global last_update_id, MANUAL_SCAN_LIMIT, WAITING_PAGE_CHOICE
+    """Telegram mesajlarını ve callback butonlarını dinle."""
+    global last_update_id
+    try:
+        offset = last_update_id + 1 if last_update_id else None
+        updates = get_updates(offset=offset, timeout=1, limit=50)
+        if not updates:
+            return
 
-    updates = get_updates(last_update_id + 1 if last_update_id else None)
+        processed_any = False
 
-    result = None
-    for update in updates:
-        last_update_id = update.get("update_id", last_update_id)
+        for upd in updates:
+            update_id = upd.get("update_id", 0)
+            if update_id:
+                last_update_id = max(last_update_id, update_id)
+                processed_any = True
 
-        # Inline buton tıklaması
-        if "callback_query" in update:
-            handle_callback_query(update.get("callback_query") or {})
-            continue
+            # Callback Query (inline buton)
+            if "callback_query" in upd:
+                handle_callback_query(upd)
+                continue
 
-        message = update.get("message", {})
-        chat_id = str(message.get("chat", {}).get("id", ""))
-        text = message.get("text", "")
+            msg = upd.get("message") or {}
+            if not msg:
+                continue
 
-        if not text or not chat_id:
-            continue
+            chat_id = msg.get("chat", {}).get("id")
+            text = msg.get("text", "") or ""
 
-        # Sadece admin'lerden komut al
-        if chat_id not in ADMIN_CHAT_IDS:
-            continue
+            # Sadece admin komutlar
+            if str(chat_id) not in [str(x) for x in ADMIN_CHAT_IDS]:
+                continue
 
-        if text.startswith("/"):
-            command = text.split()[0].lower()
-            cmd_result = handle_command(chat_id, command, text)
-            if cmd_result == "SCAN":
-                result = "SCAN"
+            # Komutlar
+            if text.startswith("/"):
+                full_text = text.strip()
+                cmd = full_text.split()[0] if full_text else ""
+                cmd = cmd.split("@")[0]  # /komut@BotAdi durumları
+                handle_command(chat_id, cmd, full_text)
 
-    return result
+        if processed_any:
+            save_telegram_offset(last_update_id)
 
+    except Exception as e:
+        print(f"[TELEGRAM] Komut kontrol hatası: {e}", flush=True)
 def fetch_listings_playwright():
     global SCAN_STOP_REQUESTED, ACTIVE_SCAN
 
@@ -1287,7 +1558,7 @@ def run_scan_with_timeout():
                 msg += "🏷️ " + title + "\n"
                 msg += "💰 " + fiyat + "\n\n"
                 msg += "🔗 " + link
-                send_message(msg)
+                send_message(msg, include_real_admin=False)
                 send_real_admin_new_listing(kod, title, fiyat, link)
                 time.sleep(0.3)
 
@@ -1323,7 +1594,7 @@ def run_scan_with_timeout():
                     msg += "💰 " + eski + " ➜ " + fiyat + "\n"
                     msg += fark_str + " (" + trend + ")\n\n"
                     msg += "🔗 " + state["items"][kod].get("link", "")
-                    send_message(msg)
+                    send_message(msg, include_real_admin=False)  # real admin de alsın (ayrıca butonlu mesaj da gider)
                     send_real_admin_price_change(kod, state["items"][kod].get("title", ""), eski, fiyat)
                     time.sleep(0.3)
 
@@ -1343,7 +1614,7 @@ def run_scan_with_timeout():
                 msg += "📋 " + kod + "\n"
                 msg += "🏷️ " + item.get("title", "") + "\n"
                 msg += "💰 " + item.get("fiyat", "")
-                send_message(msg)
+                send_message(msg, include_real_admin=False)
                 send_real_admin_deleted(kod, item.get("title", ""), item.get("fiyat", ""))
 
                 del state["items"][kod]
@@ -1367,21 +1638,10 @@ def run_scan_with_timeout():
         msg += "📊 Taranan ilan: " + str(len(listings)) + " ilan\n\n"
         msg += "<b>📈 Sonuçlar:</b>\n"
 
-        if new_count > 0:
-            msg += "🆕 Yeni ilan: <b>" + str(new_count) + "</b>\n"
-        else:
-            msg += "🆕 Yeni ilan: Bulunamadı\n"
 
-        if deleted_count > 0:
-            msg += "🗑️ Silinen ilan: <b>" + str(deleted_count) + "</b>\n"
-        else:
-            msg += "🗑️ Silinen ilan: Bulunamadı\n"
-
-        if price_change_count > 0:
-            msg += "💱 Fiyat değişimi: <b>" + str(price_change_count) + "</b>"
-        else:
-            msg += "💱 Fiyat değişimi: Bulunamadı"
-
+        msg += "🆕 Yeni ilan: " + ("<b>" + str(new_count) + "</b>" if new_count > 0 else "0") + "\n"
+        msg += "🗑️ Silinen ilan: " + ("<b>" + str(deleted_count) + "</b>" if deleted_count > 0 else "0") + "\n"
+        msg += "💱 Fiyat değişimi: " + ("<b>" + str(price_change_count) + "</b>" if price_change_count > 0 else "0")
         send_message(msg)
 
     if now.hour == 23 and now.minute >= 30 and today not in state.get("reported_days", []):
@@ -1420,12 +1680,30 @@ def run_scan_with_timeout():
     MANUAL_SCAN_LIMIT = None
     SCAN_STOP_REQUESTED = False
 def run_scan():
+    """Tarama worker thread'de çalışırken ana thread Telegram update'lerini işlemeye devam eder.
+    Böylece buton gecikmez; answerCallbackQuery 'query is too old' (400) sorunu büyük ölçüde biter.
+    """
     global bot_stats
-    
+
     with ThreadPoolExecutor(max_workers=1) as executor:
         future = executor.submit(run_scan_with_timeout)
+        start_ts = time.time()
+
         try:
-            future.result(timeout=SCAN_TIMEOUT)
+            while True:
+                try:
+                    future.result(timeout=2)  # kısa bekle
+                    break
+                except FuturesTimeoutError:
+                    # Tarama devam ederken komut/butonları kaçırma
+                    try:
+                        check_telegram_commands()
+                    except Exception as _e:
+                        print("[TELEGRAM] update loop hata: " + str(_e), flush=True)
+
+                    # Global timeout kontrolü
+                    if time.time() - start_ts > SCAN_TIMEOUT:
+                        raise FuturesTimeoutError()
         except FuturesTimeoutError:
             print("[TIMEOUT] Tarama " + str(SCAN_TIMEOUT//60) + " dakikayi asti!", flush=True)
             bot_stats["timeouts"] += 1
@@ -1438,6 +1716,7 @@ def run_scan():
             bot_stats["errors"] += 1
 
 
+
 def main():
     global bot_stats
     
@@ -1448,6 +1727,10 @@ def main():
     bot_stats["start_time"] = datetime.utcnow()
     
     state = load_state()
+
+    # Telegram update backlog temizliği (butonların geç çalışmaması için)
+    init_telegram_offset()
+
     item_count = len(state.get("items", {}))
     
     # Son tarama zamanini yukle
@@ -1506,4 +1789,3 @@ def main():
 if __name__ == "__main__":
     print("__main__ basliyor...", flush=True)
     main()
-    
