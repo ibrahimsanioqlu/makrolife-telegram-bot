@@ -5755,7 +5755,7 @@
       "first_seen_date": "2025-12-16"
     },
     "ML-5479-16": {
-      "fiyat": "1.990.000 ₺",
+      "fiyat": "2.200.000 ₺",
       "tarih": "2025-12-16",
       "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-5479-16",
       "title": "YENİŞEHİR ÜÇKUYULARDA ACİL SATILIK KONUT İMARLI İFRAZLI...",
@@ -6388,9 +6388,9 @@
     },
     "2025-12-19": {
       "new": 0,
-      "price_changes": 0,
+      "price_changes": 1,
       "deleted": 1
     }
   },
-  "scan_sequence": 64
+  "scan_sequence": 65
 }
