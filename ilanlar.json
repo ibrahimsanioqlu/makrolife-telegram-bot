@@ -6323,6 +6323,7 @@
       "timestamp": 1766134123.910771,
       "position": 1,
       "first_seen_date": "2025-12-19"
+    }
   },
   "reported_days": [
     "2025-12-17",
@@ -6352,7 +6353,5 @@
     }
   },
   "scan_sequence": 72
-}
-}
 }
 
