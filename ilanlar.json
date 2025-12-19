@@ -1685,7 +1685,7 @@
       "first_seen_date": "2025-12-16"
     },
     "ML-7397-07": {
-      "fiyat": "2.800.000 ₺",
+      "fiyat": "2.700.000 ₺",
       "tarih": "2025-12-16",
       "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-7397-07",
       "title": "FİYAT DÜŞTÜ !! BÜYÜKŞEHİR BELEDİYESİ TARAFINDA 2+1 SATI...",
@@ -6225,7 +6225,7 @@
       "first_seen_date": "2025-12-19"
     },
     "ML-7117-05": {
-      "fiyat": "3.490.000 ₺",
+      "fiyat": "3.550.000 ₺",
       "tarih": "2025-12-19",
       "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-7117-05",
       "title": "KAPLAN CİTY CİVARI SATILIK 3+1 DAİRE",
@@ -6288,9 +6288,9 @@
     },
     "2025-12-19": {
       "new": 8,
-      "price_changes": 3,
+      "price_changes": 5,
       "deleted": 18
     }
   },
-  "scan_sequence": 75
+  "scan_sequence": 76
 }
