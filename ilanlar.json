@@ -1,6 +1,5087 @@
 {
   "cycle_start": "2025-12-16",
-  "items": {},
+  "items": {
+    "ML-7112-148": {
+      "fiyat": "4.400.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-7112-148",
+      "title": "450 EVLERDE BÖLGENİN EN YÜKSEK METRAJLI 3+1 FIRSAT DAİR...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3856246
+    },
+    "ML-0643-15": {
+      "fiyat": "2.850.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-0643-15",
+      "title": "MAKRO LİFE GAYRİMENKUL'DEN  CEYLANLAR CİVARI SATLIK 3+1...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3856285
+    },
+    "ML-0596-197": {
+      "fiyat": "6.550.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-0596-197",
+      "title": "TEKNOKENTTE HARİKA LÜKS 3.5+1 SATILIK  DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3856304
+    },
+    "ML-1324-99": {
+      "fiyat": "2.580.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-1324-99",
+      "title": "OFİS KOOPERATİF MAHALLESİNDE MİLLET BAHÇESİNE SIFIR ESK...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.385632
+    },
+    "ML-7117-05": {
+      "fiyat": "3.550.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-7117-05",
+      "title": "KAPLAN CİTY CİVARI SATILIK 3+1 DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.385634
+    },
+    "ML-0429-286": {
+      "fiyat": "4.650.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-0429-286",
+      "title": "YENİŞEHİR ÜÇKUYULAR FUAR ALANI ALTINDA HAVUZLU 3+1 SATI...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3856351
+    },
+    "ML-0643-11": {
+      "fiyat": "1.380.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-0643-11",
+      "title": "MAKRO LİFE GAYRİMENKUL'DEN 5 NİSAN MAHALLESİNDE TERASLI...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3856368
+    },
+    "ML-7548-161": {
+      "fiyat": "2.875.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-7548-161",
+      "title": "BAĞCILAR ÖĞRETMENİM OKULLARI ARKASINDA 2+1 MASRAFLI SAT...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3856456
+    },
+    "ML-6887-94": {
+      "fiyat": "16.500.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-6887-94",
+      "title": "MAKRO LİFE GAYRİMENKUL'DEN ZANA ROSİBA KALİTESİYLE SATI...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3856468
+    },
+    "ML-0300-04": {
+      "fiyat": "4.400.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-0300-04",
+      "title": "75 CADDE 2, PARSELDE BAKIMLI 3+1 SATILIK DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3856492
+    },
+    "ML-4553-521": {
+      "fiyat": "4.350.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-4553-521",
+      "title": "450 EVLERDE SATILIK 3+1 BOŞ DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3856504
+    },
+    "ML-3621-65": {
+      "fiyat": "3.300.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-3621-65",
+      "title": "MAKRO LİFE GAYRİMENKUL'DEN SATILIK KARAKUŞ GOLD'TA 2+1 ...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3856533
+    },
+    "ML-3942-02": {
+      "fiyat": "1.725.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-3942-02",
+      "title": "MAKRO LİFE GAYRİMENKUL'DEN BAĞLAR ORYIL'DA 3+1 SATILIK ...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3856544
+    },
+    "ML-7119-71": {
+      "fiyat": "5.300.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-7119-71",
+      "title": "KANTAR AZEL PLAZADA SATILIK İŞYERİ",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3856559
+    },
+    "ML-0643-10": {
+      "fiyat": "3.575.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-0643-10",
+      "title": "MAKRO LİFE GAYRİMENKUL'DEN DİCLEKENT'TE 3+1 SATILIK DAİ...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3856573
+    },
+    "ML-0429-285": {
+      "fiyat": "22.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-0429-285",
+      "title": "YENİŞEHİR FABRİKA MAHALLESİ AKABE KONUTLARINDA 2,5+1 Kİ...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3856583
+    },
+    "ML-5495-63": {
+      "fiyat": "895.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-5495-63",
+      "title": "HATBOYU CADDESİNE SIFR 3+1 DAİREMİZ SATIŞTA",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3856604
+    },
+    "ML-5436-124": {
+      "fiyat": "3.650.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-5436-124",
+      "title": "ÜÇKUYULARDA SATILIK SIFIR AYARINDA DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3856618
+    },
+    "ML-2450-133": {
+      "fiyat": "2.700.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-2450-133",
+      "title": "DİCLEKENT ANA CADDE ÜZERİ PARK ORMAN KARŞISI'NDA ÇARMAR...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3856633
+    },
+    "ML-0429-284": {
+      "fiyat": "3.750.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-0429-284",
+      "title": "ELAZIĞ YOLU İSA YAPI İNŞAATTAN SATILIK 2+1 DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.385664
+    },
+    "ML-2141-20": {
+      "fiyat": "3.690.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-2141-20",
+      "title": "DİCLEKENT VİLALALARI KARŞISINDA 4+1 SATILIK DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3856652
+    },
+    "ML-6621-200": {
+      "fiyat": "4.800.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-6621-200",
+      "title": "BAĞCILAR HAVALİMANI CİVARI CİVARI 3+1 LÜKS DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3856664
+    },
+    "ML-2418-75": {
+      "fiyat": "5.100.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-2418-75",
+      "title": "ADLİ TIP ARKASI SATILIK ULTRA LÜKS DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3856695
+    },
+    "ML-5495-62": {
+      "fiyat": "3.370.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-5495-62",
+      "title": "YETİŞEN ALIR ARAŞTIRMA KAVŞAGINDA  3+1 DAİREMİZ SATIŞT...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3856704
+    },
+    "ML-7113-329": {
+      "fiyat": "3.550.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-7113-329",
+      "title": "CEYLANLAR AVM KARŞISINDA AŞİRET PAKET + TERASLI 3+1 SA...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3856716
+    },
+    "ML-7113-328": {
+      "fiyat": "26.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-7113-328",
+      "title": "NEVROZ PARK AŞAĞISINDA EŞYALI KİRALIK 2+1 DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3856769
+    },
+    "ML-0598-87": {
+      "fiyat": "8.000.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-0598-87",
+      "title": "OTOGAR ARKASI 50 MT YOLDA SERİN YAPI 4.5+1 ULTRA LÜX ...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.385678
+    },
+    "ML-1324-562": {
+      "fiyat": "3.580.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-1324-562",
+      "title": "ALTINDAĞ KARŞISI 2+1 ULTRA LÜX HAVUZLU SIFIR DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3856797
+    },
+    "ML-1324-409": {
+      "fiyat": "4.250.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-1324-409",
+      "title": "YENİ CEZAEVİ KARŞISI 2+1 ULTRA LÜX SIFIR DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.385681
+    },
+    "ML-7114-59": {
+      "fiyat": "11.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-7114-59",
+      "title": "ORYIL PETROL ARKASI KİRALIK  2+1 ARA KAT DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3856823
+    },
+    "ML-0596-194": {
+      "fiyat": "26.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-0596-194",
+      "title": "WİNSTOWN İLE ARAŞTIRMA HASTANESİ ARASINDA  KİRALIK 3+1 ...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3856835
+    },
+    "ML-3458-292": {
+      "fiyat": "4.050.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-3458-292",
+      "title": "75 CADDENİN DEVAMINDA DEPREM GÖRMEMİŞ BÜYÜK METRAJLI DA...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3856843
+    },
+    "ML-2418-74": {
+      "fiyat": "1.850.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-2418-74",
+      "title": "CEZA EVİ ALT KÖŞE'DE SATILIK DAİRESİ",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3856854
+    },
+    "ML-7497-116": {
+      "fiyat": "4.180.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-7497-116",
+      "title": "MAKRO LİFE GAYRİMENKUL'DEN BAĞCILAR MAKİNE İKMAL YANI A...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3856883
+    },
+    "ML-1656-536": {
+      "fiyat": "1.200.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-1656-536",
+      "title": "KOŞUYOLU PARKI KARŞISI SATILIK 3+1 BAKIMLI FIRSAT DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3856893
+    },
+    "ML-3448-128": {
+      "fiyat": "20.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-3448-128",
+      "title": "MAKRO LİFE GAYRİMENKUL'DEN ÇÖLGÜZELİNDE 3+1 KİRALIK TOK...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3856907
+    },
+    "ML-7113-327": {
+      "fiyat": "5.750.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-7113-327",
+      "title": "ADLİ TIP KURUMU ARKASINDA LÜX 3.5+1 DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3856921
+    },
+    "ML-3448-127": {
+      "fiyat": "4.630.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-3448-127",
+      "title": "MAKRO LİFE GAYRİMENKUL'DEN FABRİKA MAHALLESİNDE HAVUZLU...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.385693
+    },
+    "ML-7397-08": {
+      "fiyat": "3.050.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-7397-08",
+      "title": "VALİLİK KARŞISINDA YATIRIMLIK SIFIR 2+1 SATILIK FIRSAT ...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3856976
+    },
+    "ML-0300-03": {
+      "fiyat": "5.700.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-0300-03",
+      "title": "BAĞCILARDA 4+1 LÜKS SATILIK DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3856986
+    },
+    "ML-4553-520": {
+      "fiyat": "5.200.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-4553-520",
+      "title": "WİNSTOWN AVM CİVARI 2.5+1 SATILIK LÜX DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3856993
+    },
+    "ML-7416-116": {
+      "fiyat": "4.700.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-7416-116",
+      "title": "SATILIK MODERN OFİS BÜRO 2+1",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3857014
+    },
+    "ML-7416-115": {
+      "fiyat": "10.000.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-7416-115",
+      "title": "4 SANAYİ SİTESİNDE 150 M2 TAM DÜKKAN",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3857026
+    },
+    "ML-7465-117": {
+      "fiyat": "5.750.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-7465-117",
+      "title": "FORUM AWM KARŞISINDA SATILIK LÜX 3.5+1 DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3857067
+    },
+    "ML-2418-73": {
+      "fiyat": "3.350.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-2418-73",
+      "title": "450 EVLERDE SATILIK LÜKS 2+1 DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3857086
+    },
+    "ML-4548-224": {
+      "fiyat": "3.990.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-4548-224",
+      "title": "FABRİKA MAHALLESİNDE 2+1 YÜKSEK METREKARELİ DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3857105
+    },
+    "ML-6954-100": {
+      "fiyat": "4.170.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-6954-100",
+      "title": "MAKRO LİFE GAYRİMENKUL'DEN SİVEREK CADDESİ ÜZERİ SATILI...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3857112
+    },
+    "ML-5439-136": {
+      "fiyat": "3.950.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-5439-136",
+      "title": "CEYLAN AVM YANI URFA YOLUNA SIFIR 4+1 ULTRA GENİŞ VE KO...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3857121
+    },
+    "ML-5439-135": {
+      "fiyat": "3.390.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-5439-135",
+      "title": "CEYLAN AVM YANI URFA YOLUNA SIFIR 4+1 ÇOK ACİL SATILIK ...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3857133
+    },
+    "ML-2067-01": {
+      "fiyat": "10.000.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-2067-01",
+      "title": "DİKENTEPE SATILIK MÜSTAKİL ARAZİ",
+      "scan_seq": 91,
+      "timestamp": 1766227768.385715
+    },
+    "ML-1707-183": {
+      "fiyat": "3.150.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-1707-183",
+      "title": "GAZİLER SPOR KOMPELKSİ CİVARI HASARSIZ SATILIK 3+1 OTUR...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3857162
+    },
+    "ML-7446-204": {
+      "fiyat": "4.275.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-7446-204",
+      "title": "BAĞCILARIN GÖZDE KONUMUNDA 3+1  DAİREMİZ SATIŞTADIR",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3857195
+    },
+    "ML-0429-282": {
+      "fiyat": "2.125.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-0429-282",
+      "title": "MAKRO LİFE GAYRİMENKUL'DEN  TOKİ 2.ETAP 2+1 YÜKSEK GİRİ...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3857205
+    },
+    "ML-6621-195": {
+      "fiyat": "7.150.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-6621-195",
+      "title": "YETİŞEN ALIR YENİ CEZAEVİ CİVARI 3.5+1 LÜKS DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.385722
+    },
+    "ML-2409-122": {
+      "fiyat": "2.250.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-2409-122",
+      "title": "KANTAR CİVARI SIFIR, LÜKS 1+1 DAİRE!",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3857226
+    },
+    "ML-2409-121": {
+      "fiyat": "2.250.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-2409-121",
+      "title": "KANTAR CİVARI YERDEN ISITMALI, SIFIR LÜKS 1+1 DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3857236
+    },
+    "ML-2409-120": {
+      "fiyat": "3.050.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-2409-120",
+      "title": "KANTAR CİVARI SIFIR, LÜKS 2+1 AMERİKAN MUTFAK DAİRE!",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3857243
+    },
+    "ML-1324-454": {
+      "fiyat": "3.350.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-1324-454",
+      "title": "WİNSTOWN AWM İLERİSİ 2+1 63M2 SIFIR DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3857255
+    },
+    "ML-1324-644": {
+      "fiyat": "3.150.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-1324-644",
+      "title": "MASTFROŞ CİVARI 2+1 63M2 ULTRA LÜX SIFIR DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3857272
+    },
+    "ML-2450-134": {
+      "fiyat": "2.390.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-2450-134",
+      "title": "KAPORA ALINDI",
+      "scan_seq": 91,
+      "timestamp": 1766227768.385728
+    },
+    "ML-7117-03": {
+      "fiyat": "880.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-7117-03",
+      "title": "MARDİN YOLU ÜZERİNDE 2+1 SATILIK DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3857293
+    },
+    "ML-7117-02": {
+      "fiyat": "880.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-7117-02",
+      "title": "MARDİN YOLU ÜZERİNDE 2+1 SATILIK DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3857307
+    },
+    "ML-5479-99": {
+      "fiyat": "2.200.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-5479-99",
+      "title": "KAPORA ALINDI",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3857324
+    },
+    "ML-1324-231": {
+      "fiyat": "6.290.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-1324-231",
+      "title": "WİNSTOWN AWM YANI 3.5+1 ULTRA LÜX SIFIR DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3857331
+    },
+    "ML-1656-535": {
+      "fiyat": "980.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-1656-535",
+      "title": "DİCLEKENT İŞLEK KONUMDA DEVREN KİRALIK İŞYERİ",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3857365
+    },
+    "ML-0508-153": {
+      "fiyat": "3.650.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-0508-153",
+      "title": "YENİHAL ŞATOPARK DÜĞÜN SALONU CİVARI FIRSAT 3+1 DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3857377
+    },
+    "ML-7548-157": {
+      "fiyat": "12.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-7548-157",
+      "title": "BAĞCILARDA YÜKSEK GİRİŞ  2+0 KİRALIK DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3857386
+    },
+    "ML-7548-155": {
+      "fiyat": "5.375.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-7548-155",
+      "title": "TEKNOKENT ARKASINDA  3+1  SATILIK LÜKS DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3857398
+    },
+    "ML-7394-16": {
+      "fiyat": "22.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-7394-16",
+      "title": "ÜÇKUYULARDA 808 KONUTLARINDA 3+1 KİRALIK DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3857408
+    },
+    "ML-7394-15": {
+      "fiyat": "1.350.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-7394-15",
+      "title": "ÜÇKUYULARDA İMARLI SATILIK ARSA",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3857422
+    },
+    "ML-7492-57": {
+      "fiyat": "105.000.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-7492-57",
+      "title": "OĞLAKLI TOKİLERE YAKIN MESAFEDE SATILIK MÜSTAKİL ARAZİ",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3857431
+    },
+    "ML-4553-518": {
+      "fiyat": "1.800.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-4553-518",
+      "title": "YENİŞEHİR İŞKUR CİVARI SATILIK 3+1 DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.385744
+    },
+    "ML-7119-70": {
+      "fiyat": "3.550.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-7119-70",
+      "title": "BAĞCILAR HAVAALANI KAVŞAĞI CİVARI SATILIK MASRAFLI 2+1 ...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3857455
+    },
+    "ML-7113-325": {
+      "fiyat": "2.875.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-7113-325",
+      "title": "BATI HASTANESİ YANINDA UYGUN FİYATLI 3+1 SATILIK DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3857467
+    },
+    "ML-1656-533": {
+      "fiyat": "6.620.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-1656-533",
+      "title": "YENİ STADYUMA YÜRÜME MESAFESİNDE SATILIK 4+1 LÜKS FIRSA...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.385748
+    },
+    "ML-6954-99": {
+      "fiyat": "11.350.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-6954-99",
+      "title": "ÇEYSA YAPI KALİTESİ İLE 4.5+1 SATILIK LÜKS DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3857493
+    },
+    "ML-7357-09": {
+      "fiyat": "14.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-7357-09",
+      "title": "ŞEHİTLİK MAHALLESİNDE 3+1 ACİL KİRALIK DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3857508
+    },
+    "ML-7465-112": {
+      "fiyat": "4.275.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-7465-112",
+      "title": "DİCLEKENTİN EN GÜZEL KONUMUNDA İLK GÜNDEN HASARSIZ SATI...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3857517
+    },
+    "ML-1798-156": {
+      "fiyat": "4.740.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-1798-156",
+      "title": "TEKNOKENT CİVARINDA 3.5+1 ZANA YAPI KALİTESİYLE YATAY M...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3857553
+    },
+    "ML-6887-92": {
+      "fiyat": "6.900.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-6887-92",
+      "title": "WİNSTOWN AVM KARŞI ÇAPRAZINDA MERVAN DA 4+1 SATILIK SIF...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3857563
+    },
+    "ML-5482-116": {
+      "fiyat": "6.480.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-5482-116",
+      "title": "ALATOSUN 205 PARSELDE SATILIK 24000 M2 KELEPİR ARSA",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3857574
+    },
+    "ML-4543-56": {
+      "fiyat": "2.420.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-4543-56",
+      "title": "SAYIN SİTESİ 3+1 FUL BAKIMLI ASANSÖRLÜ SATILIK ORTA KAT",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3857586
+    },
+    "ML-0598-86": {
+      "fiyat": "4.440.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-0598-86",
+      "title": "WİNSTOWN AVM YANINDA AY YAPI KALİTESİYLE 2+1 YATIRIMLIK...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3857598
+    },
+    "ML-7548-159": {
+      "fiyat": "23.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-7548-159",
+      "title": "BAĞCILAR GÖLETLİ PARK YANINDA 3+1 KİRALIK DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3857605
+    },
+    "ML-0598-83": {
+      "fiyat": "22.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-0598-83",
+      "title": "ARAŞTIRMA HASTANESİ YANINDA ZANA MİDAS'TA 2+1 KİRALIK F...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3857613
+    },
+    "ML-0598-84": {
+      "fiyat": "4.380.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-0598-84",
+      "title": "WİNSTOWN CİVARINDA ZANA KALİTESİYLE 2,5+1 ACİL SATILIK ...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.385763
+    },
+    "ML-2141-17": {
+      "fiyat": "2.825.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-2141-17",
+      "title": "DİCLEKENT NASIR USTA ARKASI 3+1 TEMİZ ÇOK UYGUNN SATILI...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3857665
+    },
+    "ML-7117-01": {
+      "fiyat": "5.500.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-7117-01",
+      "title": "WİNSTWON AVM YÜRÜME MESAFESİNDE SATILIK 3+1 DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3857675
+    },
+    "ML-1375-290": {
+      "fiyat": "4.190.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-1375-290",
+      "title": "YENIŞEHİR TOPLU KONUT KARŞISINDA 2+0 SATILIK DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.385769
+    },
+    "ML-7119-68": {
+      "fiyat": "2.850.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-7119-68",
+      "title": "KANTAR KAVŞAĞI BELLONA ARKASI SATILIK 3+1 DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3857698
+    },
+    "ML-7119-67": {
+      "fiyat": "3.840.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-7119-67",
+      "title": "75 CADDEYE 2 . PARSELDE SATILIK 3+1 DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.385771
+    },
+    "ML-4441-308": {
+      "fiyat": "16.000.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-4441-308",
+      "title": "DİCLE VADİSİ'NİN İNCİSİ SATILIK MUHTEŞEM 5.5+1 LÜKS VİL...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3857746
+    },
+    "ML-5479-96": {
+      "fiyat": "2.630.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-5479-96",
+      "title": "ZÜMRÜT KENT KARŞISI SIFIR YATIRIMLIK SIFIR DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3857756
+    },
+    "ML-4441-309": {
+      "fiyat": "6.750.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-4441-309",
+      "title": "75 MT4+1 SATILIK DAİRE ŞEHRİN EN PRESTİJLİ KONUMUNDA",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3857772
+    },
+    "ML-2140-561": {
+      "fiyat": "3.400.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-2140-561",
+      "title": "ARAŞTIRMA YANI 635 TOKİ KONUTLARINDA",
+      "scan_seq": 91,
+      "timestamp": 1766227768.385779
+    },
+    "ML-1284-58": {
+      "fiyat": "11.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-1284-58",
+      "title": "HUZUR EVLERİ SON DURAK ANA CADDE ÜSTÜNDE BAKIMLI 3+1 Kİ...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3857796
+    },
+    "ML-1284-56": {
+      "fiyat": "2.325.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-1284-56",
+      "title": "HUZUR EVLERİ SON DURAK ANA CADDE ÜSTÜNDE BAKIMLI 3+1 SA...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3857799
+    },
+    "ML-1143-80": {
+      "fiyat": "4.200.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-1143-80",
+      "title": "ERGANİ 30LUK YOLDA SATILIK 3+1 FIRSAT DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3857815
+    },
+    "ML-1656-532": {
+      "fiyat": "2.600.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-1656-532",
+      "title": "OFİS GEVRAN CADDESİNDE SATILIK 4+2 FIRSAT DUBLEKS DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3857825
+    },
+    "ML-0533-086": {
+      "fiyat": "17.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-0533-086",
+      "title": "SEYRANTEPE TOKİ'DE  3+1 KİRALIK DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3857832
+    },
+    "ML-6621-194": {
+      "fiyat": "4.600.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-6621-194",
+      "title": "YETİŞEN ALIR KAYAPINARDA 3+1 LÜKS DAİREMİZ SATIŞTADIR",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3857844
+    },
+    "ML-0533-085": {
+      "fiyat": "1.750.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-0533-085",
+      "title": "HUZUREVLERİ MEHMET İÇKALE ORTAOKULU YANI BAKIMLI 3+1 DA...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3857853
+    },
+    "ML-1676-78": {
+      "fiyat": "35.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-1676-78",
+      "title": "MAKRO LİFE GAYRİMENKUL'DEN ÇETİNLER DİYARLAND'TA KİRALI...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3857863
+    },
+    "ML-1707-182": {
+      "fiyat": "22.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-1707-182",
+      "title": "DİYARBAKIRIN EN GÜZEL MANZARALI 3+1 KİRALIK DAİRESİ",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3857875
+    },
+    "ML-1707-181": {
+      "fiyat": "3.150.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-1707-181",
+      "title": "KANTAR KAVŞAĞINDA ACİL SATILIK 3+1 ARA KAT DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3857913
+    },
+    "ML-1707-180": {
+      "fiyat": "2.750.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-1707-180",
+      "title": "NİNOVA AVM ARKASINDA ACİL SATILIK 3+1 BAKIMLI DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3857927
+    },
+    "ML-1707-179": {
+      "fiyat": "6.500.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-1707-179",
+      "title": "STADYUM KARŞISI ACİL SATILIK 3,5+1 SIFIR AYARINDA OTURM...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3857937
+    },
+    "ML-1707-178": {
+      "fiyat": "4.130.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-1707-178",
+      "title": "ELAZIĞ YOLU ÜZERİ WİNSTOWN AWM CİVARI 2+1 DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3857949
+    },
+    "ML-4548-223": {
+      "fiyat": "2.850.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-4548-223",
+      "title": "SEYRANTEPE TOPLUKONUT 3.ETAPTA  3+1 SATILIK DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3858018
+    },
+    "ML-4548-222": {
+      "fiyat": "21.500 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-4548-222",
+      "title": "TEKNOKENT ARKASI BUBYA HEVSEL PARK 4,5+1 KİRALIK LÜX DA...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3858032
+    },
+    "ML-3458-289": {
+      "fiyat": "26.500 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-3458-289",
+      "title": "BARAN YAPI KALİTESİYLE 2+1 KİRALİK DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3858047
+    },
+    "ML-5482-115": {
+      "fiyat": "11.600.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-5482-115",
+      "title": "ŞEHRİN YENİ POPÜLER YERİ CUMHURİYETTE MÜSTAKİL KELEPİR ...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3858056
+    },
+    "ML-5439-131": {
+      "fiyat": "2.530.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-5439-131",
+      "title": "KAYPINAR KANTAR KAVŞAĞINDA ARA KATTA İÇİ YAPILI SATILI...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3858066
+    },
+    "ML-5482-114": {
+      "fiyat": "25.000.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-5482-114",
+      "title": "Diyarbakır Yenişehir Ekinciler Köyünde Doğayla İç İçe, ...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3858073
+    },
+    "ML-2141-13": {
+      "fiyat": "2.635.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-2141-13",
+      "title": "ZÜMRÜTKENT CİVARI 2+1 AMERİKAN MUTFAK SATILIK DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3858092
+    },
+    "ML-7465-110": {
+      "fiyat": "3.560.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-7465-110",
+      "title": "KENT MEYDANI DIBINDE FULL YAPILI ACİL SATILIK GENİŞ FER...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.38581
+    },
+    "ML-2141-12": {
+      "fiyat": "1.820.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-2141-12",
+      "title": "OFİS KÜTÜPHANE ÇAPRAZI 2+1 SATILIK DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3858109
+    },
+    "ML-7465-107": {
+      "fiyat": "3.750.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-7465-107",
+      "title": "DİCLEKENTN EN GZEL KONUMUNDA LK GÜNDEN HASARSIZ SATILIK...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3858151
+    },
+    "ML-0300-01": {
+      "fiyat": "6.500.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-0300-01",
+      "title": "STADYUM CİVARINDA 4+1 LÜKS SATILIK DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3858168
+    },
+    "ML-7357-08": {
+      "fiyat": "19.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-7357-08",
+      "title": "NCİTY AVM CİVARINDA 3+1 KİRALIK DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.385818
+    },
+    "ML-2450-132": {
+      "fiyat": "18.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-2450-132",
+      "title": "ALTINDAĞ'DA BYMEN YAPIDA KİRALIK 2+1 DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3858194
+    },
+    "ML-0429-281": {
+      "fiyat": "14.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-0429-281",
+      "title": "YENİŞEHİR ÜÇKUYULAR TOKİ 546 KONUTLARINDA KİRALIK DAİR...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3858206
+    },
+    "ML-1375-292": {
+      "fiyat": "2.540.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-1375-292",
+      "title": "MAKRO LİFE GAYRİMENKUL'DEN ÇÖL GÜZELİ 2+1 TOKİ DAİRESİ ...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.385822
+    },
+    "ML-5482-113": {
+      "fiyat": "17.500.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-5482-113",
+      "title": "Diyarbakır Yenişehir Ekinciler Köyünde Doğayla İç İçe, ...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3858232
+    },
+    "ML-1143-79": {
+      "fiyat": "4.695.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-1143-79",
+      "title": "KAYAPINAR STAD YANINDA SATILIK 2+1 FIRSAT DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3858244
+    },
+    "ML-7394-12": {
+      "fiyat": "6.250.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-7394-12",
+      "title": "MASTFORŞTA KAYALAR ELSİUM LİFE 3+1 LÜKS SATILIK DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3858254
+    },
+    "ML-1676-79": {
+      "fiyat": "2.800.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-1676-79",
+      "title": "OFİS AKKOYUNLU 4.SOKAK'TA SATILIK 3+1 DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3858263
+    },
+    "ML-3621-61": {
+      "fiyat": "3.660.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-3621-61",
+      "title": "MAKRO LİFE GAYRİMENKUL'DEN SATILIK URFA YOLU ÜZERİ 3+1 ...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3858273
+    },
+    "ML-7446-203": {
+      "fiyat": "2.290.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-7446-203",
+      "title": "SANAT SOKAĞININ EN GÜZEL KONUMUNDA 3+1 ACİLL SATILIK",
+      "scan_seq": 91,
+      "timestamp": 1766227768.385828
+    },
+    "ML-7394-13": {
+      "fiyat": "3.600.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-7394-13",
+      "title": "MAKRO LİFE GAYRİMENKUL'DEN SATILIK BY MEN KALİTESİYLE 2...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3858285
+    },
+    "ML-2418-72": {
+      "fiyat": "4.275.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-2418-72",
+      "title": "FABRİKA MAHALLESİNDE SATILIK 3+1 LÜKS DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3858294
+    },
+    "ML-7492-56": {
+      "fiyat": "3.600.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-7492-56",
+      "title": "ARAŞTIRMA CİVAR AGC YAPIDA 2,5+1 SATILIK SIFIR LÜKS DAİ...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3858337
+    },
+    "ML-2418-71": {
+      "fiyat": "2.630.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-2418-71",
+      "title": "URFA YOLU ÜZERİ TESİSLER KAVŞAĞINDA SATILIK 3+1 DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3858342
+    },
+    "ML-2409-118": {
+      "fiyat": "2.790.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-2409-118",
+      "title": "ACİL SATILIK TOKİ 720 KONUTLARINDA FUL YAPILI 2+1 BOŞ...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.385836
+    },
+    "ML-4543-55": {
+      "fiyat": "4.360.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-4543-55",
+      "title": "YENİHEŞİR FABRİKA MAH 3+1 FYATINA 4+1  SATILIK DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.385837
+    },
+    "ML-2409-119": {
+      "fiyat": "6.150.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-2409-119",
+      "title": "DİYARBAKIR ULTRALÜKS 3,5+1 GENİŞ AİLE DAİRESİ",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3858383
+    },
+    "ML-5493-37": {
+      "fiyat": "2.300.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-5493-37",
+      "title": "OFİS KÜTÜPHANE SOKAĞINDA SATILIK 3+1 MASRAFSIZ DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3858397
+    },
+    "ML-7497-15": {
+      "fiyat": "1.950.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-7497-15",
+      "title": "MAKRO LİFE GAYRİMENKUL'DEN HUZUREVLERİN DE 3+1 SATILIK...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3858407
+    },
+    "ML-5493-36": {
+      "fiyat": "1.300.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-5493-36",
+      "title": "BATMANIN GÖZDE İLÇESİ CEVİZ VE BAL DİYARI SASONDA YATIR...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3858414
+    },
+    "ML-5493-35": {
+      "fiyat": "1.950.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-5493-35",
+      "title": "KAPORASI ALINDI",
+      "scan_seq": 91,
+      "timestamp": 1766227768.385842
+    },
+    "ML-1327-03": {
+      "fiyat": "2.500.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-1327-03",
+      "title": "FIRAT BULVARI MERKEZİ KONUMDA CEYLAN AVM'YE YAKIN 3+1 F...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3858428
+    },
+    "ML-4548-220": {
+      "fiyat": "3.920.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-4548-220",
+      "title": "FABRİKA MAHALLESİ 2+1 SATILIK DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.385844
+    },
+    "ML-7497-13": {
+      "fiyat": "2.840.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-7497-13",
+      "title": "MAKRO LİFE GAYRİMENKUL'DEN DİCLEKENTTE 3+1 SATILIK DAİR...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3858447
+    },
+    "ML-5495-60": {
+      "fiyat": "7.800.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-5495-60",
+      "title": "!!! MASTFROŞ'TA  ULTRA LÜKS 4 +1 DAİREMİZ SATIŞTA !!!",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3858454
+    },
+    "ML-3733-90": {
+      "fiyat": "3.280.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-3733-90",
+      "title": "NEVROZ PLATFORM ARKASI SIFIR 2+1 YERDEN ISITMALI DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.38585
+    },
+    "ML-7112-145": {
+      "fiyat": "85.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-7112-145",
+      "title": "OFİS RIZVAN AĞA CD. ÜZERİ ANZELE PAÇA ÇAPRAZI 300MT KİR...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3858507
+    },
+    "ML-1676-76": {
+      "fiyat": "3.730.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-1676-76",
+      "title": "MAKRO LİFE GAYRİMENKUL'DEN GÖLETLİ PARK CİVARI SATILIK ...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3858519
+    },
+    "ML-2450-131": {
+      "fiyat": "5.700.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-2450-131",
+      "title": "FABRİKA MAHALLESİNDE LÜX 4+1 SATILIK DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3858533
+    },
+    "ML-7112-146": {
+      "fiyat": "99.000.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-7112-146",
+      "title": "DİYARBAKIR ÇINAR YOLU ÜZERİ BEŞPINAR KARŞISINDA ANA Y...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3858542
+    },
+    "ML-2450-130": {
+      "fiyat": "19.500 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-2450-130",
+      "title": "TEKEL CADDESİ KAYALAR'DA 2+0 KİRALIK DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.385856
+    },
+    "ML-2450-129": {
+      "fiyat": "3.950.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-2450-129",
+      "title": "MEZOPOTAMYA KENT PARKI YANINDA SATILIK 2+0 DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3858569
+    },
+    "ML-1656-516": {
+      "fiyat": "4.050.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-1656-516",
+      "title": "ÜÇKUYULAR MERKEZİ KONUMDA SATILIK SIFIR 2+1 FIRSAT DAİ...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3858576
+    },
+    "ML-4553-516": {
+      "fiyat": "23.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-4553-516",
+      "title": "3 KUYULARDA KİRALIK 3+1 DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3858588
+    },
+    "ML-0429-272": {
+      "fiyat": "3.900.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-0429-272",
+      "title": "YENİŞEHİR ÜÇKUYULAR AYTEK ROZA SİTESİNDE SATLIK 2+1 DAİ...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3858602
+    },
+    "ML-1656-513": {
+      "fiyat": "5.750.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-1656-513",
+      "title": "BAĞLAR SAĞLIK OCAĞI MERKEZİ KONUMDA SATILIK FIRSAT İŞYE...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.385861
+    },
+    "ML-7548-154": {
+      "fiyat": "3.890.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-7548-154",
+      "title": "FABRİKA MAHALLESİNDE   SATILIK 3+1 ULTRA LÜX HAVUZLU  D...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3858624
+    },
+    "ML-0508-48": {
+      "fiyat": "99.000.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-0508-48",
+      "title": "DİYARBAKIR ÇINAR YOLU ÜZERİ BEŞPINAR KARŞISINDA ANA Y...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.385863
+    },
+    "ML-7548-153": {
+      "fiyat": "3.375.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-7548-153",
+      "title": "GÖLETLİ PARK KARŞISINDA   3+1 SATILIK FIRSAT DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3858666
+    },
+    "ML-3458-288": {
+      "fiyat": "3.390.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-3458-288",
+      "title": "KAPLAN CITY KARŞISINDA 4+1 SATILIK DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.385868
+    },
+    "ML-1798-155": {
+      "fiyat": "37.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-1798-155",
+      "title": "BAĞCILAR GÖLETLİ PARK CİVARINDA 2+1 EŞYALI KİRALIK BÜRO...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3858693
+    },
+    "ML-4543-46": {
+      "fiyat": "1.930.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-4543-46",
+      "title": "POLİS OKULUNDA SİTELİ 3+1 ORTA KAT",
+      "scan_seq": 91,
+      "timestamp": 1766227768.38587
+    },
+    "ML-3621-54": {
+      "fiyat": "4.900.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-3621-54",
+      "title": "MAKRO LİFE GAYRİMENKUL'DEN SATILIK 75 YÜRÜME MESAFESİND...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3858712
+    },
+    "ML-7548-151": {
+      "fiyat": "5.750.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-7548-151",
+      "title": "OTOGAR ARKASINDA ŞEHİR HASTANESİ YANINDA 3+1 SATILIK DA...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.385872
+    },
+    "ML-7394-50": {
+      "fiyat": "7.500.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-7394-50",
+      "title": "ÇEYSA EVİM KALİTESİYLE 3+1 SATILIK SIFIR LÜKS DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3858728
+    },
+    "ML-7548-150": {
+      "fiyat": "29.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-7548-150",
+      "title": "OTOGAR ARKASINDA ŞEHİR HASTANESİ YANINDA 3+1 KİRALIK DA...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3858743
+    },
+    "ML-1707-176": {
+      "fiyat": "3.350.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-1707-176",
+      "title": "YENİYOLDA GENİŞ FERAH BAKIMLI 3+1 ACİL SATILIK FIRSAT D...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.385875
+    },
+    "ML-8674-131": {
+      "fiyat": "3.770.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-8674-131",
+      "title": "KENT MEYDANI DIBINDE FULL YAPILI ACİL SATILIK GENİŞ FER...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3858757
+    },
+    "ML-5493-34": {
+      "fiyat": "4.175.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-5493-34",
+      "title": "MEDYA KAVŞAĞINDA CADDE CEPHELİ EKSTRALI 4+1 SATILIK DAİ...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3858764
+    },
+    "ML-7548-149": {
+      "fiyat": "6.550.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-7548-149",
+      "title": "STADYUM KARŞISI  4+1 ULTRA LÜX SATILIK DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3858783
+    },
+    "ML-4441-307": {
+      "fiyat": "2.380.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-4441-307",
+      "title": "GÜLEÇOBA DA SATILIK FIRSAT ARSA",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3858798
+    },
+    "ML-4441-303": {
+      "fiyat": "4.200.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-4441-303",
+      "title": "DİYARBAKIR KAYAPINAR GÜLEÇOBA'DA MÜKEMMEL YATIRIM FIRSA...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3858838
+    },
+    "ML-7492-53": {
+      "fiyat": "4.500.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-7492-53",
+      "title": "YENİ CEZAEVİ KARŞISI AZD GOLD CİTY",
+      "scan_seq": 91,
+      "timestamp": 1766227768.385889
+    },
+    "ML-0598-82": {
+      "fiyat": "2.700.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-0598-82",
+      "title": "KANTAR KAVŞAĞINDA SATILIK 3+1 FIRSAT DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3858902
+    },
+    "ML-3621-27": {
+      "fiyat": "18.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-3621-27",
+      "title": "SEYRANTEPE TOPLU KONUTLARDA 3+1 OTURUMA HAZIR KİRALIK D...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3858917
+    },
+    "ML-7497-11": {
+      "fiyat": "1.475.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-7497-11",
+      "title": "POLİS OKULU CİVARIN DA 2+1 SATILIK FIRSAT DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3858926
+    },
+    "ML-3942-1": {
+      "fiyat": "3.000.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-3942-1",
+      "title": "MAKROLİFE GAYRİMENKULDEN EVLENDİRME DAİRESİ TARAFINDA  ...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3858938
+    },
+    "ML-4548-215": {
+      "fiyat": "3.250.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-4548-215",
+      "title": "RODEM YAPI 2+1 SATILIK LÜKS  DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3858955
+    },
+    "ML-4765-193": {
+      "fiyat": "3.100.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-4765-193",
+      "title": "ÜÇKUYULAR CADDE ÜZERİ ARSA PAYINDAN 2+1 SATILIK DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.385896
+    },
+    "ML-4548-214": {
+      "fiyat": "2.950.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-4548-214",
+      "title": "YENİŞEHİR 450 EVLERDE LÜKS DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3858974
+    },
+    "ML-4271-01": {
+      "fiyat": "25.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-4271-01",
+      "title": "GAZİLER 75 E YAKIN 3+1 ARA KATA SİTELİ KİRALIK DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3858986
+    },
+    "ML-1676-75": {
+      "fiyat": "3.400.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-1676-75",
+      "title": "KENT MEYDANI YANINDA SATILIK 3+1 DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3859
+    },
+    "ML-7548-148": {
+      "fiyat": "9.500.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-7548-148",
+      "title": "KAYAPINARDA 50LİK YOLA YAKIN 150 M2 DÜKKAN",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3859015
+    },
+    "ML-0429-273": {
+      "fiyat": "4.000.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-0429-273",
+      "title": "YENİŞEHİR FABRİKA MAHALLESİNDE 2,5+1 SATILIK DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3859031
+    },
+    "ML-7492-52": {
+      "fiyat": "25.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-7492-52",
+      "title": "ŞEHİR HASTANESİ KARŞISI 3+1 KİRALIK DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3859038
+    },
+    "ML-3458-287": {
+      "fiyat": "5.645.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-3458-287",
+      "title": "WINSTOWN AVM KARŞI ÇAPRAZINDA 4+1 FIRSAT DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3859072
+    },
+    "ML-7112-142": {
+      "fiyat": "58.346.600 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-7112-142",
+      "title": "BİSMİL DİYARBAKIR YOLU ÜZERİ ANA YOLA CEPHELİ 26.743 m...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3859084
+    },
+    "ML-3126-1111": {
+      "fiyat": "93.000.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-3126-1111",
+      "title": "TEKSTİL İHTİSAS ORGANİZE SANAYİ BÖLGESİNDE SATILIK HAZI...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.385909
+    },
+    "ML-4548-213": {
+      "fiyat": "5.100.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-4548-213",
+      "title": "BAĞCILAR EVRİM ALATAŞ CADDESİNDE 4+1 SATILIK DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3859103
+    },
+    "ML-4548-212": {
+      "fiyat": "5.350.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-4548-212",
+      "title": "FABRİKA MAHALLESİNİN EN GÜZEL HAVUZLU 4+1 LÜX DAİRESİ",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3859112
+    },
+    "ML-1706-122": {
+      "fiyat": "132.000.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-1706-122",
+      "title": "DİYARBAKIR YENİŞEHİR TEKSTİL İHTİSAS OSBDE SATILIK F...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3859127
+    },
+    "ML-2450-128": {
+      "fiyat": "4.090.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-2450-128",
+      "title": "GÖLETLİ PARK CİVARI SATILIK 3+1 DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3859131
+    },
+    "ML-2140-597": {
+      "fiyat": "2.020.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-2140-597",
+      "title": "HUZUREVLERİ ANA CADDE ÜZERİ SATILIK 3+1 DAİRE!",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3859146
+    },
+    "ML-7497-08": {
+      "fiyat": "3.700.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-7497-08",
+      "title": "MAKRO LİFE GAYRİMENKULDEN METROPOLDE BEDİR YAPI KALİTE...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3859153
+    },
+    "ML-5495-51": {
+      "fiyat": "4.650.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-5495-51",
+      "title": "YETİŞEN ALIR BAĞCILAR ESKİ SİVEREK CADDESİNDE 3+1 LÜKS...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3859165
+    },
+    "ML-2140-524": {
+      "fiyat": "2.995.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-2140-524",
+      "title": "TEKNOKENT ARKASINDA ACİL SATILIK 2,5+1 DAİRE!",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3859198
+    },
+    "ML-3458-285": {
+      "fiyat": "5.830.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-3458-285",
+      "title": "YILDIZ YAPI KALİTESİYLE 3.5+1 ULTRA LÜKS DAİREMİZ SATIŞ...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3859208
+    },
+    "ML-5482-112": {
+      "fiyat": "3.350.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-5482-112",
+      "title": "ÜÇKUYULARDA İMAR İFRAZLI SATILIK KELEPİR 274 M2 FIRSA...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.385922
+    },
+    "ML-1798-152": {
+      "fiyat": "13.250.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-1798-152",
+      "title": "ARAŞTIRMA HASTANESİ YANINDA AY YAPI CORNER ALTINDA SAT...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3859253
+    },
+    "ML-1798-151": {
+      "fiyat": "3.840.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-1798-151",
+      "title": "HAVAALANI KAVŞAĞINDA 3+1 SATILIK SON KAT FIRSAT DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3859265
+    },
+    "ML-5495-49": {
+      "fiyat": "6.650.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-5495-49",
+      "title": "ELAZIĞ YOLU ÜZERİ 420 M2 SATILIK KUPON ARSA",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3859274
+    },
+    "ML-1707-175": {
+      "fiyat": "4.580.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-1707-175",
+      "title": "LUNAPARK KARŞISI SATILIK 3+1 LÜX DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3859284
+    },
+    "ML-1707-174": {
+      "fiyat": "2.580.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-1707-174",
+      "title": "HUZUREVLERİ ÇÜNGÜŞLÜLER YAS EVİ ÜSTÜ SATILIK 3+1 BAKIML...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3859298
+    },
+    "ML-9021-117": {
+      "fiyat": "2.450.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-9021-117",
+      "title": "BAĞCILAR DEMETEVLER CİVARI 2+1 SATILIK DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3859313
+    },
+    "ML-0596-182": {
+      "fiyat": "1.320.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-0596-182",
+      "title": "BAĞLAR ÇARŞAMBA PAZARINDA  SATILIK  2+1 DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3859324
+    },
+    "ML-6621-193": {
+      "fiyat": "7.200.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-6621-193",
+      "title": "ACİL SATILIK' ABI HAYAT YAPI KALİTESİYLE 3.5+1 LÜKS DAİ...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3859339
+    },
+    "ML-5436-111": {
+      "fiyat": "23.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-5436-111",
+      "title": "GAZİLERDE KİRALIK 3+1 DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3859353
+    },
+    "ML-6954-96": {
+      "fiyat": "2.780.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-6954-96",
+      "title": "ÇÖLGÜZELİ TOKİDE 2+1 ETRAFI AÇIK EN GÜZEL KONUMDA SATI...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3859367
+    },
+    "ML-7465-94": {
+      "fiyat": "23.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-7465-94",
+      "title": "DİCLEKENT CAMİ CİVARI KİRALIK BOŞ 3+1 FIRSAT DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.385938
+    },
+    "ML-7416-108": {
+      "fiyat": "5.000.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-7416-108",
+      "title": "ARAŞTIRMA ARKASI  , GENİŞ VE KULLANIŞLI 4+1 SATILIK DAİ...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3859386
+    },
+    "ML-2418-68": {
+      "fiyat": "950.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-2418-68",
+      "title": "MAKRO LİFE GAYRİMENKUL'DEN KOŞUYOLU PARK KARŞISI 2+1 SA...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3859396
+    },
+    "ML-1375-288": {
+      "fiyat": "985.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-1375-288",
+      "title": "MAKROLİFE GAYRIMENKULDEN SATILIK ARSA IMARLI 100 MT",
+      "scan_seq": 91,
+      "timestamp": 1766227768.385943
+    },
+    "ML-0501-050": {
+      "fiyat": "6.800.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-0501-050",
+      "title": "TEMA PARK KARŞISI ÇARKANAT MER DE BAKIMLI SATILIK ARA K...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.385944
+    },
+    "ML-5436-333": {
+      "fiyat": "1.150.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-5436-333",
+      "title": "CEZAEVİ ÜST KÖŞEDE ACİL SATILIK 3+1 DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3859446
+    },
+    "ML-4548-210": {
+      "fiyat": "7.300.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-4548-210",
+      "title": "STAD YOLU ÜZERİ ABI HAYAT SİTESİNDE 3,5+1 ULTRA LÜX SAT...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3859456
+    },
+    "ML-5493-33": {
+      "fiyat": "4.400.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-5493-33",
+      "title": "MAKRO LİFE GAYRİMENKUL'DEN SATILIK BAĞCILAR AVEA CADDES...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3859463
+    },
+    "ML-1324-11": {
+      "fiyat": "5.480.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-1324-11",
+      "title": "WİNSTOWN KARŞISI 3+1 ULTRA LÜX SIFIR DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3859475
+    },
+    "ML-5439-125": {
+      "fiyat": "2.030.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-5439-125",
+      "title": "NİNOVA AVM KARŞISI GENESİS HASTANESİ YANI 3+1 FIRSAT DA...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.385948
+    },
+    "ML-7492-51": {
+      "fiyat": "2.260.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-7492-51",
+      "title": "HUZUREVLERİ ANA CADDE ÜZERİ 3+1 SATILIK DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.385949
+    },
+    "ML-2418-67": {
+      "fiyat": "1.550.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-2418-67",
+      "title": "MAKRO LIFE GAYRİMENKUL'DEN KURU ÇEŞME'DE KAVŞAĞINDA SA...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3859503
+    },
+    "ML-1327-01": {
+      "fiyat": "3.150.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-1327-01",
+      "title": "YENİ YOL CİVARI MERKEZİ KONUMDA 3+1 SATILIK DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3859515
+    },
+    "ML-5478-60": {
+      "fiyat": "2.850.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-5478-60",
+      "title": "SEYRANTEPE TOKİ'DE  3+1 FULL BAKIMLI FIRSAT DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3859527
+    },
+    "ML-3458-284": {
+      "fiyat": "4.380.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-3458-284",
+      "title": "75 CADDESİ 2.PARSELİNDE ÇEYSA CADDE 75 PLAZA ARKASI 3+1...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3859534
+    },
+    "ML-3458-283": {
+      "fiyat": "4.450.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-3458-283",
+      "title": "NEVROZ PARK ARKASI 4+1 YAPILI DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3859546
+    },
+    "ML-7397-07": {
+      "fiyat": "2.700.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-7397-07",
+      "title": "FİYAT DÜŞTÜ !! BÜYÜKŞEHİR BELEDİYESİ TARAFINDA 2+1 SATI...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3859577
+    },
+    "ML-5495-47": {
+      "fiyat": "4.750.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-5495-47",
+      "title": "75e Yürüme Mesafesinde, Geniş ve Konforlu 4+1 Aile Dair...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3859582
+    },
+    "ML-8674-127": {
+      "fiyat": "3.350.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-8674-127",
+      "title": "TESİSLER KAVSAĞINDA ACİL SATILIK 3+1 DAİİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.385959
+    },
+    "ML-5439-122": {
+      "fiyat": "22.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-5439-122",
+      "title": "BAĞCILAR MAKİNA İKMAL BULVARI 2+1 KİRALIK MANZARALI DAİ...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3859599
+    },
+    "ML-4553-512": {
+      "fiyat": "3.450.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-4553-512",
+      "title": "WİNSTON AVM CİVARI TAŞINMAYA HAZIR 2+1 DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.385961
+    },
+    "ML-5479-94": {
+      "fiyat": "3.500.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-5479-94",
+      "title": "DEVREN SATILIK YÜKSEK CİROLU ZAYIFLAMA MERKEZİ",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3859622
+    },
+    "ML-6954-94": {
+      "fiyat": "3.650.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-6954-94",
+      "title": "DİCLEKENT MEDYA KAVŞAĞI FIRSAT 3+1 SATILIK DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3859632
+    },
+    "ML-1143-76": {
+      "fiyat": "6.000.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-1143-76",
+      "title": "KAYAPINAR WİNSTON AVM CİVARI SATILIK 3+1 ULTRA LÜX FIRS...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3859644
+    },
+    "ML-7465-92": {
+      "fiyat": "1.050.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-7465-92",
+      "title": "ACİLL!!! KOŞUYOLU ORYIL PETROL CİVARI SATILIK FIRSAT DA...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.385965
+    },
+    "ML-7465-91": {
+      "fiyat": "5.950.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-7465-91",
+      "title": "TEMA PARK KARŞISI SATILIK ULTRA LÜX 4+1 FIRSAT DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3859663
+    },
+    "ML-4441-302": {
+      "fiyat": "3.390.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-4441-302",
+      "title": "DİCLEKENT'DE YÜKSEK GİRİŞ KATTA TEMİZ SATILIK 4+1 DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.385967
+    },
+    "ML-2140-336": {
+      "fiyat": "3.350.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-2140-336",
+      "title": "MAKRO LİFE GAYRİMENKUL'DEN SATILIK 720 TOKİ KONUTLARIND...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3859682
+    },
+    "ML-1324-546": {
+      "fiyat": "2.000.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-1324-546",
+      "title": "ÜÇKUYU TOKİDE 65M2 NET İÇİ YAPILI 2+1 SATILIK DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3859692
+    },
+    "ML-3458-282": {
+      "fiyat": "8.400.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-3458-282",
+      "title": "TEPE YAPI KALİTESİYLE 3,5+1 LÜKS DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3859699
+    },
+    "ML-1324-423": {
+      "fiyat": "4.280.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-1324-423",
+      "title": "URFA YOLU ÜZERİ 4+1 ORTA KAT SIFIR AYARINDA ACİL SATILI...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.385973
+    },
+    "ML-7416-105": {
+      "fiyat": "4.950.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-7416-105",
+      "title": "FABRİKA MAH SATILIK 4+1 LÜKS DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3859737
+    },
+    "ML-5436-226": {
+      "fiyat": "15.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-5436-226",
+      "title": "NİNOVA KARŞISINDA KİRALIK MASRAFSIZ 3+1 DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.385975
+    },
+    "ML-1143-75": {
+      "fiyat": "1.950.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-1143-75",
+      "title": "YENİŞEHİR FORUM KARŞISI SATILIK İMARLI ARSA",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3859758
+    },
+    "ML-7119-63": {
+      "fiyat": "3.100.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-7119-63",
+      "title": "BAĞCILAR HAVAALANI KAVŞAĞI CİVARI SATILIK MASRAFLI 2+1 ...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3859768
+    },
+    "ML-1143-74": {
+      "fiyat": "3.750.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-1143-74",
+      "title": "ELAZIĞ YOLU ÜZERİ ALTINDAĞ KARŞISI SATILIK 2+1 FIRSAT D...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3859777
+    },
+    "ML-2409-116": {
+      "fiyat": "4.180.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-2409-116",
+      "title": "YETİŞEN ALIR FİYAT DÜŞTÜ Göletli Park Civarı Satılık ...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.385979
+    },
+    "ML-7446-9": {
+      "fiyat": "6.700.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-7446-9",
+      "title": "DİYARBAKIRIN TURİSTİK BÖLGESİNDE KÖŞK HAVASINDA 3+1 2 K...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.38598
+    },
+    "ML-3621-52": {
+      "fiyat": "3.050.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-3621-52",
+      "title": "CEYLAN AVM ARKASI SİTELİ 3+1 ARA KATA SATILIK DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3859808
+    },
+    "ML-7497-05": {
+      "fiyat": "17.600.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-7497-05",
+      "title": "MAKRO LİFE GAYRİMENKUL'DEN ZANA ROSİBA KALİTESİYLE SATI...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3859818
+    },
+    "ML-6621-192": {
+      "fiyat": "6.250.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-6621-192",
+      "title": "WINS TOWN AVM KARŞISINDA 3.5+1 LÜKS DAİREMİZ SATILIKTIR",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3859828
+    },
+    "ML-7397-6": {
+      "fiyat": "1.320.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-7397-6",
+      "title": "MEVLANA HALİT MAHALLESİNDE BAKIMLI 2+1 SATILIK DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3859837
+    },
+    "ML-7370-55": {
+      "fiyat": "2.100.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-7370-55",
+      "title": "POLİS OKULU ARKA TARAFINDA FULL BAKIMLI KOOPERATİF 3+1 ...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3859847
+    },
+    "ML-1706-121": {
+      "fiyat": "3.640.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-1706-121",
+      "title": "ÜÇKUYULARDA TAŞINMAYA HAZIR TEK BOLOKLU SATILIK 2+1 DA...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.385988
+    },
+    "ML-4765-191": {
+      "fiyat": "3.350.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-4765-191",
+      "title": "DİCLEKENTTE CADDEYE YAKIN 3+1 ACİL FIRSAT DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3859894
+    },
+    "ML-2409-112": {
+      "fiyat": "2.620.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-2409-112",
+      "title": "TOPLUKONUT HACIBABA PASTANESİ YANINDA SATILIK 2+1 120 M...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3859904
+    },
+    "ML-4548-209": {
+      "fiyat": "4.180.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-4548-209",
+      "title": "YENİŞEHİR ÜÇKUYULARDA FULL BAKIMLI 4+1 SATILIK DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.385991
+    },
+    "ML-3448-115": {
+      "fiyat": "3.820.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-3448-115",
+      "title": "MAKRO LİFE GAYRİMENKUL'DEN  ESKİ CUPPA CAFE KAVŞAĞINDA ...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3859923
+    },
+    "ML-5495-45": {
+      "fiyat": "6.250.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-5495-45",
+      "title": "WİNSTOWN AVM CİVARI 3,5+1 SATILIK LÜKS DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3859942
+    },
+    "ML-7465-89": {
+      "fiyat": "19.500 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-7465-89",
+      "title": "YENİ CEZAEVİ KARŞISINDA KİRALIK FIRSAT2+1 DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3859951
+    },
+    "ML-3126-110": {
+      "fiyat": "4.180.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-3126-110",
+      "title": "ACİL SATILIK' FABRİKA MAHALLESİNDE 3+1 LÜKS DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3859966
+    },
+    "ML-3126-821": {
+      "fiyat": "16.850.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-3126-821",
+      "title": "KENT ORMAN ARKASI HAVUZLU TRİPLEKS 6+1 LÜKS VİLLA",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3859975
+    },
+    "ML-6621-191": {
+      "fiyat": "4.050.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-6621-191",
+      "title": "BU FIRSAT KAÇMAZ' FORUM AVM YANINDA 3+1 DAİREMİZ SATIŞT...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3859982
+    },
+    "ML-4548-208": {
+      "fiyat": "3.990.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-4548-208",
+      "title": "NEVROZ PARK ARKASI KILIÇ YAPI KALİTESİYLE 2+1 SIFIR DAİ...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3860004
+    },
+    "ML-6621-187": {
+      "fiyat": "4.490.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-6621-187",
+      "title": "ACİL SATILIK BAĞCILAR HESKİF CADDESİNDE 3+1 LÜKS DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.386001
+    },
+    "ML-6621-186": {
+      "fiyat": "4.990.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-6621-186",
+      "title": "ÜÇ KUYULARDA RENSA KALİTESİYLE 3.5+1 LÜKS DAİREMİZ SATI...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3860018
+    },
+    "ML-2450-126": {
+      "fiyat": "3.990.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-2450-126",
+      "title": "HAVALİMANI KAVŞAĞI'NDA SATILIK 2+1 DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.386005
+    },
+    "ML-0596-174": {
+      "fiyat": "5.600.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-0596-174",
+      "title": "WİNSTOWN AVM ARKASINDA HAVUZLU  SATILIK 3.5+1 KELEPİR D...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.386006
+    },
+    "ML-0596-173": {
+      "fiyat": "1.400.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-0596-173",
+      "title": "BAĞLAR ÖZLEM 2000 CİVARINDA FIRSAT 3+1 DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3860073
+    },
+    "ML-8674-125": {
+      "fiyat": "5.380.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-8674-125",
+      "title": "MAKRO LİFE GAYRİMENKUL'DEN SATILIK NEWROZ ARKASI KILIÇ ...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3860083
+    },
+    "ML-1798-150": {
+      "fiyat": "3.530.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-1798-150",
+      "title": "KAYAPINAR KENT MEYDANI CİVARINDA 3+1 SATILIK ARA KAT FI...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3860097
+    },
+    "ML-3733-87": {
+      "fiyat": "5.000.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-3733-87",
+      "title": "RADİSON KARŞISINDA FULL MANZARALI HAVUZLU 4,5+1 BOŞ DAİ...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.386011
+    },
+    "ML-1656-506": {
+      "fiyat": "3.850.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-1656-506",
+      "title": "BAĞCILAR YENİHAL CİVARI 3+1 SATILIK GENİŞ FERAH DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3860123
+    },
+    "ML-1707-170": {
+      "fiyat": "3.130.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-1707-170",
+      "title": "YENİYOL PARK ORMAN KARŞISI ACİL SATILIK FULL BAKIMLI DA...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3860133
+    },
+    "ML-7394-10": {
+      "fiyat": "2.950.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-7394-10",
+      "title": "TESİSLERDE CADDE ÜZERİ FULL YAPILI 3+1 SATILIK DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.386014
+    },
+    "ML-7370-54": {
+      "fiyat": "3.600.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-7370-54",
+      "title": "MAKRO LİFE GAYRİMENKUL'DEN 635 KONUTLARINDA SATILIK 2+1...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3860152
+    },
+    "ML-2140-513": {
+      "fiyat": "4.100.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-2140-513",
+      "title": "ÖZEL TASARIMLI  2+1 LÜKS KONUT 100 M NET ALAN , TEZGEL ...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3860166
+    },
+    "ML-1656-504": {
+      "fiyat": "4.020.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-1656-504",
+      "title": "PARK 75 KARŞISI MERKEZİ KONUMDA SATILIK 4+1 FIRSAT DAİR...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3860178
+    },
+    "ML-9985-14": {
+      "fiyat": "3.400.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-9985-14",
+      "title": "MAKROLİFE GAYRİMENKUL'DEN 3+1 SATILIK FIRSAT DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3860185
+    },
+    "ML-5439-121": {
+      "fiyat": "2.880.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-5439-121",
+      "title": "KAYAPINAR GAZİLERDE İÇİ FUL YAPILI  ÜNÜ AÇIK, GENİŞ, FE...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3860226
+    },
+    "ML-4543-45": {
+      "fiyat": "4.790.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-4543-45",
+      "title": "KAPORA ALINDI ......",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3860235
+    },
+    "ML-1375-287": {
+      "fiyat": "4.175.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-1375-287",
+      "title": "MAKRO LİFE GAYRİMENKUL'DEN SATILIK 3+1 DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3860247
+    },
+    "ML-7112-139": {
+      "fiyat": "4.550.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-7112-139",
+      "title": "DAĞKAPI GALERİA ARKASI FULL + FULL YAPILI MASRAFSIZ ARA...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3860254
+    },
+    "ML-1375-286": {
+      "fiyat": "3.975.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-1375-286",
+      "title": "MAKRO LİFE GAYRİMENKUL'DEN SATILIK 3+1 DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3860264
+    },
+    "ML-1706-118": {
+      "fiyat": "4.200.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-1706-118",
+      "title": "BAĞCILAR AHMET KAYA CADDESİNDE SATILIK 3+1 DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3860278
+    },
+    "ML-4553-508": {
+      "fiyat": "4.250.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-4553-508",
+      "title": "ELAZIĞ YOLUNA SIFIR SATILIK 2+1 DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.386029
+    },
+    "ML-5436-222": {
+      "fiyat": "4.000.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-5436-222",
+      "title": "GÖLETLİ PARK CİVARI SATILIK 3+1 DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3860295
+    },
+    "ML-7492-8": {
+      "fiyat": "1.450.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-7492-8",
+      "title": "HUZUREVLERİ CAMİ KÖŞESİ 2+1 ACİL SATILIK DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.386031
+    },
+    "ML-5495-44": {
+      "fiyat": "3.550.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-5495-44",
+      "title": "BAĞCILAR GÖLETLİ CİVARI SATILIK 2+1 SIFIR DAİRE!!!",
+      "scan_seq": 91,
+      "timestamp": 1766227768.386032
+    },
+    "ML-5482-111": {
+      "fiyat": "18.750.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-5482-111",
+      "title": "SUR BÖLGESİNDE MÜSTAKİL VİLLA İMARLI İFRAZLI ARSA",
+      "scan_seq": 91,
+      "timestamp": 1766227768.386033
+    },
+    "ML-5482-110": {
+      "fiyat": "6.300.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-5482-110",
+      "title": "SUR BÖLGESİNDE MÜSTAKİL VİLLA İMARLI İFRAZLI ARSA",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3860345
+    },
+    "ML-0429-171": {
+      "fiyat": "3.350.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-0429-171",
+      "title": "YENİŞEHİR ÜÇKUYULAR 720 TOKİ KONUTLARINDA 2+1 SATILIK ...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.386036
+    },
+    "ML-7397-04": {
+      "fiyat": "1.190.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-7397-04",
+      "title": "EMEK CADDESİNE YÜRÜME MESAFESİNDE SATILIK 2+1 FERAH DAİ...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3860373
+    },
+    "ML-1375-285": {
+      "fiyat": "4.300.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-1375-285",
+      "title": "MAKROLIFE GAYRIMENKULDEN SIFIR SATILIK 3+1 DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3860414
+    },
+    "ML-5439-120": {
+      "fiyat": "1.640.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-5439-120",
+      "title": "BAĞLAR ŞEYH ŞAMİL MAHALLESİ 3+1 SATILIK DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3860426
+    },
+    "ML-7113-319": {
+      "fiyat": "4.200.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-7113-319",
+      "title": "FORUM AVM'NİN YANINDA ACİL SATILIK 3+1 DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3860445
+    },
+    "ML-5493-32": {
+      "fiyat": "3.700.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-5493-32",
+      "title": "BAĞCILARDA AHMET KAYA CADDESİ CİVARI SATILIK 3+1 FIRSAT...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3860452
+    },
+    "ML-7394-8": {
+      "fiyat": "3.050.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-7394-8",
+      "title": "GAZİLER ŞEHMUS ALTO CİVARİ 3+1 KELEPİR DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3860464
+    },
+    "ML-9021-113": {
+      "fiyat": "36.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-9021-113",
+      "title": "YENİ ŞEHİR HASTAHANESİ CİVARI 4+1 KİRALIK DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.386047
+    },
+    "ML-8674-121": {
+      "fiyat": "5.100.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-8674-121",
+      "title": "TEMAPARK KARŞISI ACİLL SATILIK 3+1 DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.386048
+    },
+    "ML-0598-81": {
+      "fiyat": "4.080.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-0598-81",
+      "title": "ÜÇKUYULARDA EDEBİYAT PARKI KARŞISINDA MANZARALI 3+1 SAT...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3860488
+    },
+    "ML-2418-65": {
+      "fiyat": "3.875.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-2418-65",
+      "title": "MAKROLİFE GAYRİMENKUL'DEN BAĞCILAR HESKİF CADDESİNDE SA...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3860497
+    },
+    "ML-5972-45": {
+      "fiyat": "18.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-5972-45",
+      "title": "OFİS GEVRAN CADDESİ MASRAFLI KİRALIK 3+1 FIRSAT DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3860502
+    },
+    "ML-1656-501": {
+      "fiyat": "1.590.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-1656-501",
+      "title": "KAPORA ALINDI",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3860517
+    },
+    "ML-5478-57": {
+      "fiyat": "5.750.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-5478-57",
+      "title": "OTOGAR ARKASI SATILIK ULTRA LÜX 4+1 FIRSAT DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3860526
+    },
+    "ML-7112-138": {
+      "fiyat": "17.150.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-7112-138",
+      "title": "OFİS RIZVAN AĞA CD. ÜZERİ YATIRIMLIK KAÇMAZ 2900MT2 DÜK...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3860533
+    },
+    "ML-0508-200": {
+      "fiyat": "4.100.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-0508-200",
+      "title": "FABRİKA MAHALLESİNDE 4+1 ACİLL FIRSAT DAİRE..",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3860571
+    },
+    "ML-3458-281": {
+      "fiyat": "36.000.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-3458-281",
+      "title": "OTOGAR KARŞI HESKİF CADDESİ ÜZERİNDE KURUMSAL KİRACILI ...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3860588
+    },
+    "ML-1656-500": {
+      "fiyat": "3.350.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-1656-500",
+      "title": "MALİYE KONUTLARI 1.ETAP SATILIK 3+1 FIRSAT DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.38606
+    },
+    "ML-7397-3": {
+      "fiyat": "480.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-7397-3",
+      "title": "MAKRO LİFE GAYRİMENKUL'DEN 2+1 SATILIK GİRİŞ KAT DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3860614
+    },
+    "ML-7113-317": {
+      "fiyat": "3.950.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-7113-317",
+      "title": "ÜÇ KUYULAR KAD OİL PETROL ARKASINDA TAŞINMAYA HAZIR 3+1...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3860624
+    },
+    "ML-7113-316": {
+      "fiyat": "5.750.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-7113-316",
+      "title": "75 CADDE PARK 75 KARŞISINDA 4.5+1 SATILIK DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3860636
+    },
+    "ML-5495-41": {
+      "fiyat": "3.580.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-5495-41",
+      "title": "MAKRO LİFE GAYRİMENKUL'DEN URFA YOLU ÜZERİ CEYLANLAR KA...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.386064
+    },
+    "ML-7492-6": {
+      "fiyat": "5.350.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-7492-6",
+      "title": "KENT MEYDANI CİVARI 3+1 SATILIK FIRSAT DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3860657
+    },
+    "ML-7394-7": {
+      "fiyat": "5.350.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-7394-7",
+      "title": "KENT MEYDANI CİVARI 3+1 SATILIK FIRSAT DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3860667
+    },
+    "ML-1798-144": {
+      "fiyat": "22.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-1798-144",
+      "title": "CEYLAN AVM CİVARINDA CADDE ÜZERİNDE 3+1 KİRALIK BOŞ DAİ...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3860672
+    },
+    "ML-1706-117": {
+      "fiyat": "4.950.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-1706-117",
+      "title": "ÜÇKUYULAR ANA CADDE ÜZERİNDE TARHAN ASMİR ALTINDA SATIL...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3860679
+    },
+    "ML-5495-40": {
+      "fiyat": "25.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-5495-40",
+      "title": "MAKRO LİFE GAYRİMENKUL'DEN KAYAPINAR MEDYA KAVŞAĞI CİAV...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.386069
+    },
+    "ML-1706-217": {
+      "fiyat": "4.600.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-1706-217",
+      "title": "DİCLEKENT MAH CADDE ÜZERİNDE HAYATKENT 4 APT ALTINDA OL...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3860703
+    },
+    "ML-2450-124": {
+      "fiyat": "23.500 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-2450-124",
+      "title": "MEZOPOTAMYA KENT PARKI YANINDA KİRALIK 2+0 DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3860738
+    },
+    "ML-7119-59": {
+      "fiyat": "3.300.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-7119-59",
+      "title": "BAĞCILAR AHMET KAYA CADDESİNDE SATILIK 3+1 FIRSAT DAİR...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3860776
+    },
+    "ML-5479-88": {
+      "fiyat": "13.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-5479-88",
+      "title": "CEZAEVİ KARŞISI 2+1 BAKIMLI KİRALIK DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3860788
+    },
+    "ML-3458-280": {
+      "fiyat": "3.350.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-3458-280",
+      "title": "YENİŞEHİR ÜÇKUYULARDA 2+1 BÜYÜK DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3860798
+    },
+    "ML-7397-2": {
+      "fiyat": "2.110.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-7397-2",
+      "title": "NCİTY KARŞISI 3+1 SATILIK KONFORLU FIRSAT DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3860812
+    },
+    "ML-7119-58": {
+      "fiyat": "3.550.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-7119-58",
+      "title": "BAĞCILAR YENİKÖY KAVŞAĞI CİVARI SATILIK SIFIR 2+1 FIRSA...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3860826
+    },
+    "ML-9985-12": {
+      "fiyat": "30.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-9985-12",
+      "title": "OTOGAR ARKASI VE 75. CADDE ARASI 4+1 KİRALIK DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.386086
+    },
+    "ML-5495-39": {
+      "fiyat": "2.395.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-5495-39",
+      "title": "HUZUR EVLERİ ESKİ NİL KOLEJİ CİVARI SATILIK 3+1 DAİRE!!...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3860867
+    },
+    "ML-4765-189": {
+      "fiyat": "234.000.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-4765-189",
+      "title": "SUR BÖLGESİNDE MÜSTAKİL VİLLA İMARLI İFRAZLI ARSA",
+      "scan_seq": 91,
+      "timestamp": 1766227768.386088
+    },
+    "ML-7497-04": {
+      "fiyat": "4.550.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-7497-04",
+      "title": "MARKO LİFE GAYRİMENKULDEN DİCLEKENT NASIR USTA ARKASI ...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3860886
+    },
+    "ML-0429-261": {
+      "fiyat": "4.050.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-0429-261",
+      "title": "YENİŞEHİR FABRİKA MAHALLESİNDE 2,5+1 SATILIK DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3860898
+    },
+    "ML-7111-60": {
+      "fiyat": "3.150.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-7111-60",
+      "title": "MAKRO LİFE GAYRİMENKUL'DEN SATILIK 2+1 DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3860915
+    },
+    "ML-2409-110": {
+      "fiyat": "3.500.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-2409-110",
+      "title": "YENİŞEHİR 450 EVLERDE LÜKS 2+1 DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3860927
+    },
+    "ML-5972-43": {
+      "fiyat": "6.000.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-5972-43",
+      "title": "KILIÇ YAPI KALİTESİYLE KENT MEYDANI 3.5+1 SATILIK FIRSA...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3860955
+    },
+    "ML-7113-315": {
+      "fiyat": "5.000.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-7113-315",
+      "title": "ELAZIĞ CADDESİ CEYSA CENTROPOLDE CADDE ÜSTÜ CEPHELİ 3+1...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3860965
+    },
+    "ML-4548-205": {
+      "fiyat": "22.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-4548-205",
+      "title": "TEKNOKENT ARKASI 4,5+1 KİRALIK LÜX DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3860972
+    },
+    "ML-0533-078": {
+      "fiyat": "1.300.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-0533-078",
+      "title": "HUZUREVLERİ ANA CADDE ÜZERİ SATILIK 3+1 DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3860984
+    },
+    "ML-1676-73": {
+      "fiyat": "3.830.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-1676-73",
+      "title": "KAPORA ALINDI",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3860998
+    },
+    "ML-2140-669": {
+      "fiyat": "14.750.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-2140-669",
+      "title": "MAKRO LİFE GAYRİMENKUL'DEN SATILIK 450 EVLERDE  BEYAZ S...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.386101
+    },
+    "ML-7370-51": {
+      "fiyat": "25.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-7370-51",
+      "title": "SEYRANTEPE TOPLUKONUT'DA 2+1 KİRALIK EŞYALI DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.386102
+    },
+    "ML-3126-862": {
+      "fiyat": "12.500.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-3126-862",
+      "title": "450 EVLER'DE SIFIR HAZIR 6+1 SIFIR VİLLA",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3861027
+    },
+    "ML-4553-506": {
+      "fiyat": "22.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-4553-506",
+      "title": "OFİSTA EŞYALI  KİRALIK EŞYALI 3+1 DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3861036
+    },
+    "ML-3126-531": {
+      "fiyat": "12.500.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-3126-531",
+      "title": "SİLVAN YOLU ÜZERİ GENİŞ PEYZAJ ALANIYLA HAZIR 5+1 VİLLA",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3861043
+    },
+    "ML-3126-521": {
+      "fiyat": "4.450.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-3126-521",
+      "title": "450 EVLERDE FIRSAT 3,5+1  SIFIR DAİRELER",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3861055
+    },
+    "ML-3126-120": {
+      "fiyat": "2.700.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-3126-120",
+      "title": "ACİLL BAĞCILAR YENİKÖY KARŞSISINDA 3+1 BAKIMLI DAİREMİ...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3861063
+    },
+    "ML-1324-416": {
+      "fiyat": "3.930.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-1324-416",
+      "title": "STAD YANI ÖZAYDA 2+1 ABONE TAPU ÖDENDİ ACİLLL",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3861074
+    },
+    "ML-4548-204": {
+      "fiyat": "3.350.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-4548-204",
+      "title": "BAĞCILAR ASB YAPIDAN 2+1 SIFIR LÜX DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3861141
+    },
+    "ML-3733-84": {
+      "fiyat": "3.880.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-3733-84",
+      "title": "GÖLETLİ CİVARI 3+1 FIRSAT DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3861172
+    },
+    "ML-1375-280": {
+      "fiyat": "37.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-1375-280",
+      "title": "MAKRO LİFE GAYRİMENKUL'DEN KİRALIK 2+1 BÜRO OFİS",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3861187
+    },
+    "ML-7416-100": {
+      "fiyat": "10.900.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-7416-100",
+      "title": "DİYARBAKIRIN EN LÜKS  5+1 DAİRESİ",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3861196
+    },
+    "ML-1375-282": {
+      "fiyat": "3.860.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-1375-282",
+      "title": "MAKRO LİFE GAYRİMENKUL DEN 3+1 SATILIK DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3861208
+    },
+    "ML-2450-120": {
+      "fiyat": "8.250.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-2450-120",
+      "title": "MEZOPOTAMYA KENT PARKI YANINDA SATILIK 3.5+1 LÜX DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3861217
+    },
+    "ML-5439-116": {
+      "fiyat": "1.890.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-5439-116",
+      "title": "BAĞLAR POLİS OKULU KAVŞAĞINDA İÇİ YAPILI SATILIK KOOP. ...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3861227
+    },
+    "ML-0596-164": {
+      "fiyat": "1.400.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-0596-164",
+      "title": "BAYRAMOĞLUNDA KELEPİR SATILIK 3+1 DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3861234
+    },
+    "ML-1324-234": {
+      "fiyat": "3.500.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-1324-234",
+      "title": "ÜÇKUYU İÇİNDE 2+1 ULTRA LÜX 2 YILLIK ACİLDİRRR",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3861253
+    },
+    "ML-4553-504": {
+      "fiyat": "3.300.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-4553-504",
+      "title": "MAKRO LİFE GAYRİMENKUL'DEN SATILIK 2+1 DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3861263
+    },
+    "ML-1284-55": {
+      "fiyat": "4.895.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-1284-55",
+      "title": "SUR'da SATILIK 3+1 FIRSAT DUBLEKS VİLLA",
+      "scan_seq": 91,
+      "timestamp": 1766227768.386127
+    },
+    "ML-2418-62": {
+      "fiyat": "3.530.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-2418-62",
+      "title": "BAĞCILAR TRAFİK EĞİTİM PARKI KARŞISI SATILIK 3+1 DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.386128
+    },
+    "ML-4553-503": {
+      "fiyat": "4.250.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-4553-503",
+      "title": "TEPEŞEHİR KAVŞAĞINDA ACİL SATILIK 3+1 DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3861287
+    },
+    "ML-7112-136": {
+      "fiyat": "2.025.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-7112-136",
+      "title": "GEVRAN CADDESİ ÜZERİNDE, HACIBABA KARŞISINDA, MASRAFSIZ...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3861296
+    },
+    "ML-5482-108": {
+      "fiyat": "2.270.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-5482-108",
+      "title": "HATBOYU CADDESİ ÜZERİ SATILIK 3+1 FERAH DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3861334
+    },
+    "ML-1324-23": {
+      "fiyat": "5.580.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-1324-23",
+      "title": "WİNSTOWN KARŞISI 3+1 2 YILLIK ULTRA LÜX BU FİYATA YOKKK",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3861344
+    },
+    "ML-7114-57": {
+      "fiyat": "3.700.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-7114-57",
+      "title": "CEYSA PLAZADA ACİL SATILIK 2+1 ODA BÜRO",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3861356
+    },
+    "ML-3458-278": {
+      "fiyat": "2.595.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-3458-278",
+      "title": "NCİTY AVM YANİ 3+1 SATILIK DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3861365
+    },
+    "ML-7492-2": {
+      "fiyat": "20.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-7492-2",
+      "title": "SEYRANTEPE TOPLUKONUTLARI MASRAFLI KİRALIK 3+1 FIRSAT D...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3861372
+    },
+    "ML-1324-768": {
+      "fiyat": "3.180.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-1324-768",
+      "title": "ÜÇKUYUDA 2+1 ULTRA LÜX YATIRIMLIK SIFIR DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3861387
+    },
+    "ML-1324-392": {
+      "fiyat": "3.350.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-1324-392",
+      "title": "2+1 ULTRA LÜX SIFIR FABRİKA MAH. ACİL SATILIKKK",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3861394
+    },
+    "ML-1143-71": {
+      "fiyat": "2.150.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-1143-71",
+      "title": "SEYRANTEPE TOPLU KONUTTA SATILIK 2+1 BOŞ DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.38614
+    },
+    "ML-6887-85": {
+      "fiyat": "2.420.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-6887-85",
+      "title": "HUZUREVLERİNDE 3+1 SATILIK KOPERATİF DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3861408
+    },
+    "ML-7113-312": {
+      "fiyat": "3.400.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-7113-312",
+      "title": "CEYSA PLAZADA EN GÜZEL KAT VE EN GÜZEL CEPHEDE TAŞINMAY...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3861418
+    },
+    "ML-7119-53": {
+      "fiyat": "4.300.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-7119-53",
+      "title": "BAĞCILAR GÖLETLİ PARK CİVARINDA SATILIK 3+1 MASRAFSIZ D...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3861423
+    },
+    "ML-4765-188": {
+      "fiyat": "4.050.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-4765-188",
+      "title": "URFA YOLUNA 3. PARSELDE KAYAPINARDA ACİL SATILIK 3+1",
+      "scan_seq": 91,
+      "timestamp": 1766227768.386143
+    },
+    "ML-7113-309": {
+      "fiyat": "6.650.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-7113-309",
+      "title": "STADYUM İLE ŞEHİR HASTANESİ ARASINDA  LÜX 4.5+1 DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3861437
+    },
+    "ML-5469-27": {
+      "fiyat": "5.330.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-5469-27",
+      "title": "Diyarbakır Teknokent Civarında 3.5+1 Lüks ve Konforlu S...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3861523
+    },
+    "ML-0533-075": {
+      "fiyat": "6.200.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-0533-075",
+      "title": "MAKRO LİFE GAYRİMENKUL'DEN SATILIK DUBLEKS 2+1 OFİS",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3861532
+    },
+    "ML-4543-42": {
+      "fiyat": "1.650.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-4543-42",
+      "title": "CEZAEVİ KARŞIS 2+1 I BAKIMLI SATILIK DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.386154
+    },
+    "ML-1798-148": {
+      "fiyat": "18.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-1798-148",
+      "title": "ALTINDAĞ CİVARI BYMEN AVZEM 2+1 HAVUZLU ARA KAT KİRALIK...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.386155
+    },
+    "ML-4543-41": {
+      "fiyat": "19.500 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-4543-41",
+      "title": "CHERY SERVİSİ KARŞISI AYTC YAPI'DA 2+1 YÜKSEK GİRİŞ",
+      "scan_seq": 91,
+      "timestamp": 1766227768.386156
+    },
+    "ML-7112-135": {
+      "fiyat": "31.000.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-7112-135",
+      "title": "ŞEHİR HAST. ACİL GİRİŞİ YANI ACCİLL SATILIK 305MT İŞYER...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3861573
+    },
+    "ML-2418-61": {
+      "fiyat": "7.800.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-2418-61",
+      "title": "50 LİK YOLDA TEMA PARK MANZARALI SATILIK ULTRA LÜKS 4.5...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3861587
+    },
+    "ML-1706-113": {
+      "fiyat": "3.550.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-1706-113",
+      "title": "75 İKİNCİ PARSEL NESİBE AYDIN KOLEJİ YANINDA İNANILMAZ ...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3861597
+    },
+    "ML-1324-326": {
+      "fiyat": "6.350.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-1324-326",
+      "title": "WİNSTOWN KARŞISI 3.5+1 ULTRA LÜX SIFIR AYARINDA",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3861604
+    },
+    "ML-4553-501": {
+      "fiyat": "4.800.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-4553-501",
+      "title": "ÜÇKUYULARDA HOBİ BAHÇELİ FIRSAT 3+1 SATILIK DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3861613
+    },
+    "ML-6623-1": {
+      "fiyat": "16.500 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-6623-1",
+      "title": "SEYRANTEPE TOPLU KONUT'DA KİRALIK DAİRE 3+1",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3861623
+    },
+    "ML-2418-59": {
+      "fiyat": "1.350.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-2418-59",
+      "title": "BAĞLAR EMEK CADDESİNDE SATILIK TEMİZ 3+1 DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.386163
+    },
+    "ML-4548-202": {
+      "fiyat": "33.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-4548-202",
+      "title": "ADLİ TIP ARKASI 4+1 KİRALIK LÜX DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3861637
+    },
+    "ML-4553-487": {
+      "fiyat": "23.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-4553-487",
+      "title": "450 EVLERDE KİRALIK 3+1 DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.386167
+    },
+    "ML-4441-301": {
+      "fiyat": "5.400.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-4441-301",
+      "title": "50 MT'LİK YOLDA ULTRA LÜKS SATILIK 4+1 DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.386168
+    },
+    "ML-4548-201": {
+      "fiyat": "2.220.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-4548-201",
+      "title": "HUZUREVLERİNDE 3+1 BÜYÜKLÜĞÜNDE 2+1 SATILIK BAKIMLI DAİ...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3861687
+    },
+    "ML-5478-54": {
+      "fiyat": "2.850.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-5478-54",
+      "title": "SEYRANTEPE TOKİ'NİN EN GÜZEL 3+1 DAİRESİ SATIŞTA",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3861704
+    },
+    "ML-1324-654": {
+      "fiyat": "5.650.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-1324-654",
+      "title": "CEZAEVİ YOLU ÜZERİ 3.5+1 ULTRA LÜX ACİL 2 DAİRE ÜZERİ",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3861713
+    },
+    "ML-2450-116": {
+      "fiyat": "17.500 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-2450-116",
+      "title": "NİNOVA AVM CİVARI KELEBEK FIRIN KARŞISI'NDA KİRALIK 2+...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3861725
+    },
+    "ML-6621-180": {
+      "fiyat": "2.400.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-6621-180",
+      "title": "YENİ ŞEHİR HASTANESİ YANINA 2+0 YATIRIMLIK DAİREMİZ SAT...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3861732
+    },
+    "ML-7446-08": {
+      "fiyat": "3.400.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-7446-08",
+      "title": "KENT MEYDANI CİVARI NESİBE AYDIN KOLEJİ YANI 3+1 FIRSA...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3861737
+    },
+    "ML-4548-200": {
+      "fiyat": "5.500.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-4548-200",
+      "title": "LUNAPARK KARŞISI BAŞTAN AŞAĞI YENİLENMİŞ 4+1 LÜX DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3861742
+    },
+    "ML-1324-323": {
+      "fiyat": "4.380.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-1324-323",
+      "title": "ÜÇKUYU CİVARINDA 3+1 ULTRA LÜX SIFIR AYARINDA DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.386175
+    },
+    "ML-5482-107": {
+      "fiyat": "6.500.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-5482-107",
+      "title": "DİCLE NEHRİ KIYISINDA MEZOPOTAMYANIN KALBİNDE EŞSİZ ARS...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3861756
+    },
+    "ML-2450-115": {
+      "fiyat": "4.000.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-2450-115",
+      "title": "RIZVAN AĞA CADDESİ'NDE SATILIK İŞYERİ",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3861768
+    },
+    "ML-9021-110": {
+      "fiyat": "6.850.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-9021-110",
+      "title": "MERSİN ERDEMLİ TÖMÜK'TE 3,5+1 SATILIK DUBLEKS VİLLAİLLA",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3861773
+    },
+    "ML-3621-42": {
+      "fiyat": "15.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-3621-42",
+      "title": "YATAY MİMARİ,   STADYUM YAKINI ÖZAY 2. ETAP DAİRE FIRS...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3861778
+    },
+    "ML-4548-198": {
+      "fiyat": "3.500.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-4548-198",
+      "title": "CAREL YAPI'DAN ACİL SATILIK DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3861804
+    },
+    "ML-0598-80": {
+      "fiyat": "20.000.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-0598-80",
+      "title": "LÜKS VE KONFORUN YENİ ADRESİ YENİ ŞEHİR HASTANESİ YANI ...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.386181
+    },
+    "ML-7548-137": {
+      "fiyat": "4.895.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-7548-137",
+      "title": "YENİ MEZOPOTAMYA PARKI YANINDA WİNSTON AVMYE YAKIN 2,5+...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3861818
+    },
+    "ML-6621-179": {
+      "fiyat": "5.350.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-6621-179",
+      "title": "YETİŞEN ALIR BAĞCILAR YENİ HAL CİVARI 4+1 LÜKS DAİREMİ...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3861823
+    },
+    "ML-7548-136": {
+      "fiyat": "6.195.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-7548-136",
+      "title": "TEMA PARK  İLE 50LİK YOLM ARASINDA  4+1  LÜKS SATILIK D...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3861825
+    },
+    "ML-4553-484": {
+      "fiyat": "2.150.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-4553-484",
+      "title": "ÇELİKEVLERDE SATILIK 3+1 FULLYAPILI DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3861835
+    },
+    "ML-4553-483": {
+      "fiyat": "4.850.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-4553-483",
+      "title": "GÖLETLİ PARK CİVARI SATILIK 3+1 DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3861845
+    },
+    "ML-6887-82": {
+      "fiyat": "4.980.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-6887-82",
+      "title": "OTOGAR CİVARINDA 4+1 SATILIK FIRSAT DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3861854
+    },
+    "ML-7113-310": {
+      "fiyat": "25.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-7113-310",
+      "title": "KANTAR CİVARI POLATLAR SİTESİNDE 4+1 KİRALIK DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3861866
+    },
+    "ML-4441-299": {
+      "fiyat": "7.350.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-4441-299",
+      "title": "KAYAPINAR'IN PARLAYAN YILDIZI BARIŞ MAHALLESİ'NDE EŞSİZ...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.386187
+    },
+    "ML-5469-24": {
+      "fiyat": "1.150.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-5469-24",
+      "title": "KAYAPINAR CİVARI ENERGY FİTNESS KARŞISINDA DEVREN KİRAL...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3861878
+    },
+    "ML-1324-92": {
+      "fiyat": "5.530.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-1324-92",
+      "title": "WİNSTOWN AVM CİVARINDA SATILIK 3,5+1 FIRSAT DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3861885
+    },
+    "ML-1656-112": {
+      "fiyat": "21.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-1656-112",
+      "title": "MARDİN YOLU ÜZERİ KARAKOÇ YAPIDA 3+1 KİRALIK SIFIR DAİR...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.38619
+    },
+    "ML-2409-106": {
+      "fiyat": "4.450.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-2409-106",
+      "title": "DİYARBAKI BAĞCILAR MAHALLESİ  HAVAALANI KAVŞAĞI CİVARI ...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.386193
+    },
+    "ML-3621-40": {
+      "fiyat": "3.660.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-3621-40",
+      "title": "MAKRO LİFE GAYRİMENKUL'DEN SATILIK URFA YOLU ÜZERİ 3+1 ...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3861945
+    },
+    "ML-6621-178": {
+      "fiyat": "25.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-6621-178",
+      "title": "ACİL' ÇEYSA YAPI KALİTESİYLE 2+1 KİRALIK BÜRO OFİS",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3861952
+    },
+    "ML-0598-79": {
+      "fiyat": "32.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-0598-79",
+      "title": "DOĞUM HASTANESİ YANINDA 2+1 KİRALIK BÜRO",
+      "scan_seq": 91,
+      "timestamp": 1766227768.386196
+    },
+    "ML-7113-308": {
+      "fiyat": "9.350.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-7113-308",
+      "title": "KENT ORMAN ARKASINDA TRİPLEX VİLLA",
+      "scan_seq": 91,
+      "timestamp": 1766227768.386197
+    },
+    "ML-2418-57": {
+      "fiyat": "2.175.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-2418-57",
+      "title": "ACİLL ACİLL KANTAR' DA YERDEN ISITMALI SIFIR SATILIK 1+...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3861978
+    },
+    "ML-1676-67": {
+      "fiyat": "6.500.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-1676-67",
+      "title": "MAKRO LİFE GAYRİMENKUL'DEN WİNSTOWN AVM CİVARI UYGUN Fİ...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3861985
+    },
+    "ML-7113-307": {
+      "fiyat": "7.625.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-7113-307",
+      "title": "FENNİ MUAYENE YANNIDA CEYSA EVİMDE ULTRA LÜX DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3861995
+    },
+    "ML-1324-843": {
+      "fiyat": "5.730.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-1324-843",
+      "title": "WİNSTWON ARKASI 3.5+1 ULTRA LÜX SIFIR DAİRE ACİLDİR",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3862007
+    },
+    "ML-1324-327": {
+      "fiyat": "4.320.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-1324-327",
+      "title": "MASTFROŞTA 2.5+1 ULTRA LÜX ACİL SATILIK FIRSAT DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3862014
+    },
+    "ML-2409-101": {
+      "fiyat": "5.000.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-2409-101",
+      "title": "FİYAT DÜŞTÜ KAYAPINAR ARAŞTIRMA HASTANESİ CİVARINDA 3+...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3862019
+    },
+    "ML-3448-113": {
+      "fiyat": "1.850.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-3448-113",
+      "title": "ÇÖLGÜZELİNDE GELECEĞİNİZE DEĞER KATACAK  341  M2 İMARLI...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3862028
+    },
+    "ML-3448-112": {
+      "fiyat": "7.600.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-3448-112",
+      "title": "ÇÖLGÜZELİNDE GELECEĞİNİZE DEĞER KATACAK  2022  M2 İMARL...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3862042
+    },
+    "ML-3621-39": {
+      "fiyat": "16.000.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-3621-39",
+      "title": "ALTINDAĞ KARŞISI 5K'DA 5+1 242M2 DUBLEKS TAŞINMAYA HAZI...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3862073
+    },
+    "ML-6621-177": {
+      "fiyat": "16.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-6621-177",
+      "title": "ACİL KİRALIK' KAYAPINAR ŞEHİR HASTANESİ YANINDA 2+0 SIF...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3862085
+    },
+    "ML-4553-479": {
+      "fiyat": "2.600.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-4553-479",
+      "title": "GAZİLERDE  SATILIK 3+1 YÜKSEK GİRİŞ DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3862092
+    },
+    "ML-5439-113": {
+      "fiyat": "20.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-5439-113",
+      "title": "BAĞCILAR DOĞUM HASTANESİ YANI KİRALIK 3+1 BOŞ DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.386228
+    },
+    "ML-2140-899": {
+      "fiyat": "3.980.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-2140-899",
+      "title": "ELAZIĞ YOLU ÜZERİ SIFIR 2+1 LÜKS DAİRE!",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3862293
+    },
+    "ML-1676-65": {
+      "fiyat": "6.450.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-1676-65",
+      "title": "DÜNYA KAVŞAĞI CİVARI'NDA SATILIK 2+1 OTURMAYA HAZIR DAİ...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.38623
+    },
+    "ML-5482-106": {
+      "fiyat": "3.600.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-5482-106",
+      "title": "ÇÖLGÜZELİNDE GELECEĞİNİZE DEĞER KATACAK 661M2 İMARLI AR...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3862307
+    },
+    "ML-4765-185": {
+      "fiyat": "2.830.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-4765-185",
+      "title": "DİCLEKENT NASIR USTA ARKASI 3+1 TEMİZ ÇOK UYGUNN SATILI...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3862317
+    },
+    "ML-5482-105": {
+      "fiyat": "4.350.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-5482-105",
+      "title": "DİYARBAKIRIN YENİ YATIRIM BÖLGESİNDE  SATILIK ARSA",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3862326
+    },
+    "ML-7113-301": {
+      "fiyat": "3.150.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-7113-301",
+      "title": "URFA YOLUNA SIFIR KONUMDA SIFIR YAPI 2+1 FIRSAT DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3862333
+    },
+    "ML-1676-64": {
+      "fiyat": "8.500.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-1676-64",
+      "title": "FOUR'S PLAZA ARKASI'NDA SATILIK 3+1 DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3862345
+    },
+    "ML-1676-63": {
+      "fiyat": "36.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-1676-63",
+      "title": "FOUR'S PLAZA ARKASI'NDA KİRALIK 3+1 DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3862357
+    },
+    "ML-5482-104": {
+      "fiyat": "4.350.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-5482-104",
+      "title": "DİYARBAKIR'IN KALBİNDE 2+1 SATILIK LÜKS BÜRO",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3862367
+    },
+    "ML-5479-79": {
+      "fiyat": "2.450.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-5479-79",
+      "title": "TAPU DAİRESİ YANI SATILIK 1+1 DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3862407
+    },
+    "ML-0429-253": {
+      "fiyat": "3.550.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-0429-253",
+      "title": "YENİŞEHİR ÜÇKUYULAR YENİ TOKİ 277 YÜKSEK GİRİŞ  3+1 ULT...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3862424
+    },
+    "ML-3126-177": {
+      "fiyat": "4.300.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-3126-177",
+      "title": "ACİLL SIFIR TEKNOKENT ARKASI 2,5+1 HAZIR DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3862433
+    },
+    "ML-3126-176": {
+      "fiyat": "6.850.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-3126-176",
+      "title": "YETİŞEN ALIR SIFIR TEKNOKENT ARKASI 4,5+1 HAZIR DAİRE ...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.386244
+    },
+    "ML-5439-110": {
+      "fiyat": "1.280.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-5439-110",
+      "title": "BAĞLAR İSKAN EVLERİNDE SATILIK İÇİ YAPILI GENİŞ FERAH D...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3862445
+    },
+    "ML-4441-297": {
+      "fiyat": "420.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-4441-297",
+      "title": "İzmir Bornova Eğridere Mahallesi'nde Satılık Arsa Fırsa...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.386246
+    },
+    "ML-1324-64": {
+      "fiyat": "4.175.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-1324-64",
+      "title": "KENT MEYDANI ABONDE ÖDENDİ 2+1 SIFIR ORTA KAT DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.386247
+    },
+    "ML-5469-22": {
+      "fiyat": "3.150.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-5469-22",
+      "title": "DİCLEKENT GO PETROL CİVARI CADDE ÜZERİ SATILIK 3+1 FIRS...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3862474
+    },
+    "ML-6887-73": {
+      "fiyat": "3.900.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-6887-73",
+      "title": "METROPOL DE 3+1 SATILIK FIRSAT DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3862484
+    },
+    "ML-7113-297": {
+      "fiyat": "8.850.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-7113-297",
+      "title": "WİNSTOWN AVM CADDE ÜZERİNDE TEPE WEGA'DA TAŞINMAYA HAZ...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.38625
+    },
+    "ML-0598-77": {
+      "fiyat": "2.350.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-0598-77",
+      "title": "MERKEZİ KONUMDA FULL BAKIMLI 3+1 ACİL SATILIK DAİRE FIR...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3862507
+    },
+    "ML-5478-47": {
+      "fiyat": "6.190.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-5478-47",
+      "title": "50'LİK YOL'DA SPOR PARKI MANZARALI LÜKS FULL BAKIMLI DA...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3862517
+    },
+    "ML-1324-954": {
+      "fiyat": "6.480.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-1324-954",
+      "title": "WİNSTWON AWM KARŞISI 3.5+1 ULTRA LÜX SIFIR DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3862529
+    },
+    "ML-9021-108": {
+      "fiyat": "24.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-9021-108",
+      "title": "KAYAPINAR YENİYOL'DA 3+1 KİRALIK DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3862538
+    },
+    "ML-9985-8": {
+      "fiyat": "23.500 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-9985-8",
+      "title": "ELAZIĞ YOLU ÜZERİ CİHAN AYDIN SİTESİNDE 2+1 KİRALIK SIF...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.386257
+    },
+    "ML-2418-56": {
+      "fiyat": "2.100.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-2418-56",
+      "title": "ACİLL ACİLL KANTAR' DA YERDEN ISITMALI SIFIR SATILIK DA...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.386261
+    },
+    "ML-7465-86": {
+      "fiyat": "3.870.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-7465-86",
+      "title": "DİCLEKENTİN CAMİ CİVARI 3+1 FULL BAKIMLI DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3862622
+    },
+    "ML-5478-46": {
+      "fiyat": "5.650.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-5478-46",
+      "title": "75 PARK KARŞISI SATILIK 4+1 EMSALSİZ DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3862636
+    },
+    "ML-1798-146": {
+      "fiyat": "2.050.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-1798-146",
+      "title": "ÜÇKUYULAR 2.ETAP 2+1 SATILIK BAKIMLI FIRSAT DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3862648
+    },
+    "ML-7119-19": {
+      "fiyat": "3.350.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-7119-19",
+      "title": "DİCLEKENT GO PETROL CİVARI 3+1 SATILIK FIRSAT DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.386268
+    },
+    "ML-5469-21": {
+      "fiyat": "3.650.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-5469-21",
+      "title": "ZANA TECH KALİTESİ İLE ALTINDAĞ TESİSLERİ KARŞISINDA 2,...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3862693
+    },
+    "ML-5439-106": {
+      "fiyat": "1.120.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-5439-106",
+      "title": "BAĞLAR FATİH CADDESİNDE FUL YAPILI AVLULU MÜSTAKİL EV",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3862703
+    },
+    "ML-4553-476": {
+      "fiyat": "2.250.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-4553-476",
+      "title": "KANTARDA URFA YOLU ÜZERİ SATILIK 2+1 DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3862715
+    },
+    "ML-1324-96": {
+      "fiyat": "7.990.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-1324-96",
+      "title": "WİNSTOWN AWM ARKASI 4.5+1 ULTRA LÜX HAVUZLU DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.386273
+    },
+    "ML-0596-151": {
+      "fiyat": "4.175.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-0596-151",
+      "title": "FABRİKA MAHALESİNDE SATILIK 3+1 FIRSAT DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3862746
+    },
+    "ML-4765-184": {
+      "fiyat": "830.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-4765-184",
+      "title": "ÜÇKUYULARDA ACİL SATILIK CADDE ÜSTÜ FIRSAT İMARLI ARSA",
+      "scan_seq": 91,
+      "timestamp": 1766227768.386276
+    },
+    "ML-3458-270": {
+      "fiyat": "5.700.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-3458-270",
+      "title": "ŞEHİR HASTANESİ KARŞISINDA 2,5+1 SIFIR DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3862774
+    },
+    "ML-7548-131": {
+      "fiyat": "40.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-7548-131",
+      "title": "ŞEHİR HASTAHANESİNE YAKIN HAVUZLU FULL + FULL EŞYALI 2...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3862805
+    },
+    "ML-7416-078": {
+      "fiyat": "4.800.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-7416-078",
+      "title": "ÜÇKUYULAR  3+1  LÜKS DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3862813
+    },
+    "ML-0533-068": {
+      "fiyat": "3.600.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-0533-068",
+      "title": "MAKROLIFE GAYRIMENKUL BAĞCILAR NEWROZ ARKASI SİVEREK CA...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.386282
+    },
+    "ML-3126-175": {
+      "fiyat": "5.400.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-3126-175",
+      "title": "SIFIR TEKNOKENT HAZIR LÜKS 3.5+1 DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3862827
+    },
+    "ML-5469-20": {
+      "fiyat": "1.350.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-5469-20",
+      "title": "HUZUREVLERİNDE SATILIK 2+1  DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3862839
+    },
+    "ML-1324-956": {
+      "fiyat": "8.480.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-1324-956",
+      "title": "WİNSTOWN AWM KARŞISI 4.5+1 ULTRA LÜX HAVUZLU SATILIK DA...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3862846
+    },
+    "ML-5479-77": {
+      "fiyat": "19.000.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-5479-77",
+      "title": "MİLANO PARK VİLLALARI TANYA YAPIDA 5+1 SATILIK TRİPLEX ...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3862855
+    },
+    "ML-7416-092": {
+      "fiyat": "9.500.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-7416-092",
+      "title": "ULU CAMİ YANINDA SATILIK Z+3 KATLI BİNA TAMAMI SATILIK",
+      "scan_seq": 91,
+      "timestamp": 1766227768.386288
+    },
+    "ML-7416-090": {
+      "fiyat": "6.400.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-7416-090",
+      "title": "SUR TEKNOKENT'TE , GENİŞ VE KULLANIŞLI 4+1 SATILIK DAİR...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.386289
+    },
+    "ML-7416-93": {
+      "fiyat": "5.400.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-7416-93",
+      "title": "SUR TEKNOKENT'TE , GENİŞ VE KULLANIŞLI 3,5+1 SATILIK DA...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3862906
+    },
+    "ML-7416-99": {
+      "fiyat": "6.000.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-7416-99",
+      "title": "TALAYTEPE MAH 4+1 LÜKS DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3862915
+    },
+    "ML-4543-36": {
+      "fiyat": "5.695.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-4543-36",
+      "title": "URFA YOLUNA YAKIN CEYLANLAR AVM YANINDA GENİŞ VE FERAH ...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3862925
+    },
+    "ML-6954-84": {
+      "fiyat": "3.650.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-6954-84",
+      "title": "GAZİLER ENERGY SPOR SALONU KARŞISI 3+1 SATILIK DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3862934
+    },
+    "ML-1707-163": {
+      "fiyat": "3.000.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-1707-163",
+      "title": "GAZİLER ÇEŞME DURAĞI ARKASI SPOR KOMPLEKSİ CİVARI ACİL ...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3862963
+    },
+    "ML-3448-105": {
+      "fiyat": "85.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-3448-105",
+      "title": "MİLANO PARK VİLLALARI TANYA YAPIDA 5+1 KİRALIK TRİPLEX ...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.386297
+    },
+    "ML-7113-291": {
+      "fiyat": "5.850.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-7113-291",
+      "title": "DİCLEKENT MEMORİAL HASTANESİ KARŞISI ULTRA LÜX 4.5+1 SA...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.386298
+    },
+    "ML-7112-132": {
+      "fiyat": "3.050.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-7112-132",
+      "title": "DAĞKAPI ADLİYE KARŞISI ANA CD. ÜZERİ AZEL PLAZADA ACİL ...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3862991
+    },
+    "ML-7113-290": {
+      "fiyat": "4.000.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-7113-290",
+      "title": "ESKİ SİVEREK CADDESİNE SIFIR KONUMDA 3+1 SATILIK  DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3862998
+    },
+    "ML-7111-42": {
+      "fiyat": "3.100.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-7111-42",
+      "title": "NİNOVA AVM ARKASINDA FULL YAPILI 3+1 SATILIK FIRSAT DAİ...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3863003
+    },
+    "ML-1143-65": {
+      "fiyat": "4.050.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-1143-65",
+      "title": "BAĞILAR GÖLETLİ PARK CİVARI SATILIK 3+1 FIRSAT DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3863015
+    },
+    "ML-2140-232": {
+      "fiyat": "3.500.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-2140-232",
+      "title": "ARAŞTIRMA HASTANESİ YANI SATILIK 2+1 LÜKS DAİRE!",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3863027
+    },
+    "ML-2418-54": {
+      "fiyat": "4.100.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-2418-54",
+      "title": "OFİS YÜKSEL TAKSİ DURAĞI KARŞISI SATILIK 2 KATLI İŞ YER...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3863037
+    },
+    "ML-5479-75": {
+      "fiyat": "2.650.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-5479-75",
+      "title": "MALABADİ OTEL CİVARI SATILIK DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.386306
+    },
+    "ML-7113-300": {
+      "fiyat": "4.800.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-7113-300",
+      "title": "NEVROZ PARK AŞAĞISINDA ACİL ACİL SATİLİK DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3863072
+    },
+    "ML-4548-193": {
+      "fiyat": "9.500.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-4548-193",
+      "title": "ŞEHİR HASTANESİ KARŞISI SATILIK DÜKKAN",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3863082
+    },
+    "ML-4543-34": {
+      "fiyat": "3.430.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-4543-34",
+      "title": "GAZİLERDE ORTA KAT FIRSAT DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3863087
+    },
+    "ML-8674-111": {
+      "fiyat": "3.250.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-8674-111",
+      "title": "BAĞCILAR ZÜMRÜTKENTTE FIRSAT 3+1 EYVANLI GENİŞ FERAH DA...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3863115
+    },
+    "ML-7111-65": {
+      "fiyat": "5.000.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-7111-65",
+      "title": "ÇEYSA TWİN TWORSDA 3+1 EŞYALI SATILIK BÜRO",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3863122
+    },
+    "ML-7113-289": {
+      "fiyat": "6.800.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-7113-289",
+      "title": "KENT MEYDANI YANI İNŞAATTEN YATIRIMLIK SATILIK DAİRELER",
+      "scan_seq": 91,
+      "timestamp": 1766227768.386313
+    },
+    "ML-0429-239": {
+      "fiyat": "20.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-0429-239",
+      "title": "ELAZIĞ YOLU ALTINDAĞ DİNLENME TESİSLERİ KARŞISI İS...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3863142
+    },
+    "ML-0429-238": {
+      "fiyat": "3.150.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-0429-238",
+      "title": "YENİŞEHİR ÜÇKUYULAR 1.ETAP TOKİ KONUTLARIDA  3+1 SATILI...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3863153
+    },
+    "ML-1798-138": {
+      "fiyat": "2.550.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-1798-138",
+      "title": "KAYAPINAR DİCLEKENT CAMİİ YANINDA 2+1 GENİŞ FIRSAT BAKI...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3863158
+    },
+    "ML-7111-41": {
+      "fiyat": "2.200.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-7111-41",
+      "title": "NİNOVA AVM ARKASINDA 3+1 SATILIK FIRSAT DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3863165
+    },
+    "ML-4548-191": {
+      "fiyat": "31.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-4548-191",
+      "title": "BAĞCILARDA 3+1 EŞYALI KİRALIK DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3863175
+    },
+    "ML-8674-109": {
+      "fiyat": "3.750.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-8674-109",
+      "title": "URFA YOLU ÜSTÜNDE ZANA DÜĞÜN SALONU YANINDA GENİŞ 2+1 F...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3863184
+    },
+    "ML-2140-44": {
+      "fiyat": "1.340.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-2140-44",
+      "title": "METROPOL DÜNYA KAVŞAĞI CİVARI YÜKSEK KİRA GETİRİLİ SATI...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3863196
+    },
+    "ML-7114-55": {
+      "fiyat": "14.500.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-7114-55",
+      "title": "MARDİN YOLU ÜZERİNDE KAÇMAZ FIRSAT 4.5+1 SATILIK DUBLEK...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3863204
+    },
+    "ML-2409-94": {
+      "fiyat": "1.120.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-2409-94",
+      "title": "YENİŞEHİR ÜÇKUYULAR DA FIRSAT ARSA",
+      "scan_seq": 91,
+      "timestamp": 1766227768.386322
+    },
+    "ML-7111-36": {
+      "fiyat": "2.750.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-7111-36",
+      "title": "HUZUREVLERİN DE FULL BAKIMLI 3+1 SATILIK DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3863227
+    },
+    "ML-2140-222": {
+      "fiyat": "1.650.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-2140-222",
+      "title": "ELAZIĞ YOLU ÜZERİ KAYALARDA 4.SANAYİ CİVARINDA SATILIK ...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3863235
+    },
+    "ML-5436-50": {
+      "fiyat": "920.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-5436-50",
+      "title": "NİNOVA ARKASINDA YATIRIMLIK DÜKKAN",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3863266
+    },
+    "ML-1324-43": {
+      "fiyat": "8.650.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-1324-43",
+      "title": "WİNSTOWN AWM KARŞISI 4.5+1 ULTRA LÜX DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3863273
+    },
+    "ML-7111-35": {
+      "fiyat": "4.600.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-7111-35",
+      "title": "SIFIR TEKNOKENT ARKASI HAVUZLU YERDEN ISITMALI 3.5+1 D...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3863282
+    },
+    "ML-7111-34": {
+      "fiyat": "14.500.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-7111-34",
+      "title": "ACİLL SATILIK YOLA YAKIN SIFIR AYARINDA TERTEMİZ 5+1 LÜ...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3863292
+    },
+    "ML-7548-129": {
+      "fiyat": "2.275.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-7548-129",
+      "title": "HUZUREVLERİ ORMAN PARKA YAKIN 3+1 FULL YAPILI ACİL SATI...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.38633
+    },
+    "ML-4553-472": {
+      "fiyat": "3.650.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-4553-472",
+      "title": "ERGANİ MEGAKENTE SATILIK 3+1 DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3863308
+    },
+    "ML-5439-60": {
+      "fiyat": "780.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-5439-60",
+      "title": "BAĞLAR KAYNARTEPE MAH. İÇİ FUL YAPILI 2+1 GENİŞ FERAH ...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3863313
+    },
+    "ML-5439-59": {
+      "fiyat": "890.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-5439-59",
+      "title": "BAĞLAR KAYNARTEPE MAH. TERASLI VE DAMLI 2+1 SATILIK D...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3863323
+    },
+    "ML-3458-263": {
+      "fiyat": "4.850.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-3458-263",
+      "title": "ŞEHRİN EN GÜZEL KONUMUNDA 3+1 FIRSAT DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.386333
+    },
+    "ML-4548-189": {
+      "fiyat": "2.600.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-4548-189",
+      "title": "TESİSLER KAVŞAĞI CİVARI FULL BAKIMLI 3+1 SATILIK DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3863342
+    },
+    "ML-7548-128": {
+      "fiyat": "6.375.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-7548-128",
+      "title": "TEMA PARK KARŞISINDA 4+1 ULTRA LÜKS SATILIK DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3863351
+    },
+    "ML-7119-14": {
+      "fiyat": "5.200.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-7119-14",
+      "title": "ARAM TİGRAN'DA CADDE ÜZERİ SATILIK 4+1 FIRSAT DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3863366
+    },
+    "ML-5972-38": {
+      "fiyat": "6.000.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-5972-38",
+      "title": "KENT MEYDANI 0 YAŞINDA 3+1 FIRSAT DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3863378
+    },
+    "ML-6621-155": {
+      "fiyat": "5.450.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-6621-155",
+      "title": "GÖLETLİ PARK MANZARALI 3+1 LÜKS DAİREMİZ SATIŞTADIR",
+      "scan_seq": 91,
+      "timestamp": 1766227768.386341
+    },
+    "ML-1656-101": {
+      "fiyat": "2.750.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-1656-101",
+      "title": "GAZİLER MERKEZİ KONUMDA SATILIK 2+1 BÜRO",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3863423
+    },
+    "ML-9985-3": {
+      "fiyat": "5.600.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-9985-3",
+      "title": "TEKNOKENT CİVARINDA 3.5+1 LÜKS SATILIK FIRSAT DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3863437
+    },
+    "ML-1143-62": {
+      "fiyat": "2.220.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-1143-62",
+      "title": "BAĞCILAR NEVRUZ PARK CİVARI SATILIK 2+1 AMERİKAN MUTFAK...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3863447
+    },
+    "ML-5482-10": {
+      "fiyat": "4.075.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-5482-10",
+      "title": "YILMAZ GÜNEY CADDESİNDE SATILIK 4+1 GENİŞ FERAH DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3863466
+    },
+    "ML-1375-267": {
+      "fiyat": "3.875.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-1375-267",
+      "title": "MAKROLIFE GAYRIMENKULDEN SATILIK 3+1 DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3863473
+    },
+    "ML-2409-90": {
+      "fiyat": "2.100.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-2409-90",
+      "title": "ACİL SATILIKYENİŞEHİR OFİS MEHMETÇİK İLKOKUL YANI BAKIM...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3863482
+    },
+    "ML-1707-154": {
+      "fiyat": "2.850.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-1707-154",
+      "title": "YENİYOLDA 15TEMMUZ ŞEHİTLER PARK MANZRALI 3+1 DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3863492
+    },
+    "ML-7446-07": {
+      "fiyat": "5.450.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-7446-07",
+      "title": "DİYARBAKIRIN EN GÖZDE SİTESİ SATIŞTA ERBAB YAŞAM 2 YAP...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3863506
+    },
+    "ML-2418-52": {
+      "fiyat": "1.650.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-2418-52",
+      "title": "BAĞLAR SAĞLIK OCAĞI SALI PAZARINDA SATILIK DÜKKAN",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3863513
+    },
+    "ML-3126-14": {
+      "fiyat": "14.500.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-3126-14",
+      "title": "SİLVAN YOLUNA SIFIR OTURAMA HAZIR 5+1 DUBLEX LÜX VİLLA",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3863525
+    },
+    "ML-1656-30": {
+      "fiyat": "2.150.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-1656-30",
+      "title": "OFİS GEVRAN CADDESİNE YÜRÜME MESAFESİNDE SATILIK 3+1 FI...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3863535
+    },
+    "ML-1656-29": {
+      "fiyat": "2.350.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-1656-29",
+      "title": "OFİS GEVRAN CADDESİNE YÜRÜME MESAFESİNDE SATILIK 3+1 İŞ...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.386355
+    },
+    "ML-7465-78": {
+      "fiyat": "4.160.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-7465-78",
+      "title": "TEKEL KAVŞAĞI CİVARI FUL YAPILI 3+1 ARA KAT FIRSAT  DAİ...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3863583
+    },
+    "ML-5972-37": {
+      "fiyat": "1.650.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-5972-37",
+      "title": "DEVREN KİRALIK EKLERİSTAN ŞUBESİ DİYARBAKIR 50LİK YOL ...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3863587
+    },
+    "ML-7416-09": {
+      "fiyat": "4.500.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-7416-09",
+      "title": "SATILIK MODERN OFİS BÜRO 2+1",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3863597
+    },
+    "ML-7416-08": {
+      "fiyat": "4.500.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-7416-08",
+      "title": "METROPOL CİVARI NURÇAY KALİTESİYLE , GENİŞ VE KULLANIŞL...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.386361
+    },
+    "ML-4441-291": {
+      "fiyat": "3.320.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-4441-291",
+      "title": "KAYAPINAR YOLBOYU SATILIK FIRSAT ARSA",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3863616
+    },
+    "ML-5482-06": {
+      "fiyat": "40.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-5482-06",
+      "title": "ARAŞTIRMA HASTANESİ YANI AY CORNER PLAZA'DA KİRALIK 3+1...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3863623
+    },
+    "ML-3448-102": {
+      "fiyat": "45.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-3448-102",
+      "title": "ARAŞTIRMA HASTANESİ YANI AY CORNER PLAZA'DA KİRALIK 3+1...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.386363
+    },
+    "ML-5479-69": {
+      "fiyat": "5.300.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-5479-69",
+      "title": "ARAM TİGRAN CADDESİNDE SATILIK MASRAFSIZ YATIRIMLIK F...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.386364
+    },
+    "ML-1656-18": {
+      "fiyat": "5.250.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-1656-18",
+      "title": "KAPORA ALINDI",
+      "scan_seq": 91,
+      "timestamp": 1766227768.386365
+    },
+    "ML-3621-21": {
+      "fiyat": "4.500.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-3621-21",
+      "title": "YENİŞEHİR ALANGÖRDE 6.614 M2 SATILIK MÜSTAKİL TARLA",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3863666
+    },
+    "ML-5495-34": {
+      "fiyat": "5.220.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-5495-34",
+      "title": "WİNSTON AVM CİVARI HAVUZLU 110 M 2+1 SATILIK DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3863678
+    },
+    "ML-7119-10": {
+      "fiyat": "780.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-7119-10",
+      "title": "BAĞLAR SAĞLIK OCAĞI CİVARI SATILIK 2+1 FIRSAT DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.386369
+    },
+    "ML-2418-45": {
+      "fiyat": "4.550.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-2418-45",
+      "title": "KAPORA ALINDI",
+      "scan_seq": 91,
+      "timestamp": 1766227768.38637
+    },
+    "ML-4543-32": {
+      "fiyat": "1.550.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-4543-32",
+      "title": "BAĞLARDA SATILIK YATIRIMLIK DÜKKAN",
+      "scan_seq": 91,
+      "timestamp": 1766227768.386374
+    },
+    "ML-7548-123": {
+      "fiyat": "5.550.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-7548-123",
+      "title": "STADYUM YOLU ÜZERİ   SATILIK 3+1 ULTRA LÜX DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.386375
+    },
+    "ML-2447-25": {
+      "fiyat": "120.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-2447-25",
+      "title": "BAĞCILAR GÖLETLİ CİVARI KİRALIK FIRSAT DÜKKAN",
+      "scan_seq": 91,
+      "timestamp": 1766227768.386376
+    },
+    "ML-4553-462": {
+      "fiyat": "4.350.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-4553-462",
+      "title": "DİYARBAKIRIN KALBİ KANTARDA SIFIR  SATILIK 3+1 OFİS",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3863773
+    },
+    "ML-3126-256": {
+      "fiyat": "4.000.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-3126-256",
+      "title": "NİNOVA ARKASI 160 METRE KARE 2 ADET KUPON DÜKKAN",
+      "scan_seq": 91,
+      "timestamp": 1766227768.386378
+    },
+    "ML-5479-64": {
+      "fiyat": "6.200.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-5479-64",
+      "title": "75 YOL BİTİMİ SATILIK 4,5+1 FULL MASRAFLI SATILIK DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.386379
+    },
+    "ML-4548-184": {
+      "fiyat": "2.800.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-4548-184",
+      "title": "Diyarbakır Kayapınar Mastfroş Caddesi Serin Gold Sites...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.38638
+    },
+    "ML-4441-288": {
+      "fiyat": "3.050.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-4441-288",
+      "title": "BAĞCILAR'DA Y.GİRİŞ KAT'TA 3+1 SATILIK DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3863811
+    },
+    "ML-2140-444": {
+      "fiyat": "2.050.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-2140-444",
+      "title": "ELAZIĞ YOLU ÜZERİNDE DOĞA CİTYDE SATILIK 1+1 LÜKS DAİRE...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3863819
+    },
+    "ML-2151-05": {
+      "fiyat": "1.200.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-2151-05",
+      "title": "KOŞUYOLU PARKI KARŞISINDA SATILIK 3+1 FIRSAT DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3863828
+    },
+    "ML-5482-05": {
+      "fiyat": "31.200.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-5482-05",
+      "title": "BAĞLAR KOLLUDEREDE YATIRIMA UYGUN ÇEVRE YOLLUNA SIFIR  ...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3863838
+    },
+    "ML-0429-223": {
+      "fiyat": "4.200.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-0429-223",
+      "title": "FABRİKA MAHALLESİNDE SATILIK ARA KAT  SATILIK 3+1 DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3863847
+    },
+    "ML-2151-03": {
+      "fiyat": "680.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-2151-03",
+      "title": "YENİŞEHİR ŞEHİTLİKTE 2+1 SATILIK KELEPİR DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3863854
+    },
+    "ML-5439-52": {
+      "fiyat": "1.660.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-5439-52",
+      "title": "MAKRO LİFE GAYRİMENKUL SATIYOR POLİS OKULUNDA 3+1 SATIL...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3863862
+    },
+    "ML-4441-287": {
+      "fiyat": "20.000.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-4441-287",
+      "title": "OĞLAKLI TOKİ DİBİNDE SATILIK FIRSAT ARSA",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3863895
+    },
+    "ML-5482-04": {
+      "fiyat": "11.700.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-5482-04",
+      "title": "KARAHANDA GELECEĞİNİZE DEĞER KATACAK 4.500 DÖNÜM  M2 YA...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3863904
+    },
+    "ML-5482-03": {
+      "fiyat": "9.650.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-5482-03",
+      "title": "OĞLAKLIDA GELECEĞİNİZE DEĞER KATACAK 3 DÖNÜM 715 M2 YAT...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3863919
+    },
+    "ML-4543-24": {
+      "fiyat": "4.360.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-4543-24",
+      "title": "FİYAT DÜŞTÜÜÜ YENİHEŞİR FABRİKA MAH 4+1 SATILIK DAİ...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3863928
+    },
+    "ML-4553-457": {
+      "fiyat": "16.000.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-4553-457",
+      "title": "ALTINDAĞ KARŞISI  EMSALSİZ  DUBLEKS VİLLA",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3863938
+    },
+    "ML-3733-75": {
+      "fiyat": "1.095.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-3733-75",
+      "title": "SATILIK ARSA GÜLEÇOBA MAHALLESİ KAYAPINAR DİYARBAKIR",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3863947
+    },
+    "ML-7548-117": {
+      "fiyat": "6.475.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-7548-117",
+      "title": "TEMA PARK KARŞISI 4+1  SATILIK LÜX DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3863966
+    },
+    "ML-4441-286": {
+      "fiyat": "24.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-4441-286",
+      "title": "KAYAPINAR YENİYOL'DA   3+1 KİRALIK DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3863971
+    },
+    "ML-7548-115": {
+      "fiyat": "6.550.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-7548-115",
+      "title": "TEMA PARK KARŞISINDA 4+1 ULTRA LÜKS SATILIK DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3863988
+    },
+    "ML-4543-23": {
+      "fiyat": "1.190.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-4543-23",
+      "title": "ŞEHİTLİKTE 3+1 ACİL SATILIK DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3863995
+    },
+    "ML-2140-99": {
+      "fiyat": "4.450.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-2140-99",
+      "title": "ÜÇ KUYULARDA EKSTRA MASRAFLI SIFIR 3+1 SATILIK DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3864002
+    },
+    "ML-6954-73": {
+      "fiyat": "4.750.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-6954-73",
+      "title": "WİNSTOWN YANI SATILIK 3,5+1 SATILIK DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3864007
+    },
+    "ML-3621-18": {
+      "fiyat": "4.200.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-3621-18",
+      "title": "ALTINDAĞ KARŞISI MTR YAPIDA SATILIK FIRSAT 2+1 DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.386402
+    },
+    "ML-4441-285": {
+      "fiyat": "5.000.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-4441-285",
+      "title": "PEYAS MAH. SATILIK İKİ KATLI EV",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3864052
+    },
+    "ML-7465-71": {
+      "fiyat": "1.475.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-7465-71",
+      "title": "YENİŞEHİR ŞEHİTLİKTE FUL YAPILI 3+1 FIRSAT DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3864062
+    },
+    "ML-6621-121": {
+      "fiyat": "2.650.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-6621-121",
+      "title": "OFİS KASAPLAR DURAĞINDA 3+1 FULL YAPILI BÜRO OFİS",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3864071
+    },
+    "ML-1375-245": {
+      "fiyat": "6.500.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-1375-245",
+      "title": "DİYARBAKIR SUR CARAGI MAHHALESINDE IMARLI MATAIT GIRMIS",
+      "scan_seq": 91,
+      "timestamp": 1766227768.386408
+    },
+    "ML-4553-442": {
+      "fiyat": "450.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-4553-442",
+      "title": "MAKRO LİFE GAYRİMENKUL'DEN DEVREN SATILIK  BUTİK",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3864093
+    },
+    "ML-1143-58": {
+      "fiyat": "23.900.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-1143-58",
+      "title": "VİLLA KONFORUNDA YENİ BİR HAYAT BAŞLIYOR!",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3864105
+    },
+    "ML-6621-120": {
+      "fiyat": "5.590.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-6621-120",
+      "title": "STADYUM YENİ ŞEHİR HASTANESİ CİVARINDA 3+1 LÜKS DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.386411
+    },
+    "ML-4548-181": {
+      "fiyat": "6.300.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-4548-181",
+      "title": "AY OFFİCE BUSINESS SATILIK BÜRO VE İŞYERİ",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3864121
+    },
+    "ML-4548-180": {
+      "fiyat": "7.300.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-4548-180",
+      "title": "AY OFFİCE BUSINESS SATILIK BÜROİŞYERİ",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3864152
+    },
+    "ML-2418-38": {
+      "fiyat": "2.525.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-2418-38",
+      "title": "MAKRO LİFE GAYRİMENKUL'DEN  KAYAPINAR  BÖLGESİNDE  ACİL...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3864162
+    },
+    "ML-1798-21": {
+      "fiyat": "9.700.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-1798-21",
+      "title": "MEGA SANAYİDE 400M2 SATILIK FIRSAT DÜKKAN",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3864172
+    },
+    "ML-4441-282": {
+      "fiyat": "15.250.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-4441-282",
+      "title": "KENT ORMAN ARKASI SATILIK 5.5+1 VİLLA",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3864176
+    },
+    "ML-0429-211": {
+      "fiyat": "3.900.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-0429-211",
+      "title": "YENİŞEHİR ÜÇKUYULAR BUBYA TEK BLOKLU SİTE 2+1 SATILI...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.386419
+    },
+    "ML-5479-54": {
+      "fiyat": "2.050.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-5479-54",
+      "title": "KOCAHASANLI'DA DENİZ MANZARALI TEMELDEN 1+1 DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3864222
+    },
+    "ML-5479-53": {
+      "fiyat": "5.150.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-5479-53",
+      "title": "MAKRO LİFE GAYRİMENKUL'DEN SATILIK HAVUZLU FIRSAT DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3864238
+    },
+    "ML-4548-178": {
+      "fiyat": "3.500.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-4548-178",
+      "title": "BAĞCILARDA 4+1 SATILIK DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3864253
+    },
+    "ML-7113-263": {
+      "fiyat": "2.500.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-7113-263",
+      "title": "TEKNO KENT ARKASINDA TAKASA AÇIK 2+1 SATILIK DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.386427
+    },
+    "ML-7416-91": {
+      "fiyat": "2.750.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-7416-91",
+      "title": "ÜÇKUYULARDA İMARLI ARSA",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3864284
+    },
+    "ML-7416-88": {
+      "fiyat": "25.000.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-7416-88",
+      "title": "EGİL YOLUNA YAKIN 100 DÖNÜM MÜSTAKİL ARAZİ",
+      "scan_seq": 91,
+      "timestamp": 1766227768.38643
+    },
+    "ML-7112-113": {
+      "fiyat": "51.300.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-7112-113",
+      "title": "YENİ MARDİN YOLU ÜZERİ 4 YOL KAVŞAĞINDA 27 DÖNÜM TEK TA...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3864315
+    },
+    "ML-7416-85": {
+      "fiyat": "2.000.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-7416-85",
+      "title": "ŞEHİTLİK İLÇE OTOGARI KARŞISI SATILIK FIRSAT İŞYERİ",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3864324
+    },
+    "ML-4548-177": {
+      "fiyat": "5.300.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-4548-177",
+      "title": "OTOGAR KARŞISI BAĞCILARDA 4+1 SATILIK DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3864343
+    },
+    "ML-1798-114": {
+      "fiyat": "5.900.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-1798-114",
+      "title": "SİLVAN YOLU ÜZERİ 7 DÖNÜM SATILIK ARSA",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3864353
+    },
+    "ML-4553-431": {
+      "fiyat": "585.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-4553-431",
+      "title": "DİYARBAKIR YENİŞEHİR  3 KUYUDA SATILIK  İMARLI ARSA",
+      "scan_seq": 91,
+      "timestamp": 1766227768.386437
+    },
+    "ML-1798-113": {
+      "fiyat": "2.530.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-1798-113",
+      "title": "SEYRANTEPE TOKİ 3+1 MASRAFSIZ TEMİZ DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3864377
+    },
+    "ML-6621-107": {
+      "fiyat": "11.250.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-6621-107",
+      "title": "DİYARBAKIRIN MERKEZİ BAĞCILARDA ACİL SATILIK 4.5+1 TRİP...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.386439
+    },
+    "ML-4553-421": {
+      "fiyat": "12.000.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-4553-421",
+      "title": "ERGANİ ACİL SATILIK DUBLEKS VİLLA",
+      "scan_seq": 91,
+      "timestamp": 1766227768.386443
+    },
+    "ML-1798-112": {
+      "fiyat": "960.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-1798-112",
+      "title": "BAĞLAR FATİH CAMİİ YANINDA 3+1 FIRSAT DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.386444
+    },
+    "ML-7113-255": {
+      "fiyat": "5.100.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-7113-255",
+      "title": "MASTFROŞ CADDE ÜSTÜNDE LÜX HAVUZLU 3+1 SATILIK DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3864453
+    },
+    "ML-5495-27": {
+      "fiyat": "8.740.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-5495-27",
+      "title": "50 METRELİK YOLA SIFIR 4,5+1 ULTRA LÜX DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3864474
+    },
+    "ML-5439-38": {
+      "fiyat": "940.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-5439-38",
+      "title": "BAĞLAR NÜKHET ÇOŞKUN CADDESİNDE 3+1 SATILIK DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3864484
+    },
+    "ML-1324-85": {
+      "fiyat": "4.650.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-1324-85",
+      "title": "MASTFROŞTA 2.5+1 ULTRA LÜX SIFIR DAİRE KAYALAR",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3864498
+    },
+    "ML-3621-13": {
+      "fiyat": "1.000.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-3621-13",
+      "title": "FİYAT DÜŞTÜ BAĞLAR ALAYDA CADDE ÜZERİ TERASLI 3+1 SATI...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3864508
+    },
+    "ML-4543-8": {
+      "fiyat": "1.155.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-4543-8",
+      "title": "BAĞLAR ÇARŞAMBA PAZARINDA SATILIK 2+1",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3864515
+    },
+    "ML-0533-032": {
+      "fiyat": "68.000.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-0533-032",
+      "title": "SUR HZ. SÜLEYMAN CADDESİNDE SATILIK 5 KATLI OTEL",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3864524
+    },
+    "ML-5972-17": {
+      "fiyat": "31.000.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-5972-17",
+      "title": "SATILIK LÜKS VİLLA MUHTEŞEM MANZARA HAVUZLU",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3864534
+    },
+    "ML-5479-35": {
+      "fiyat": "5.050.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-5479-35",
+      "title": "MAKRO LİFE GAYRİMENKUL'DEN ÜÇ KUYULAR'DA SIFIR DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3864543
+    },
+    "ML-5495-25": {
+      "fiyat": "1.970.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-5495-25",
+      "title": "HUZUR EVLERİ ESKİ NİL KOLEJİ CİVARI SATILIK 2+1 DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.386455
+    },
+    "ML-4548-173": {
+      "fiyat": "4.500.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-4548-173",
+      "title": "SUR ERİMLİ'DEN SATILIK FIRSAT ARSA",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3864563
+    },
+    "ML-4543-6": {
+      "fiyat": "1.100.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-4543-6",
+      "title": "GÖÇMENLER CADDESİNDE SATILIK 2+1",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3864577
+    },
+    "ML-4543-2": {
+      "fiyat": "2.300.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-4543-2",
+      "title": "YOLBOYUNDA SATILIK 2 DÖNÜM TARLA",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3864613
+    },
+    "ML-4543-1": {
+      "fiyat": "2.480.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-4543-1",
+      "title": "TEKNOKET KAYA YAPI DA SATILIK 2+1 DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3864622
+    },
+    "ML-3126-233": {
+      "fiyat": "5.300.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-3126-233",
+      "title": "SIFIR 75 TEKEL CADDESİ ÜZERİ 3+1 OTURUMA HAZIR DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.386463
+    },
+    "ML-4548-168": {
+      "fiyat": "1.450.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-4548-168",
+      "title": "HUZUREVLERİ MEKKE CAMİ CİVARI 3+1 SATILIK DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.386464
+    },
+    "ML-5495-18": {
+      "fiyat": "750.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-5495-18",
+      "title": "BAĞLARDA SATILIK 2+1 DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3864655
+    },
+    "ML-5479-31": {
+      "fiyat": "950.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-5479-31",
+      "title": "MAKRO LİFE GAYRİMENKUL'DEN SATILIK DEVREN PLAYSTATİON",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3864665
+    },
+    "ML-3448-77": {
+      "fiyat": "1.900.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-3448-77",
+      "title": "MAKRO LİFE GAYRİMENKULDEN ŞANLIURFA HAVAALANI KARŞISIND...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.386468
+    },
+    "ML-3126-978": {
+      "fiyat": "5.400.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-3126-978",
+      "title": "ELAZIĞ YOLU ÜZERİ KAYALAR YAPI'DA İŞ YERİ VE BÜRO",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3864691
+    },
+    "ML-5479-28": {
+      "fiyat": "24.000.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-5479-28",
+      "title": "MAKRO LİFE GAYRİMENKUL'DEN 450 EVLER CİVARI SATILIK LÜK...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.38647
+    },
+    "ML-0501-035": {
+      "fiyat": "28.750.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-0501-035",
+      "title": "SİLVAN YOLU ÜZERİNDE  ELEKTRİĞİNİ KENDİ ÜRETEN SATILIK ...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3864713
+    },
+    "ML-6954-57": {
+      "fiyat": "5.080.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-6954-57",
+      "title": "RADİSON OTEL ARKASI LAVANTA PARKI YANI SATILIK 4+1 FIRS...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.386472
+    },
+    "ML-3126-774": {
+      "fiyat": "21.000.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-3126-774",
+      "title": "SİLVAN YOLU ÜZERİ SATILIK LÜKS 6,5+1 TRİBLEKS VİLLA",
+      "scan_seq": 91,
+      "timestamp": 1766227768.386473
+    },
+    "ML-7111-19": {
+      "fiyat": "6.000.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-7111-19",
+      "title": "75 YOL ÜZERİ 4+1 SATILIK DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.386474
+    },
+    "ML-4441-268": {
+      "fiyat": "24.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-4441-268",
+      "title": "KAYAPINAR YENİYOL'DA   4+1 KİRALIK DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3864772
+    },
+    "ML-4441-267": {
+      "fiyat": "23.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-4441-267",
+      "title": "KAYAPINAR YENİYOL'DA   3+1 KİRALIK DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3864784
+    },
+    "ML-6621-84": {
+      "fiyat": "21.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-6621-84",
+      "title": "YENİŞEHİR OFİS DE 3+1 KİRALIK LÜKS PLAZA",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3864794
+    },
+    "ML-5479-16": {
+      "fiyat": "2.200.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-5479-16",
+      "title": "YENİŞEHİR ÜÇKUYULARDA ACİL SATILIK KONUT İMARLI İFRAZLI...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3864803
+    },
+    "ML-5436-8": {
+      "fiyat": "2.250.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-5436-8",
+      "title": "ÇELİKEVLERDE SATILIK 3+1 DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3864815
+    },
+    "ML-5479-08": {
+      "fiyat": "7.300.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-5479-08",
+      "title": "WİNSTON AVM CİVARI SATILIK LÜKS SIFIR DAİRE",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3864825
+    },
+    "ML-7465-42": {
+      "fiyat": "12.600.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-7465-42",
+      "title": "DİCLE ÜNİVERSİTESİ YOLU ÜZERİ 450 EVLER CİVARI ACİL SA...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3864832
+    },
+    "ML-0501-20": {
+      "fiyat": "27.500.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-0501-20",
+      "title": "MAKRO LİFE FARKIYLA TÜRKİYE'NİN GÖZDE ŞEHRİ MUĞLADA İMA...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.386484
+    },
+    "ML-3448-63": {
+      "fiyat": "25.500.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-3448-63",
+      "title": "MAKRO LİFE GAYRİMENKUL'DEN VALİLİK BİNASI ARKASINDA SAT...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3864846
+    },
+    "ML-5479-04": {
+      "fiyat": "6.500.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-5479-04",
+      "title": "WİNSTON AVM YAKINI KÜÇÜK TİP ŞEHRİ HAYAT'TA SATILIK LÜK...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3864856
+    },
+    "ML-5469-01": {
+      "fiyat": "3.000.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-5469-01",
+      "title": "CEYLAN AVM ARKASINDA MÜLKEN SATILIK İŞYERİ",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3864863
+    },
+    "ML-2140-96": {
+      "fiyat": "11.250.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-2140-96",
+      "title": "KAPLAN ROWER VİLLALARINDA 5+1 SATILIK VİLLA",
+      "scan_seq": 91,
+      "timestamp": 1766227768.386487
+    },
+    "ML-3126-865": {
+      "fiyat": "9.000.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-3126-865",
+      "title": "SEYRANTEPE AZİZİYE MAH. SATILIK SIFIR VİLLA",
+      "scan_seq": 91,
+      "timestamp": 1766227768.3864877
+    },
+    "ML-0429-154": {
+      "fiyat": "3.750.000 ₺",
+      "tarih": "2025-12-20",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-0429-154",
+      "title": "YENİŞEHİR ÜÇKUYULAR BUBYA FLOWERS SİTESİNDE  3+1 SATILI...",
+      "scan_seq": 91,
+      "timestamp": 1766227768.386491
+    }
+  },
   "reported_days": [
     "2025-12-17",
     "2025-12-18",
@@ -34,5 +5115,5 @@
       "deleted": 635
     }
   },
-  "scan_sequence": 90
+  "scan_sequence": 91
 }
