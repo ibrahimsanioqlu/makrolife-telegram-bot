@@ -5649,7 +5649,7 @@
       "first_seen_date": "2025-12-20"
     },
     "ML-7465-118": {
-      "fiyat": "4.380.000 ₺",
+      "fiyat": "5.380.000 ₺",
       "tarih": "2025-12-20",
       "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-7465-118",
       "title": "RADİSON OTEL ARKASI SATILIK FIRSAT 4+1 LÜX DAİRE",
@@ -5853,9 +5853,9 @@
     },
     "2025-12-21": {
       "new": 4,
-      "price_changes": 0,
+      "price_changes": 1,
       "deleted": 3
     }
   },
-  "scan_sequence": 113
+  "scan_sequence": 114
 }
