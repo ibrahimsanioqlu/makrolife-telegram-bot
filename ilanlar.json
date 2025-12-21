@@ -5830,7 +5830,12 @@
       "new": 5,
       "price_changes": 1,
       "deleted": 7
+    },
+    "2025-12-22": {
+      "new": 0,
+      "price_changes": 0,
+      "deleted": 0
     }
   },
-  "scan_sequence": 120
+  "scan_sequence": 121
 }
