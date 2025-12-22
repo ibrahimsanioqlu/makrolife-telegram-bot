@@ -6197,7 +6197,12 @@
       "new": 323,
       "price_changes": 6,
       "deleted": 318
+    },
+    "2025-12-23": {
+      "new": 0,
+      "price_changes": 0,
+      "deleted": 0
     }
   },
-  "scan_sequence": 140
+  "scan_sequence": 141
 }
