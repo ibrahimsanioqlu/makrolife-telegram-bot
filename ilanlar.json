@@ -1838,7 +1838,7 @@
       "position": 279
     },
     "ML-4553-512": {
-      "fiyat": "3.450.000 ₺",
+      "fiyat": "3.350.000 ₺",
       "tarih": "2025-12-20",
       "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-4553-512",
       "title": "WİNSTON AVM CİVARI TAŞINMAYA HAZIR 2+1 DAİRE",
@@ -6248,9 +6248,9 @@
     },
     "2025-12-25": {
       "new": 0,
-      "price_changes": 0,
+      "price_changes": 1,
       "deleted": 0
     }
   },
-  "scan_sequence": 187
+  "scan_sequence": 188
 }
