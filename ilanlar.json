@@ -2682,7 +2682,7 @@
       "first_seen_date": "2025-12-20"
     },
     "ML-0543-14": {
-      "fiyat": "2.570.000 ₺",
+      "fiyat": "2.520.000 ₺",
       "tarih": "2025-12-20",
       "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-0543-14",
       "title": "MAKRO LİFE GAYRİMENKUL'DEN SATILIK SULTAN HASTANESİ KAR...",
@@ -6248,9 +6248,9 @@
     },
     "2025-12-25": {
       "new": 0,
-      "price_changes": 1,
+      "price_changes": 2,
       "deleted": 0
     }
   },
-  "scan_sequence": 188
+  "scan_sequence": 189
 }
