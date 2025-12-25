@@ -416,7 +416,7 @@
       "position": 110
     },
     "ML-2067-01": {
-      "fiyat": "10.000.000 ₺",
+      "fiyat": "9.750.000 ₺",
       "tarih": "2025-12-20",
       "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-2067-01",
       "title": "DİKENTEPE SATILIK MÜSTAKİL ARAZİ",
@@ -5762,7 +5762,7 @@
       "first_seen_date": "2025-12-22"
     },
     "ML-0508-74": {
-      "fiyat": "8.400.000 ₺",
+      "fiyat": "8.350.000 ₺",
       "tarih": "2025-12-22",
       "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-0508-74",
       "title": "KAYAPINARDA DAİRE FİYATINA ACİLL SATILIK DUBLEKS VİLLA",
@@ -6258,9 +6258,9 @@
     },
     "2025-12-25": {
       "new": 1,
-      "price_changes": 2,
+      "price_changes": 4,
       "deleted": 0
     }
   },
-  "scan_sequence": 191
+  "scan_sequence": 192
 }
