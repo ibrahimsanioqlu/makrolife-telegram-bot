@@ -5533,7 +5533,7 @@
       "first_seen_date": "2025-12-22"
     },
     "ML-0508-74": {
-      "fiyat": "8.350.000 ₺",
+      "fiyat": "8.150.000 ₺",
       "tarih": "2025-12-22",
       "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-0508-74",
       "title": "KAYAPINARDA DAİRE FİYATINA ACİLL SATILIK DUBLEKS VİLLA",
@@ -6175,9 +6175,9 @@
     },
     "2025-12-26": {
       "new": 13,
-      "price_changes": 2,
+      "price_changes": 3,
       "deleted": 14
     }
   },
-  "scan_sequence": 220
+  "scan_sequence": 221
 }
