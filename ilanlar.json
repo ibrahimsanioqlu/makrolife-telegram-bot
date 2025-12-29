@@ -6000,7 +6000,7 @@
       "first_seen_date": "2025-12-27"
     },
     "ML-8679-139": {
-      "fiyat": "3.950.000 ₺",
+      "fiyat": "3.840.000 ₺",
       "tarih": "2025-12-27",
       "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-8679-139",
       "title": "KAYAPINAR BELEDİYESİ CİVARI ACİİL SATILIK 3+1 FULL BAKI...",
@@ -6339,9 +6339,9 @@
     },
     "2025-12-29": {
       "new": 18,
-      "price_changes": 2,
+      "price_changes": 3,
       "deleted": 1
     }
   },
-  "scan_sequence": 280
+  "scan_sequence": 281
 }
