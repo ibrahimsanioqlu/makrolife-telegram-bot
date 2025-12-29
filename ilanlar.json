@@ -101,7 +101,7 @@
       "position": 104
     },
     "ML-3621-65": {
-      "fiyat": "3.300.000 ₺",
+      "fiyat": "3.260.000 ₺",
       "tarih": "2025-12-20",
       "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-3621-65",
       "title": "MAKRO LİFE GAYRİMENKUL'DEN SATILIK KARAKUŞ GOLD'TA 2+1 ...",
@@ -920,7 +920,7 @@
       "position": 207
     },
     "ML-3621-61": {
-      "fiyat": "3.660.000 ₺",
+      "fiyat": "3.630.000 ₺",
       "tarih": "2025-12-20",
       "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-3621-61",
       "title": "MAKRO LİFE GAYRİMENKUL'DEN SATILIK URFA YOLU ÜZERİ 3+1 ...",
@@ -6169,9 +6169,9 @@
     },
     "2025-12-29": {
       "new": 0,
-      "price_changes": 0,
+      "price_changes": 2,
       "deleted": 0
     }
   },
-  "scan_sequence": 270
+  "scan_sequence": 271
 }
