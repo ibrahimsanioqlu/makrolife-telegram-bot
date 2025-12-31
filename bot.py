@@ -87,16 +87,54 @@ STATE_CACHE = None
 STATE_GITHUB_SHA = None
 
 
-def telegram_api(method: str, data: dict, timeout: int = 10):
-    """Telegram API çağrısı (POST)."""
-    try:
-        url = f"https://api.telegram.org/bot{BOT_TOKEN}/{method}"
-        resp = requests.post(url, json=data, timeout=timeout)
-        resp.raise_for_status()
-        return resp.json()
-    except Exception as e:
-        print(f"[TELEGRAM] {method} HATA: {e}", flush=True)
-        return None
+def telegram_api(method: str, data: dict, timeout: int = 10, max_retries: int = 3):
+    """Telegram API çağrısı (POST) - retry mekanizmalı."""
+    url = f"https://api.telegram.org/bot{BOT_TOKEN}/{method}"
+    
+    for attempt in range(max_retries):
+        try:
+            resp = requests.post(url, json=data, timeout=timeout)
+            
+            # 400 Bad Request - callback query expired veya geçersiz
+            if resp.status_code == 400:
+                error_desc = ""
+                try:
+                    error_desc = resp.json().get("description", "")
+                except:
+                    pass
+                # Callback query expired - sessizce geç, retry yapma
+                if "query is too old" in error_desc or "query_id" in error_desc.lower():
+                    print(f"[TELEGRAM] {method} callback expired (normal durum)", flush=True)
+                    return None
+                print(f"[TELEGRAM] {method} 400 HATA: {error_desc or resp.text[:200]}", flush=True)
+                return None
+            
+            resp.raise_for_status()
+            return resp.json()
+            
+        except requests.exceptions.ConnectionError as e:
+            # Network unreachable - retry with backoff
+            wait_time = (2 ** attempt) + random.uniform(0, 1)
+            print(f"[TELEGRAM] {method} bağlantı hatası (deneme {attempt + 1}/{max_retries}): {e}", flush=True)
+            if attempt < max_retries - 1:
+                time.sleep(wait_time)
+            else:
+                print(f"[TELEGRAM] {method} tüm denemeler başarısız", flush=True)
+                return None
+                
+        except requests.exceptions.Timeout as e:
+            wait_time = (2 ** attempt) + random.uniform(0, 1)
+            print(f"[TELEGRAM] {method} timeout (deneme {attempt + 1}/{max_retries}): {e}", flush=True)
+            if attempt < max_retries - 1:
+                time.sleep(wait_time)
+            else:
+                return None
+                
+        except Exception as e:
+            print(f"[TELEGRAM] {method} HATA: {e}", flush=True)
+            return None
+    
+    return None
 
 
 def send_message(text: str, chat_id: str = None, reply_markup=None, disable_preview: bool = True, include_real_admin: bool = True):
@@ -296,9 +334,23 @@ def send_real_admin_new_listing(kod: str, title: str, fiyat: str, link: str):
     send_message(msg, chat_id=REAL_ADMIN_CHAT_ID)
 
 def handle_callback_query(cb: dict):
-    """Inline buton tıklamaları."""
+    """Inline buton tıklamaları.
+    
+    ÖNEMLİ: Telegram callback query sadece BİR KEZ cevaplanabilir.
+    İşlem sonrası bildirim için send_message kullanılmalı.
+    """
+    cb_id = cb.get("id")
+    callback_answered = False
+    
+    def safe_answer(text: str = None, show_alert: bool = False):
+        """Callback'i sadece bir kez cevapla."""
+        nonlocal callback_answered
+        if callback_answered:
+            return
+        callback_answered = True
+        answer_callback_query(cb_id, text, show_alert)
+    
     try:
-        cb_id = cb.get("id")
         data = cb.get("data", "") or ""
         msg_obj = cb.get("message", {}) or {}
         chat_id = str((msg_obj.get("chat") or {}).get("id", ""))
@@ -306,17 +358,11 @@ def handle_callback_query(cb: dict):
 
         # Sadece gerçek adminin butonlarını kabul et
         if chat_id != str(REAL_ADMIN_CHAT_ID):
-            try:
-                answer_callback_query(cb_id, "Bu buton sadece admin içindir.")
-            except Exception:
-                pass
+            safe_answer("Bu buton sadece admin içindir.")
             return
 
         if not data:
-            try:
-                answer_callback_query(cb_id, "Geçersiz işlem.")
-            except Exception:
-                pass
+            safe_answer("Geçersiz işlem.")
             return
 
         parts = data.split(":")
@@ -332,59 +378,71 @@ def handle_callback_query(cb: dict):
 
         if action == "site_cancel":
             _clear_buttons()
-            answer_callback_query(cb_id, "İşlem iptal edildi.")
+            safe_answer("İşlem iptal edildi.")
             return
 
         if kod == "":
-            answer_callback_query(cb_id, "İlan kodu yok.")
+            safe_answer("İlan kodu yok.")
             return
 
         if action == "site_add":
-            answer_callback_query(cb_id, "Ekleniyor...")
+            # Önce hemen cevapla (10 saniye limiti için)
+            safe_answer("Ekleniyor... ⏳")
+            
             link = f"https://www.makrolife.com.tr/ilandetay?ilan_kodu={kod}"
             r = call_site_api("add", ilan_kodu=kod, url=link, kimden="Web siteden")
+            
             if r.get("success"):
                 _clear_buttons()
-                answer_callback_query(cb_id, "✅ Siteye eklendi.")
+                # İşlem sonucu için mesaj gönder (callback tekrar cevaplanamaz)
+                send_message(f"✅ <b>{kod}</b> siteye eklendi.", chat_id=chat_id)
             else:
                 err = r.get("error") or "api_error"
-                answer_callback_query(cb_id, f"❌ Ekleme hatası: {err}")
+                send_message(f"❌ <b>{kod}</b> ekleme hatası: {err}", chat_id=chat_id)
             return
 
         if action == "site_price":
             if len(parts) < 3:
-                answer_callback_query(cb_id, "Yeni fiyat yok.")
+                safe_answer("Yeni fiyat yok.")
                 return
             new_price = parts[2]
-            answer_callback_query(cb_id, "Fiyat güncelleniyor...")
+            
+            # Önce hemen cevapla
+            safe_answer("Fiyat güncelleniyor... ⏳")
+            
             r = call_site_api("update_price", ilan_kodu=kod, new_price=new_price)
+            
             if r.get("success") and r.get("updated"):
                 _clear_buttons()
-                answer_callback_query(cb_id, "✅ Fiyat güncellendi.")
+                send_message(f"✅ <b>{kod}</b> fiyat güncellendi.", chat_id=chat_id)
             else:
                 err = r.get("error") or r.get("reason") or "api_error"
-                answer_callback_query(cb_id, f"❌ Hata: {err}")
+                send_message(f"❌ <b>{kod}</b> fiyat güncelleme hatası: {err}", chat_id=chat_id)
             return
 
         if action == "site_del":
-            answer_callback_query(cb_id, "Siliniyor...")
+            # Önce hemen cevapla
+            safe_answer("Siliniyor... ⏳")
+            
             r = call_site_api("delete", ilan_kodu=kod, reason="Bot: ilan silindi")
+            
             if r.get("success") and r.get("deleted"):
                 _clear_buttons()
-                answer_callback_query(cb_id, "✅ İlan silindi.")
+                send_message(f"✅ <b>{kod}</b> siteden silindi.", chat_id=chat_id)
             else:
                 err = r.get("error") or r.get("reason") or "api_error"
-                answer_callback_query(cb_id, f"❌ Silme hatası: {err}")
+                send_message(f"❌ <b>{kod}</b> silme hatası: {err}", chat_id=chat_id)
             return
 
-        answer_callback_query(cb_id, "Bilinmeyen işlem.")
+        safe_answer("Bilinmeyen işlem.")
 
     except Exception as e:
         print(f"[CALLBACK] Hata: {e}", flush=True)
-        try:
-            answer_callback_query(cb.get("id"), "Hata oluştu.")
-        except Exception:
-            pass
+        if not callback_answered:
+            try:
+                answer_callback_query(cb_id, "Hata oluştu.")
+            except Exception:
+                pass
 
 def get_updates(offset=None):
     try:
