@@ -1073,6 +1073,51 @@ def handle_command(chat_id, command, message_text):
         )
         return "SCAN"
         
+    elif command == "/toplu_ekle":
+        send_message("🔄 <b>Toplu ekleme başlatılıyor...</b>\n\nTüm ilanlar siteye ekleniyor. Bu işlem 10-15 dakika sürebilir.", chat_id)
+        
+        # Bellekteki tüm ilanları al
+        items = state.get("items", {})
+        total = len(items)
+        success_count = 0
+        fail_count = 0
+        already_exists_count = 0
+        
+        send_message(f"📊 <b>{total} ilan bulundu</b>\n\nEkleme işlemi başladı...", chat_id)
+        
+        for idx, (kod, item) in enumerate(items.items(), 1):
+            link = item.get("link", f"https://www.makrolife.com.tr/ilandetay?ilan_kodu={kod}")
+            
+            # Website API'ye ekle
+            r = call_site_api("add", ilan_kodu=kod, url=link, kimden="Web siteden")
+            
+            if r.get("success"):
+                if r.get("already_exists"):
+                    already_exists_count += 1
+                else:
+                    success_count += 1
+            else:
+                fail_count += 1
+            
+            # Her 50 ilandan bir ilerleme bildir
+            if idx % 50 == 0:
+                progress_msg = f"📈 <b>İlerleme: {idx}/{total}</b>\n\n"
+                progress_msg += f"✅ Eklenen: {success_count}\n"
+                progress_msg += f"⏭️ Zaten var: {already_exists_count}\n"
+                progress_msg += f"❌ Hata: {fail_count}"
+                send_message(progress_msg, chat_id)
+            
+            # Rate limiting için kısa bekleme
+            time.sleep(0.2)
+        
+        # Sonuç özeti
+        final_msg = "✅ <b>Toplu ekleme tamamlandı!</b>\n\n"
+        final_msg += f"📊 Toplam: {total} ilan\n"
+        final_msg += f"✅ Başarıyla eklendi: {success_count}\n"
+        final_msg += f"⏭️ Zaten vardı: {already_exists_count}\n"
+        final_msg += f"❌ Hata: {fail_count}"
+        send_message(final_msg, chat_id)
+        
     elif command == "/durdur":
         global SCAN_STOP_REQUESTED
         if ACTIVE_SCAN:
