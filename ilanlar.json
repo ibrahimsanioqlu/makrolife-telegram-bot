@@ -6280,26 +6280,6 @@
       "timestamp": 1767177433.7172472,
       "position": 0,
       "first_seen_date": "2025-12-31"
-    },
-    "ML-1284-101": {
-      "fiyat": "2.000.000 ₺",
-      "tarih": "2025-12-31",
-      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-1284-101",
-      "title": "ELAZIĞ YOLUNDA YATIRIMLIK SATILIK 1+1 DAİRE",
-      "scan_seq": 318,
-      "timestamp": 1767182561.419252,
-      "position": 1,
-      "first_seen_date": "2025-12-31"
-    },
-    "ML-4765-196": {
-      "fiyat": "4.060.000 ₺",
-      "tarih": "2025-12-31",
-      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-4765-196",
-      "title": "BAĞCILAR MİLLET BAHÇESİ CİVARI CADDE ÜZERİ 3+1 ACİL SAT...",
-      "scan_seq": 318,
-      "timestamp": 1767182685.4248827,
-      "position": 37,
-      "first_seen_date": "2025-12-31"
     }
   },
   "reported_days": [
