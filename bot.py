@@ -155,17 +155,10 @@ def send_message(text: str, chat_id: str = None, reply_markup=None, disable_prev
         payload["reply_markup"] = json.dumps(reply_markup, ensure_ascii=False)
 
     def _post(one_chat_id: str):
-        try:
-            payload2 = dict(payload)
-            payload2["chat_id"] = one_chat_id
-            r = requests.post(f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage", data=payload2, timeout=30)
-            if r.status_code != 200:
-                print(f"[TELEGRAM] sendMessage hata {r.status_code}: {r.text[:200]}", flush=True)
-                return False
-            return True
-        except Exception as e:
-            print(f"[TELEGRAM] sendMessage exception: {e}", flush=True)
-            return False
+        payload2 = dict(payload)
+        payload2["chat_id"] = one_chat_id
+        result = telegram_api("sendMessage", payload2, timeout=30)
+        return result is not None
 
     if chat_id:
         return _post(str(chat_id))
