@@ -87,7 +87,7 @@ STATE_CACHE = None
 STATE_GITHUB_SHA = None
 
 
-def telegram_api(method: str, data: dict, timeout: int = 10, max_retries: int = 3):
+def telegram_api(method: str, data: dict, timeout: int = 10, max_retries: int = 2):
     """Telegram API çağrısı (POST) - retry mekanizmalı."""
     url = f"https://api.telegram.org/bot{BOT_TOKEN}/{method}"
     
@@ -384,14 +384,8 @@ def handle_callback_query(cb: dict):
             
             link = f"https://www.makrolife.com.tr/ilandetay?ilan_kodu={kod}"
             r = call_site_api("add", ilan_kodu=kod, url=link, kimden="Web siteden")
-            
             if r.get("success"):
                 _clear_buttons()
-                # İşlem sonucu için mesaj gönder (callback tekrar cevaplanamaz)
-                send_message(f"✅ <b>{kod}</b> siteye eklendi.", chat_id=chat_id)
-            else:
-                err = r.get("error") or "api_error"
-                send_message(f"❌ <b>{kod}</b> ekleme hatası: {err}", chat_id=chat_id)
             return
 
         if action == "site_price":
@@ -404,13 +398,8 @@ def handle_callback_query(cb: dict):
             safe_answer("Fiyat güncelleniyor... ⏳")
             
             r = call_site_api("update_price", ilan_kodu=kod, new_price=new_price)
-            
             if r.get("success") and r.get("updated"):
                 _clear_buttons()
-                send_message(f"✅ <b>{kod}</b> fiyat güncellendi.", chat_id=chat_id)
-            else:
-                err = r.get("error") or r.get("reason") or "api_error"
-                send_message(f"❌ <b>{kod}</b> fiyat güncelleme hatası: {err}", chat_id=chat_id)
             return
 
         if action == "site_del":
@@ -418,13 +407,8 @@ def handle_callback_query(cb: dict):
             safe_answer("Siliniyor... ⏳")
             
             r = call_site_api("delete", ilan_kodu=kod, reason="Bot: ilan silindi")
-            
             if r.get("success") and r.get("deleted"):
                 _clear_buttons()
-                send_message(f"✅ <b>{kod}</b> siteden silindi.", chat_id=chat_id)
-            else:
-                err = r.get("error") or r.get("reason") or "api_error"
-                send_message(f"❌ <b>{kod}</b> silme hatası: {err}", chat_id=chat_id)
             return
 
         safe_answer("Bilinmeyen işlem.")
