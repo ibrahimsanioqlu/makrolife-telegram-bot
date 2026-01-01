@@ -6320,6 +6320,16 @@
       "timestamp": 1767255457.0558202,
       "position": 30,
       "first_seen_date": "2026-01-01"
+    },
+    "ML-4553-522": {
+      "fiyat": "20.000 ₺",
+      "tarih": "2026-01-01",
+      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-4553-522",
+      "title": "URFA YOLUNDA KİRALIK  1+1 DAİRE",
+      "scan_seq": 344,
+      "timestamp": 1767289879.1795185,
+      "position": 33,
+      "first_seen_date": "2026-01-01"
     }
   },
   "reported_days": [
@@ -6416,10 +6426,10 @@
       "deleted": 4
     },
     "2026-01-01": {
-      "new": 3,
+      "new": 4,
       "price_changes": 0,
       "deleted": 0
     }
   },
-  "scan_sequence": 343
+  "scan_sequence": 344
 }
