@@ -4594,16 +4594,6 @@
       "position": 656,
       "first_seen_date": "2025-12-22"
     },
-    "ML-0429-154": {
-      "fiyat": "3.750.000 ₺",
-      "tarih": "2025-12-22",
-      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-0429-154",
-      "title": "YENİŞEHİR ÜÇKUYULAR BUBYA FLOWERS SİTESİNDE  3+1 SATILI...",
-      "scan_seq": 132,
-      "timestamp": 1766401876.3498158,
-      "position": 657,
-      "first_seen_date": "2025-12-22"
-    },
     "ML-0429-291": {
       "fiyat": "2.960.000 ₺",
       "tarih": "2025-12-22",
@@ -6426,8 +6416,8 @@
     "2026-01-02": {
       "new": 64,
       "price_changes": 1,
-      "deleted": 66
+      "deleted": 67
     }
   },
-  "scan_sequence": 361
+  "scan_sequence": 362
 }
