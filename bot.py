@@ -1221,18 +1221,37 @@ def fetch_listings_playwright():
             print("[SAYFA " + str(page_num) + "] " + page_url, flush=True)
 
             success = False
-            for attempt in range(3):
-                try:
-                    page.goto(page_url, timeout=60000, wait_until="networkidle")
-                    page.wait_for_selector('a[href*="ilandetay?ilan_kodu="]', timeout=30000)
-                    success = True
+            selector_found = False
+            
+            # Sayfa yükle
+            try:
+                page.goto(page_url, timeout=60000, wait_until="networkidle")
+            except TimeoutError:
+                print("[SAYFA " + str(page_num) + "] Sayfa yüklenemedi - timeout", flush=True)
+                consecutive_failures += 1
+                if consecutive_failures >= MAX_FAILURES:
+                    print("[PLAYWRIGHT] Ust uste hata - durduruluyor", flush=True)
                     break
-                except TimeoutError:
-                    print("[SAYFA " + str(page_num) + "] Retry " + str(attempt + 1) + "/3", flush=True)
-                    page.wait_for_timeout(3000)
-                except Exception as e:
-                    print("[SAYFA " + str(page_num) + "] Hata: " + str(e), flush=True)
+                continue
+            except Exception as e:
+                print("[SAYFA " + str(page_num) + "] Sayfa yükleme hatası: " + str(e), flush=True)
+                consecutive_failures += 1
+                if consecutive_failures >= MAX_FAILURES:
                     break
+                continue
+            
+            # İlan selector'ı ara (kısa timeout - boş sayfa tespiti için)
+            try:
+                page.wait_for_selector('a[href*="ilandetay?ilan_kodu="]', timeout=10000)
+                selector_found = True
+                success = True
+            except TimeoutError:
+                # Selector bulunamadı = boş sayfa = son sayfa geçildi
+                print("[SAYFA " + str(page_num) + "] Ilan bulunamadi - son sayfa gecildi, tarama bitti", flush=True)
+                break
+            except Exception as e:
+                print("[SAYFA " + str(page_num) + "] Selector hatası: " + str(e), flush=True)
+                break
 
             if not success:
                 consecutive_failures += 1
