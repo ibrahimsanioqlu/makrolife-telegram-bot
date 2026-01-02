@@ -60,10 +60,10 @@ def get_turkey_time():
 
 def get_scan_interval():
     hour = get_turkey_time().hour
-    if 8 <= hour < 18:
-        return 45 * 60
+    if 9 <= hour < 18:
+        return 60 * 60   # Gündüz (09:00-18:00): 1 saat
     else:
-        return 120 * 60
+        return 120 * 60  # Gece (18:00-09:00): 2 saat
 
 # Istatistikler
 bot_stats = {
