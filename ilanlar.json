@@ -6408,7 +6408,12 @@
       "new": 64,
       "price_changes": 1,
       "deleted": 68
+    },
+    "2026-01-03": {
+      "new": 0,
+      "price_changes": 0,
+      "deleted": 0
     }
   },
-  "scan_sequence": 364
+  "scan_sequence": 365
 }
