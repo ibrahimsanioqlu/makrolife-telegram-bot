@@ -1223,26 +1223,47 @@ def fetch_listings_playwright():
             success = False
             selector_found = False
             
-            # Sayfa yükle
-            try:
-                page.goto(page_url, timeout=60000, wait_until="networkidle")
-            except TimeoutError:
-                print("[SAYFA " + str(page_num) + "] Sayfa yüklenemedi - timeout", flush=True)
+            # Sayfa yükle - RETRY MANTİĞİ (3 deneme)
+            MAX_PAGE_RETRIES = 3
+            page_loaded = False
+            
+            for retry_attempt in range(MAX_PAGE_RETRIES):
+                try:
+                    # Timeout: 90 saniye (önceki 60'tan artırıldı)
+                    page.goto(page_url, timeout=90000, wait_until="networkidle")
+                    page_loaded = True
+                    break
+                except TimeoutError:
+                    if retry_attempt < MAX_PAGE_RETRIES - 1:
+                        print("[SAYFA " + str(page_num) + "] Timeout - yeniden deneniyor (" + str(retry_attempt + 2) + "/" + str(MAX_PAGE_RETRIES) + ")", flush=True)
+                        time.sleep(2)  # Kısa bekleme
+                        # Context yenile
+                        try:
+                            page.close()
+                            context.close()
+                            context = new_context()
+                            page = context.new_page()
+                        except:
+                            pass
+                    else:
+                        print("[SAYFA " + str(page_num) + "] Sayfa yüklenemedi - " + str(MAX_PAGE_RETRIES) + " deneme başarısız", flush=True)
+                except Exception as e:
+                    if retry_attempt < MAX_PAGE_RETRIES - 1:
+                        print("[SAYFA " + str(page_num) + "] Hata (" + str(e)[:50] + ") - yeniden deneniyor", flush=True)
+                        time.sleep(2)
+                    else:
+                        print("[SAYFA " + str(page_num) + "] Sayfa yükleme hatası: " + str(e), flush=True)
+            
+            if not page_loaded:
                 consecutive_failures += 1
                 if consecutive_failures >= MAX_FAILURES:
                     print("[PLAYWRIGHT] Ust uste hata - durduruluyor", flush=True)
                     break
                 continue
-            except Exception as e:
-                print("[SAYFA " + str(page_num) + "] Sayfa yükleme hatası: " + str(e), flush=True)
-                consecutive_failures += 1
-                if consecutive_failures >= MAX_FAILURES:
-                    break
-                continue
             
             # İlan selector'ı ara (kısa timeout - boş sayfa tespiti için)
             try:
-                page.wait_for_selector('a[href*="ilandetay?ilan_kodu="]', timeout=10000)
+                page.wait_for_selector('a[href*="ilandetay?ilan_kodu="]', timeout=15000)
                 selector_found = True
                 success = True
             except TimeoutError:
