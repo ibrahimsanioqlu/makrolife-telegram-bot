@@ -63,7 +63,7 @@ def get_scan_interval():
     if 9 <= hour < 18:
         return 60 * 60   # Gündüz (09:00-18:00): 1 saat
     else:
-        return 120 * 60  # Gece (18:00-09:00): 2 saat
+        return 180 * 60  # Gece (18:00-09:00): 3 saat
 
 # Istatistikler
 bot_stats = {
