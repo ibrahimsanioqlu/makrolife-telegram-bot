@@ -5957,7 +5957,7 @@
       "first_seen_date": "2026-01-02"
     },
     "ML-5479-77": {
-      "fiyat": "19.000.000 ₺",
+      "fiyat": "14.500.000 ₺",
       "tarih": "2026-01-02",
       "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-5479-77",
       "title": "MİLANO PARK VİLLALARI TANYA YAPIDA 5+1 SATILIK TRİPLEX ...",
@@ -6472,9 +6472,9 @@
     },
     "2026-01-03": {
       "new": 7,
-      "price_changes": 4,
+      "price_changes": 5,
       "deleted": 1
     }
   },
-  "scan_sequence": 374
+  "scan_sequence": 375
 }
