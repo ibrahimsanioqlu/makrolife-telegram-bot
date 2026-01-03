@@ -992,7 +992,7 @@
       "position": 255
     },
     "ML-1676-76": {
-      "fiyat": "3.700.000 ₺",
+      "fiyat": "3.680.000 ₺",
       "tarih": "2025-12-20",
       "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-1676-76",
       "title": "MAKRO LİFE GAYRİMENKUL'DEN GÖLETLİ PARK CİVARI SATILIK ...",
@@ -6472,9 +6472,9 @@
     },
     "2026-01-03": {
       "new": 7,
-      "price_changes": 5,
+      "price_changes": 6,
       "deleted": 1
     }
   },
-  "scan_sequence": 375
+  "scan_sequence": 376
 }
