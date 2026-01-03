@@ -1001,7 +1001,7 @@
       "position": 256
     },
     "ML-2450-131": {
-      "fiyat": "5.700.000 ₺",
+      "fiyat": "5.550.000 ₺",
       "tarih": "2025-12-20",
       "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-2450-131",
       "title": "FABRİKA MAHALLESİNDE LÜX 4+1 SATILIK DAİRE",
@@ -6472,9 +6472,9 @@
     },
     "2026-01-03": {
       "new": 7,
-      "price_changes": 3,
+      "price_changes": 4,
       "deleted": 1
     }
   },
-  "scan_sequence": 373
+  "scan_sequence": 374
 }
