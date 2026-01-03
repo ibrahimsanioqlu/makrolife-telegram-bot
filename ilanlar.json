@@ -3597,7 +3597,7 @@
       "first_seen_date": "2025-12-22"
     },
     "ML-2140-44": {
-      "fiyat": "1.340.000 ₺",
+      "fiyat": "1.250.000 ₺",
       "tarih": "2025-12-22",
       "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-2140-44",
       "title": "METROPOL DÜNYA KAVŞAĞI CİVARI YÜKSEK KİRA GETİRİLİ SATI...",
@@ -6482,9 +6482,9 @@
     },
     "2026-01-03": {
       "new": 8,
-      "price_changes": 6,
+      "price_changes": 7,
       "deleted": 1
     }
   },
-  "scan_sequence": 378
+  "scan_sequence": 379
 }
