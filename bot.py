@@ -54,6 +54,12 @@ ACTIVE_SCAN = False
 MANUAL_SCAN_LIMIT = None  # None = tüm sayfalar
 WAITING_PAGE_CHOICE = False
 
+# === KORUMA SABİTLERİ ===
+# Bellekteki ilanların en az bu oranı bulunmalı (aksi halde tarama geçersiz)
+MIN_LISTING_RATIO = 0.4  # %40
+# İlk N sayfa boş gelirse site hatası olarak değerlendir
+MIN_VALID_PAGES = 10
+
 
 def get_turkey_time():
     return datetime.utcnow() + timedelta(hours=3)
@@ -63,7 +69,7 @@ def get_scan_interval():
     if 9 <= hour < 18:
         return 60 * 60   # Gündüz (09:00-18:00): 1 saat
     else:
-        return 180 * 60  # Gece (18:00-09:00): 3 saat
+        return 240 * 60  # Gece (18:00-09:00): 4 saat
 
 # Istatistikler
 bot_stats = {
@@ -1277,7 +1283,14 @@ def fetch_listings_playwright():
                 selector_found = True
                 success = True
             except TimeoutError:
-                # Selector bulunamadı = boş sayfa = son sayfa geçildi
+                # KORUMA: İlk 10 sayfada boş = site hatası, son sayfa olamaz
+                if page_num <= MIN_VALID_PAGES:
+                    error_msg = f"Sayfa {page_num} boş geldi - site erişim hatası (ilk {MIN_VALID_PAGES} sayfada boş sayfa olamaz)"
+                    print(f"[KORUMA] {error_msg}", flush=True)
+                    browser.close()
+                    ACTIVE_SCAN = False
+                    return (None, error_msg)
+                # Normal son sayfa tespiti (sayfa 10+)
                 print("[SAYFA " + str(page_num) + "] Ilan bulunamadi - son sayfa gecildi, tarama bitti", flush=True)
                 break
             except Exception as e:
@@ -1472,6 +1485,28 @@ def run_scan_with_timeout():
         return
 
     is_first_run = (not state.get("first_run_done", False)) or (len(state.get("items", {})) == 0)
+
+    # === KORUMA: Minimum ilan oranı kontrolü ===
+    # Eğer bellekte 100+ ilan varsa ve taramada bunun %40'ından az bulunduysa
+    # Bu bir site hatasıdır, state güncellenmemeli
+    existing_count = len(state.get("items", {}))
+    if not is_first_run and existing_count > 100:
+        min_expected = int(existing_count * MIN_LISTING_RATIO)
+        if len(listings) < min_expected:
+            next_interval = get_scan_interval() // 60
+            msg = "⚠️ <b>KORUMA: Anormal Tarama Sonucu</b>\n\n"
+            msg += f"📊 Bellekte: <b>{existing_count}</b> ilan\n"
+            msg += f"🔍 Taramada bulunan: <b>{len(listings)}</b> ilan\n"
+            msg += f"🛡️ Minimum beklenen: <b>{min_expected}</b> ilan (%{int(MIN_LISTING_RATIO*100)})\n\n"
+            msg += "❌ <b>Durum:</b> Site erişim hatası olabilir\n"
+            msg += "✅ ilanlar.json korundu, değişiklik yapılmadı\n\n"
+            msg += f"⏰ Sonraki tarama: {next_interval} dakika sonra"
+            send_message(msg)
+            print(f"[KORUMA] Anormal tarama: {len(listings)}/{existing_count} ilan (min: {min_expected})", flush=True)
+            ACTIVE_SCAN = False
+            MANUAL_SCAN_LIMIT = None
+            SCAN_STOP_REQUESTED = False
+            return
 
     if is_first_run:
         if len(listings) < 50:
