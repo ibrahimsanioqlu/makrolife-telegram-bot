@@ -1258,13 +1258,17 @@ def fetch_listings_playwright():
                 consecutive_failures += 1
                 # İlk 3 sayfadan birine ulaşılamazsa taramayı tamamen iptal et
                 if page_num <= 3:
-                    print(f"[PLAYWRIGHT] Sayfa {page_num}'e ulaşılamadı - web siteye erişilemiyor", flush=True)
+                    error_msg = f"Sayfa {page_num}'e ulaşılamadı (3 defa denendi) - Web sitesi erişilemez durumda"
+                    print(f"[PLAYWRIGHT] {error_msg}", flush=True)
                     browser.close()
                     ACTIVE_SCAN = False
-                    return None  # Web siteye ulaşılamadığını belirt
+                    return (None, error_msg)  # Hata bilgisi ile birlikte döndür
                 if consecutive_failures >= MAX_FAILURES:
-                    print("[PLAYWRIGHT] Ust uste hata - durduruluyor", flush=True)
-                    break
+                    error_msg = f"Sayfa {page_num}'e ulaşılamadı (3 defa denendi) - Art arda 3 sayfa hatası"
+                    print(f"[PLAYWRIGHT] {error_msg}", flush=True)
+                    browser.close()
+                    ACTIVE_SCAN = False
+                    return (None, error_msg)  # Hata bilgisi ile birlikte döndür
                 continue
             
             # İlan selector'ı ara (kısa timeout - boş sayfa tespiti için)
@@ -1283,8 +1287,11 @@ def fetch_listings_playwright():
             if not success:
                 consecutive_failures += 1
                 if consecutive_failures >= MAX_FAILURES:
-                    print("[PLAYWRIGHT] Ust uste hata - durduruluyor", flush=True)
-                    break
+                    error_msg = f"Sayfa {page_num} sonrası art arda 3 sayfa hatası - Tarama iptal edildi"
+                    print(f"[PLAYWRIGHT] {error_msg}", flush=True)
+                    browser.close()
+                    ACTIVE_SCAN = False
+                    return (None, error_msg)
                 continue
 
             consecutive_failures = 0
@@ -1388,7 +1395,7 @@ def fetch_listings_playwright():
 
     bot_stats["last_scan_pages"] = page_num
     print("[PLAYWRIGHT] Tamamlandi: " + str(len(results)) + " ilan, " + str(page_num) + " sayfa", flush=True)
-    return results
+    return (results, None)  # Başarılı, hata yok
 
 def run_scan_with_timeout():
     global bot_stats, ACTIVE_SCAN, MANUAL_SCAN_LIMIT, SCAN_STOP_REQUESTED
@@ -1430,17 +1437,20 @@ def run_scan_with_timeout():
         state["cycle_start"] = today
 
     try:
-        listings = fetch_listings_playwright()
+        result = fetch_listings_playwright()
+        listings, error_info = result if isinstance(result, tuple) else (result, None)
         
-        # Web siteye ulaşılamadıysa (ilk 3 sayfadan birine erişilemezse)
+        # Web siteye ulaşılamadıysa veya tarama yarıda kesildiyse
         if listings is None:
-            print("[TARAMA] Web siteye ulaşılamadı - tarama iptal edildi", flush=True)
+            print("[TARAMA] Tarama başarısız - iptal edildi", flush=True)
             bot_stats["errors"] += 1
             
-            # Telegram'a bildirim gönder
+            # Telegram'a detaylı bildirim gönder
             next_interval = get_scan_interval() // 60
             msg = "⚠️ <b>TARAMA BAŞARISIZ</b>\n\n"
             msg += "🌐 Makrolife web sitesine tarama için ulaşılamadı.\n\n"
+            if error_info:
+                msg += f"❌ <b>Hata Detayı:</b>\n{error_info}\n\n"
             msg += "📋 <b>Durum:</b>\n"
             msg += "• İlan verileri değiştirilmedi ✅\n"
             msg += "• Silinen ilan işaretlenmedi ✅\n\n"
