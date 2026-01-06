@@ -2993,7 +2993,7 @@
       "first_seen_date": "2025-12-22"
     },
     "ML-5482-107": {
-      "fiyat": "6.500.000 ₺",
+      "fiyat": "7.000.000 ₺",
       "tarih": "2025-12-22",
       "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-5482-107",
       "title": "DİCLE NEHRİ KIYISINDA MEZOPOTAMYANIN KALBİNDE EŞSİZ ARS...",
@@ -6373,9 +6373,9 @@
     },
     "2026-01-06": {
       "new": 0,
-      "price_changes": 0,
+      "price_changes": 1,
       "deleted": 0
     }
   },
-  "scan_sequence": 410
+  "scan_sequence": 411
 }
