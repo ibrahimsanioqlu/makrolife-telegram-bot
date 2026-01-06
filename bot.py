@@ -1256,6 +1256,12 @@ def fetch_listings_playwright():
             
             if not page_loaded:
                 consecutive_failures += 1
+                # İlk 3 sayfadan birine ulaşılamazsa taramayı tamamen iptal et
+                if page_num <= 3:
+                    print(f"[PLAYWRIGHT] Sayfa {page_num}'e ulaşılamadı - web siteye erişilemiyor", flush=True)
+                    browser.close()
+                    ACTIVE_SCAN = False
+                    return None  # Web siteye ulaşılamadığını belirt
                 if consecutive_failures >= MAX_FAILURES:
                     print("[PLAYWRIGHT] Ust uste hata - durduruluyor", flush=True)
                     break
@@ -1425,6 +1431,28 @@ def run_scan_with_timeout():
 
     try:
         listings = fetch_listings_playwright()
+        
+        # Web siteye ulaşılamadıysa (ilk 3 sayfadan birine erişilemezse)
+        if listings is None:
+            print("[TARAMA] Web siteye ulaşılamadı - tarama iptal edildi", flush=True)
+            bot_stats["errors"] += 1
+            
+            # Telegram'a bildirim gönder
+            next_interval = get_scan_interval() // 60
+            msg = "⚠️ <b>TARAMA BAŞARISIZ</b>\n\n"
+            msg += "🌐 Makrolife web sitesine tarama için ulaşılamadı.\n\n"
+            msg += "📋 <b>Durum:</b>\n"
+            msg += "• İlan verileri değiştirilmedi ✅\n"
+            msg += "• Silinen ilan işaretlenmedi ✅\n\n"
+            msg += f"⏰ Sonraki tarama: {next_interval} dakika sonra"
+            send_message(msg)
+            
+            # State'i DEĞİŞTİRMEDEN çık (ilanlar.json korunur)
+            ACTIVE_SCAN = False
+            MANUAL_SCAN_LIMIT = None
+            SCAN_STOP_REQUESTED = False
+            return
+        
         print("[TARAMA] " + str(len(listings)) + " ilan bulundu", flush=True)
         bot_stats["last_scan_listings"] = len(listings)
     except Exception as e:
