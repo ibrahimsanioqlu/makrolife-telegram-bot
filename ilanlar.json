@@ -11,7 +11,7 @@
       "position": 0
     },
     "ML-7112-155": {
-      "fiyat": "4.160.000 ₺",
+      "fiyat": "4.100.000 ₺",
       "tarih": "2026-01-06",
       "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-7112-155",
       "title": "ŞEHİR HASTANESİ CİVARI URFA YOLU ÜZERİ KADOİL PETROL AR...",
@@ -5977,9 +5977,9 @@
     },
     "2026-01-07": {
       "new": 0,
-      "price_changes": 0,
+      "price_changes": 1,
       "deleted": 0
     }
   },
-  "scan_sequence": 423
+  "scan_sequence": 424
 }
