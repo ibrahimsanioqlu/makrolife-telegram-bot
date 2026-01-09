@@ -5618,7 +5618,7 @@
       "position": 683
     },
     "ML-7465-125": {
-      "fiyat": "3.900.000 ₺",
+      "fiyat": "3.350.000 ₺",
       "tarih": "2026-01-07",
       "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-7465-125",
       "title": "450 EVLER'DE SIFIR 3+1 FIRSAT DAİRE",
@@ -6353,9 +6353,9 @@
     },
     "2026-01-09": {
       "new": 14,
-      "price_changes": 3,
+      "price_changes": 4,
       "deleted": 4
     }
   },
-  "scan_sequence": 453
+  "scan_sequence": 454
 }
