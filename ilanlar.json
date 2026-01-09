@@ -6346,7 +6346,12 @@
       "new": 15,
       "price_changes": 5,
       "deleted": 6
+    },
+    "2026-01-10": {
+      "new": 0,
+      "price_changes": 0,
+      "deleted": 0
     }
   },
-  "scan_sequence": 456
+  "scan_sequence": 457
 }
