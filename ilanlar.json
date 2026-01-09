@@ -1262,7 +1262,7 @@
       "position": 197
     },
     "ML-0300-04": {
-      "fiyat": "4.250.000 ₺",
+      "fiyat": "4.200.000 ₺",
       "tarih": "2026-01-06",
       "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-0300-04",
       "title": "75 CADDE 2, PARSELDE BAKIMLI 3+1 SATILIK DAİRE",
@@ -4538,7 +4538,7 @@
       "position": 561
     },
     "ML-6954-84": {
-      "fiyat": "3.650.000 ₺",
+      "fiyat": "3.300.000 ₺",
       "tarih": "2026-01-06",
       "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-6954-84",
       "title": "GAZİLER ENERGY SPOR SALONU KARŞISI 3+1 SATILIK DAİRE",
@@ -6353,9 +6353,9 @@
     },
     "2026-01-09": {
       "new": 14,
-      "price_changes": 1,
+      "price_changes": 3,
       "deleted": 4
     }
   },
-  "scan_sequence": 452
+  "scan_sequence": 453
 }
