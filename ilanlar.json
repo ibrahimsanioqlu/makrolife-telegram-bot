@@ -6368,7 +6368,12 @@
       "new": 3,
       "price_changes": 0,
       "deleted": 2
+    },
+    "2026-01-12": {
+      "new": 0,
+      "price_changes": 0,
+      "deleted": 0
     }
   },
-  "scan_sequence": 480
+  "scan_sequence": 481
 }
