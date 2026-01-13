@@ -6397,5 +6397,6 @@
       "deleted": 12
     }
   },
-  "scan_sequence": 512
+  "scan_sequence": 513,
+  "last_scan_timestamp": 1768319768.094489
 }
