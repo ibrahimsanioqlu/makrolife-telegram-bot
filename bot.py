@@ -579,7 +579,14 @@ def github_save_file(filename, content, sha=None):
 
 
 def load_last_scan_time():
-    """Son tarama zamanini yukle"""
+    """Son tarama zamanini GitHub state'inden yukle (container restart'a dayanikli)"""
+    # Önce GitHub state'inden oku
+    state = load_state()
+    github_timestamp = state.get("last_scan_timestamp", 0)
+    if github_timestamp > 0:
+        return github_timestamp
+    
+    # Fallback: lokal dosya
     if os.path.exists(LAST_SCAN_FILE):
         try:
             with open(LAST_SCAN_FILE, "r", encoding="utf-8") as f:
@@ -591,12 +598,16 @@ def load_last_scan_time():
 
 
 def save_last_scan_time(timestamp):
-    """Son tarama zamanini kaydet"""
+    """Son tarama zamanini hem lokal hem GitHub state'ine kaydet"""
+    # Lokal dosyaya kaydet (eski uyumluluk)
     try:
         with open(LAST_SCAN_FILE, "w", encoding="utf-8") as f:
             json.dump({"last_scan_time": timestamp}, f)
     except Exception as e:
-        print("[LAST_SCAN] Kayit hatasi: " + str(e), flush=True)
+        print("[LAST_SCAN] Lokal kayit hatasi: " + str(e), flush=True)
+    
+    # GitHub state'ine de kaydet (container restart koruması)
+    # NOT: Bu save_state'ten sonra çağrılacak, state zaten güncellenmiş olmalı
 
 
 def load_state(force_refresh=False):
@@ -1697,6 +1708,9 @@ def run_scan_with_timeout():
         send_message(msg)
         state.setdefault("reported_days", []).append(today)
 
+    # Container restart koruması: timestamp'ı GitHub state'ine kaydet
+    state["last_scan_timestamp"] = time.time()
+    
     save_state(state)
     save_history(history)
 
