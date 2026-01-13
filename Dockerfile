@@ -1,10 +1,13 @@
-FROM mcr.microsoft.com/playwright/python:v1.40.0-jammy
+FROM mcr.microsoft.com/playwright/python:v1.49.1-jammy
 
 WORKDIR /app
 
+# Bağımlılıkları kopyala ve kur
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY bot.py .
+# Uygulama dosyalarını kopyala
+COPY . .
 
-CMD ["python", "-u", "bot.py"]
+# Bot'u çalıştır
+CMD ["python", "bot.py"]
