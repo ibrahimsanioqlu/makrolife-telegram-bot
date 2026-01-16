@@ -3773,7 +3773,7 @@
       "position": 451
     },
     "ML-1375-285": {
-      "fiyat": "4.300.000 ₺",
+      "fiyat": "4.290.000 ₺",
       "tarih": "2026-01-15",
       "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-1375-285",
       "title": "MAKROLIFE GAYRIMENKULDEN SIFIR SATILIK 3+1 DAİRE",
@@ -6194,10 +6194,10 @@
     },
     "2026-01-16": {
       "new": 17,
-      "price_changes": 2,
+      "price_changes": 3,
       "deleted": 1
     }
   },
-  "scan_sequence": 19,
-  "last_scan_timestamp": 1768563928.1201868
+  "scan_sequence": 20,
+  "last_scan_timestamp": 1768567950.0169938
 }
