@@ -767,7 +767,7 @@
       "position": 118
     },
     "ML-7465-125": {
-      "fiyat": "3.200.000 ₺",
+      "fiyat": "3.300.000 ₺",
       "tarih": "2026-01-15",
       "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-7465-125",
       "title": "450 EVLER'DE SIFIR 3+1 FIRSAT DAİRE",
@@ -1847,7 +1847,7 @@
       "position": 237
     },
     "ML-7465-118": {
-      "fiyat": "5.380.000 ₺",
+      "fiyat": "5.450.000 ₺",
       "tarih": "2026-01-15",
       "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-7465-118",
       "title": "RADİSON OTEL ARKASI SATILIK FIRSAT 4+1 LÜX DAİRE",
@@ -4700,7 +4700,7 @@
       "position": 554
     },
     "ML-7465-86": {
-      "fiyat": "3.870.000 ₺",
+      "fiyat": "3.850.000 ₺",
       "tarih": "2026-01-15",
       "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-7465-86",
       "title": "DİCLEKENTİN CAMİ CİVARI 3+1 FULL BAKIMLI DAİRE",
@@ -5779,15 +5779,6 @@
       "timestamp": 1768428908.6452312,
       "position": 676
     },
-    "ML-7465-42": {
-      "fiyat": "12.600.000 ₺",
-      "tarih": "2026-01-15",
-      "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-7465-42",
-      "title": "DİCLE ÜNİVERSİTESİ YOLU ÜZERİ 450 EVLER CİVARI ACİL SA...",
-      "scan_seq": 1,
-      "timestamp": 1768428908.6452322,
-      "position": 677
-    },
     "ML-0501-20": {
       "fiyat": "27.500.000 ₺",
       "tarih": "2026-01-15",
@@ -5795,7 +5786,7 @@
       "title": "MAKRO LİFE FARKIYLA TÜRKİYE'NİN GÖZDE ŞEHRİ MUĞLADA İMA...",
       "scan_seq": 1,
       "timestamp": 1768428908.6452332,
-      "position": 678
+      "position": 677
     },
     "ML-5479-04": {
       "fiyat": "6.500.000 ₺",
@@ -5804,7 +5795,7 @@
       "title": "WİNSTON AVM YAKINI KÜÇÜK TİP ŞEHRİ HAYAT'TA SATILIK LÜK...",
       "scan_seq": 1,
       "timestamp": 1768428908.645234,
-      "position": 679
+      "position": 678
     },
     "ML-2140-96": {
       "fiyat": "11.250.000 ₺",
@@ -5813,7 +5804,7 @@
       "title": "KAPLAN ROWER VİLLALARINDA 5+1 SATILIK VİLLA",
       "scan_seq": 1,
       "timestamp": 1768428908.6452355,
-      "position": 680
+      "position": 679
     },
     "ML-3126-865": {
       "fiyat": "9.000.000 ₺",
@@ -5822,7 +5813,7 @@
       "title": "SEYRANTEPE AZİZİYE MAH. SATILIK SIFIR VİLLA",
       "scan_seq": 1,
       "timestamp": 1768428908.6452358,
-      "position": 681
+      "position": 680
     },
     "ML-4548-235": {
       "fiyat": "5.350.000 ₺",
@@ -6185,10 +6176,10 @@
     },
     "2026-01-16": {
       "new": 17,
-      "price_changes": 6,
-      "deleted": 2
+      "price_changes": 9,
+      "deleted": 3
     }
   },
-  "scan_sequence": 21,
-  "last_scan_timestamp": 1768571988.6420808
+  "scan_sequence": 22,
+  "last_scan_timestamp": 1768576048.672332
 }
