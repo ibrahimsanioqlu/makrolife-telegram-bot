@@ -308,7 +308,7 @@
       "position": 94
     },
     "ML-9115-04": {
-      "fiyat": "3.650.000 ₺",
+      "fiyat": "3.700.000 ₺",
       "tarih": "2026-01-15",
       "link": "https://www.makrolife.com.tr/ilandetay?ilan_kodu=ML-9115-04",
       "title": "TEKNOKENT ARKASI STAR PLUS SATILIK 2+1 FIRSAT DAİRE KA...",
@@ -6247,10 +6247,10 @@
     },
     "2026-01-19": {
       "new": 15,
-      "price_changes": 2,
+      "price_changes": 3,
       "deleted": 1
     }
   },
-  "scan_sequence": 54,
-  "last_scan_timestamp": 1768823064.1573844
+  "scan_sequence": 55,
+  "last_scan_timestamp": 1768827228.6556854
 }
