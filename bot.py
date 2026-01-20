@@ -40,7 +40,8 @@ print("BOT_TOKEN mevcut: " + str(bool(BOT_TOKEN)), flush=True)
 print("CHAT_ID mevcut: " + str(bool(os.getenv("CHAT_ID"))), flush=True)
 print("GITHUB_TOKEN mevcut: " + str(bool(GITHUB_TOKEN)), flush=True)
 
-URL = "https://www.makrolife.com.tr/tumilanlar"
+# 2026-01-20: Makrolife yeni URL yapısı
+URL = "https://www.makrolife.com.tr/ilanlar"
 DATA_FILE = "/data/ilanlar.json"
 HISTORY_FILE = "/data/history.json"
 LAST_SCAN_FILE = "/data/last_scan_time.json"
@@ -1234,7 +1235,7 @@ def fetch_listings_playwright():
             if page_num == 1:
                 page_url = URL
             else:
-                page_url = URL + "?&page=" + str(page_num)
+                page_url = URL + "?page=" + str(page_num)
             print("[SAYFA " + str(page_num) + "] " + page_url, flush=True)
 
             success = False
@@ -1289,8 +1290,9 @@ def fetch_listings_playwright():
                 continue
             
             # İlan selector'ı ara (kısa timeout - boş sayfa tespiti için)
+            # YENİ SELECTOR: /ilan/...-ML-XXXX-XX formatı
             try:
-                page.wait_for_selector('a[href*="ilandetay?ilan_kodu="]', timeout=15000)
+                page.wait_for_selector('a[href*="/ilan/"]', timeout=15000)
                 selector_found = True
                 success = True
             except TimeoutError:
@@ -1325,14 +1327,19 @@ def fetch_listings_playwright():
                 const out = [];
                 const seen = new Set();
 
-                document.querySelectorAll('a[href*="ilandetay?ilan_kodu="]').forEach(a => {
+                // YENİ FORMAT: /ilan/...-ML-XXXX-XX
+                document.querySelectorAll('a[href*="/ilan/"]').forEach(a => {
                     const href = a.getAttribute("href");
                     if (!href) return;
+                    
+                    // İlan linki değilse atla (danışman sayfaları vb.)
+                    if (href.includes('/danismanlar/') || href.includes('/iletisim')) return;
 
-                    const m = href.match(/ilan_kodu=([A-Z0-9-]+)/i);
+                    // Yeni format: /ilan/diyarbakir-yenisehir-mahalle-satilik-daire-ML-XXXX-XX
+                    const m = href.match(/-(ML-\d+-\d+)$/i) || href.match(/ML-(\d+-\d+)/i);
                     if (!m) return;
 
-                    const kod = m[1];
+                    const kod = m[1].startsWith('ML-') ? m[1].substring(3) : m[1];
                     if (seen.has(kod)) return;
                     seen.add(kod);
 
@@ -1344,13 +1351,18 @@ def fetch_listings_playwright():
                         if (!el.parentElement) break;
                         el = el.parentElement;
 
+                        // Yeni yapı: h2 veya class içeren başlık
+                        const h2 = el.querySelector("h2");
                         const h3 = el.querySelector("h3");
                         const text = el.innerText || "";
 
-                        if (h3 && text.includes("₺")) {
-                            title = h3.innerText.trim();
+                        if ((h2 || h3) && (text.includes("₺") || text.includes("TL"))) {
+                            title = (h2 || h3).innerText.trim();
+                            // İlan kodunu başlıktan çıkar
+                            title = title.replace(/\s*-\s*ML-\d+-\d+\s*$/i, '');
+                            
                             for (const line of text.split("\\n")) {
-                                if (/^[\d.,]+\s*₺$/.test(line.trim())) {
+                                if (/^[\d.,]+\s*(₺|TL)$/.test(line.trim())) {
                                     fiyat = line.trim();
                                     break;
                                 }
@@ -1359,11 +1371,17 @@ def fetch_listings_playwright():
                         }
                     }
 
+                    // Tam URL oluştur
+                    let fullHref = href;
+                    if (!href.startsWith('http')) {
+                        fullHref = 'https://www.makrolife.com.tr' + (href.startsWith('/') ? '' : '/') + href;
+                    }
+
                     out.push({
                         kod: kod,
                         fiyat: fiyat,
                         title: title,
-                        link: "https://www.makrolife.com.tr/" + href
+                        link: fullHref
                     });
                 });
 
