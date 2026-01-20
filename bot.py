@@ -1246,7 +1246,7 @@ def fetch_listings_playwright():
             if page_num == 1:
                 page_url = URL
             else:
-                page_url = URL + "?page=" + str(page_num)
+                page_url = URL + "?pager_p=" + str(page_num)
             print("[SAYFA " + str(page_num) + "] " + page_url, flush=True)
 
             success = False
@@ -1404,9 +1404,11 @@ def fetch_listings_playwright():
                 print("[SAYFA " + str(page_num) + "] Bos - tarama bitti", flush=True)
                 break
 
+            new_on_page = 0
             for item in listings:
                 if item["kod"] not in seen_codes:
                     seen_codes.add(item["kod"])
+                    new_on_page += 1
                     results.append(
                         (
                             item["kod"],
@@ -1416,6 +1418,10 @@ def fetch_listings_playwright():
                             page_num,
                         )
                     )
+            
+            if new_on_page == 0:
+                print("[PLAYWRIGHT] Sayfada yeni ilan yok - döngü tespiti, tarama bitiriliyor", flush=True)
+                break
 
             # İlerleme mesajı (sayfa bazlı)
             if page_num % 25 == 0:
@@ -1431,8 +1437,8 @@ def fetch_listings_playwright():
                 flush=True,
             )
 
-            if len(listings) < 12:
-                print("[PLAYWRIGHT] Son sayfa", flush=True)
+            if len(listings) == 0:
+                print("[PLAYWRIGHT] Son sayfa (liste boş)", flush=True)
                 break
 
             if page_num % 5 == 0:
