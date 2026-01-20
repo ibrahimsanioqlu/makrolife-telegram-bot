@@ -52,6 +52,7 @@ SCAN_TIMEOUT = 25 * 60
 # === YENİ GLOBAL KONTROLLER ===
 SCAN_STOP_REQUESTED = False
 ACTIVE_SCAN = False
+AUTO_SCAN_ENABLED = True  # Varsayılan: Aktif
 MANUAL_SCAN_LIMIT = None  # None = tüm sayfalar
 WAITING_PAGE_CHOICE = False
 
@@ -818,7 +819,17 @@ def handle_command(chat_id, command, message_text):
     
     print("[KOMUT] " + str(chat_id) + ": " + command, flush=True)
     
-    if command == "/start":
+    global AUTO_SCAN_ENABLED
+    
+    if command == "/aktif":
+        AUTO_SCAN_ENABLED = True
+        send_message("✅ <b>Otomatik Tarama AKTİF edildi.</b>\nBot belirtilen aralıklarla tarama yapmaya devam edecek.", chat_id)
+        
+    elif command == "/pasif" or command == "/dur":
+        AUTO_SCAN_ENABLED = False
+        send_message("⛔ <b>Otomatik Tarama PASİF edildi.</b>\nSiz tekrar /aktif diyene kadar veya /tara ile manuel komut verene kadar tarama yapılmayacak.", chat_id)
+
+    elif command == "/start":
         interval = get_scan_interval() // 60
         msg = "<b>Makrolife Ilan Takip Botu</b>\n\n"
         msg += "Tarama araligi: " + str(interval) + " dk\n"
@@ -1790,6 +1801,14 @@ def main():
             # Son tarama zamanini yukle
             last_scan_time = load_last_scan_time()
             
+            # Otomatik tarama kontrolü
+            if not force_scan and not AUTO_SCAN_ENABLED:
+                # Sadece belirli aralıklarla log bas, sürekli spamlamasın
+                if int(current_time) % 60 == 0:
+                    print("[AUTO-SCAN PASIF] Manuel komut bekleniyor...", flush=True)
+                time.sleep(1)
+                continue
+
             if force_scan or (current_time - last_scan_time >= scan_interval):
                 print("\n" + "#" * 50, flush=True)
                 scan_type = "(MANUEL)" if force_scan else ""
