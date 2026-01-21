@@ -46,8 +46,8 @@ DATA_FILE = "/data/ilanlar.json"
 HISTORY_FILE = "/data/history.json"
 LAST_SCAN_FILE = "/data/last_scan_time.json"
 
-# Timeout (saniye) - 25 dakika
-SCAN_TIMEOUT = 25 * 60
+# Timeout (saniye) - 40 dakika (70 sayfa ~26 dk sürüyor)
+SCAN_TIMEOUT = 40 * 60
 
 # === YENİ GLOBAL KONTROLLER ===
 SCAN_STOP_REQUESTED = False
@@ -69,7 +69,7 @@ def get_turkey_time():
 def get_scan_interval():
     hour = get_turkey_time().hour
     if 9 <= hour < 18:
-        return 60 * 60   # Gündüz (09:00-18:00): 1 saat
+        return 90 * 60   # Gündüz (09:00-18:00): 1.5 saat
     else:
         return 240 * 60  # Gece (18:00-09:00): 4 saat
 
@@ -390,10 +390,41 @@ def handle_callback_query(cb: dict):
             # Önce hemen cevapla (10 saniye limiti için)
             safe_answer("Ekleniyor... ⏳")
             
-            link = f"https://www.makrolife.com.tr/ilandetay?ilan_kodu={kod}"
-            r = call_site_api("add", ilan_kodu=kod, url=link, kimden="Web siteden")
+            # İlan kodunu düzgün formata çevir (ML-XXXX-XX)
+            if not kod.upper().startswith("ML-"):
+                kod_full = f"ML-{kod}"
+            else:
+                kod_full = kod.upper()
+            
+            link = f"https://www.makrolife.com.tr/ilandetay?ilan_kodu={kod_full}"
+            r = call_site_api("add", ilan_kodu=kod_full, url=link, kimden="Web siteden")
+            
+            # Sonucu bildir
             if r.get("success"):
-                _clear_buttons()
+                if r.get("inserted"):
+                    _clear_buttons()
+                    send_message(f"✅ <b>İLAN EKLENDİ</b>\n\n📋 {kod_full}\n🏷️ {r.get('title', 'Bilinmiyor')}\n📁 Kategori: {r.get('category', 'Bilinmiyor')}\n🖼️ {r.get('images_saved', 0)} resim", chat_id=chat_id)
+                elif r.get("already_exists"):
+                    _clear_buttons()
+                    send_message(f"⚠️ <b>İLAN ZATEN MEVCUT</b>\n\n📋 {kod_full}\n💡 Sitede zaten kayıtlı.", chat_id=chat_id)
+                else:
+                    send_message(f"⚠️ <b>BEKLENMEDİK SONUÇ</b>\n\n📋 {kod_full}\n📄 Yanıt: {str(r)[:300]}", chat_id=chat_id)
+            else:
+                # Hata detayını göster
+                error_msg = r.get("error", "bilinmiyor")
+                detail = r.get("detail", "")
+                
+                # Scraper hatası ise daha detaylı göster
+                if error_msg == "scraper_failed":
+                    scraper_detail = r.get("scraper", {})
+                    if isinstance(scraper_detail, dict):
+                        scraper_error = scraper_detail.get("error", "")
+                        snippet = detail.get("snippet", "") if isinstance(detail, dict) else ""
+                        send_message(f"❌ <b>EKLEME BAŞARISIZ</b>\n\n📋 {kod_full}\n⚠️ Scraper Hatası: {scraper_error}\n📄 Detay: {str(detail)[:200]}", chat_id=chat_id)
+                    else:
+                        send_message(f"❌ <b>EKLEME BAŞARISIZ</b>\n\n📋 {kod_full}\n⚠️ {error_msg}\n📄 {str(detail)[:200]}", chat_id=chat_id)
+                else:
+                    send_message(f"❌ <b>EKLEME BAŞARISIZ</b>\n\n📋 {kod_full}\n⚠️ Hata: {error_msg}\n📄 {str(detail)[:200]}", chat_id=chat_id)
             return
 
         if action == "site_price":
