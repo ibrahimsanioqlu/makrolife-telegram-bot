@@ -413,44 +413,31 @@ def handle_callback_query(cb: dict):
                 else:
                     send_message(f"⚠️ <b>BEKLENMEDİK SONUÇ</b>\n\n📋 {kod_full}\n📄 Yanıt: {str(r)[:300]}", chat_id=chat_id)
             else:
-                # Hata detayını göster
+                # Hata detayını göster - DEBUG: tam yanıtı göster
                 error_msg = r.get("error", "bilinmiyor")
-                detail = r.get("detail", {})
+                
+                # Tüm yanıtı string olarak al (debug için)
+                full_response = str(r)[:500]
                 
                 # Scraper hatası ise daha detaylı göster
                 if error_msg == "scraper_failed":
-                    # detail içinde scraper yanıtı var
+                    detail = r.get("detail", {})
+                    scraper_resp = r.get("scraper", {})
+                    
+                    # Hata mesajını bul
+                    error_text = ""
                     if isinstance(detail, dict):
-                        # detail = {"ok": false, "error": "...", "snippet": "..."}
-                        scraper_error = detail.get("error", "")
-                        snippet = detail.get("snippet", "")[:150] if detail.get("snippet") else ""
-                        http_code = detail.get("http", "")
-                        
-                        # Veya resp içinde message olabilir
+                        error_text = detail.get("error", "") or detail.get("message", "")
                         resp = detail.get("resp", {})
-                        if isinstance(resp, dict):
-                            scraper_msg = resp.get("message", "")
-                            if scraper_msg:
-                                scraper_error = scraper_msg
-                        
-                        error_text = f"❌ <b>EKLEME BAŞARISIZ</b>\n\n📋 {kod_full}\n⚠️ Scraper: {scraper_error}"
-                        if http_code:
-                            error_text += f"\n🌐 HTTP: {http_code}"
-                        if snippet:
-                            error_text += f"\n📄 {snippet}"
-                        send_message(error_text, chat_id=chat_id)
-                    else:
-                        # Scraper yanıtı r.scraper içinde olabilir
-                        scraper_resp = r.get("scraper", {})
-                        if isinstance(scraper_resp, dict):
-                            scraper_msg = scraper_resp.get("message", scraper_resp.get("error", ""))
-                            send_message(f"❌ <b>EKLEME BAŞARISIZ</b>\n\n📋 {kod_full}\n⚠️ {scraper_msg or 'Scraper hatası'}\n📄 {str(scraper_resp)[:200]}", chat_id=chat_id)
-                        else:
-                            send_message(f"❌ <b>EKLEME BAŞARISIZ</b>\n\n📋 {kod_full}\n⚠️ Scraper hatası\n📄 {str(detail)[:200]}", chat_id=chat_id)
+                        if isinstance(resp, dict) and resp.get("message"):
+                            error_text = resp.get("message")
+                    elif isinstance(scraper_resp, dict):
+                        error_text = scraper_resp.get("message", "") or scraper_resp.get("error", "")
+                    
+                    send_message(f"❌ <b>EKLEME BAŞARISIZ</b>\n\n📋 {kod_full}\n⚠️ Scraper: {error_text}\n\n� DEBUG:\n<code>{full_response}</code>", chat_id=chat_id)
                 else:
                     # Diğer hatalar
-                    detail_str = str(detail)[:200] if detail else ""
-                    send_message(f"❌ <b>EKLEME BAŞARISIZ</b>\n\n📋 {kod_full}\n⚠️ Hata: {error_msg}\n📄 {detail_str}", chat_id=chat_id)
+                    send_message(f"❌ <b>EKLEME BAŞARISIZ</b>\n\n📋 {kod_full}\n⚠️ Hata: {error_msg}\n\n� DEBUG:\n<code>{full_response}</code>", chat_id=chat_id)
             return
 
         if action == "site_price":
