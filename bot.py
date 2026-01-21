@@ -406,8 +406,7 @@ def handle_callback_query(cb: dict):
             # Sonucu bildir
             if r.get("success"):
                 if r.get("inserted"):
-                    _clear_buttons()
-                    send_message(f"✅ <b>İLAN EKLENDİ</b>\n\n📋 {kod_full}\n🏷️ {r.get('title', 'Bilinmiyor')}\n📁 Kategori: {r.get('category', 'Bilinmiyor')}\n🖼️ {r.get('images_saved', 0)} resim", chat_id=chat_id)
+                    _clear_buttons()  # Sadece butonları kaldır, mesaj gönderme
                 elif r.get("already_exists"):
                     _clear_buttons()
                     send_message(f"⚠️ <b>İLAN ZATEN MEVCUT</b>\n\n📋 {kod_full}\n💡 Sitede zaten kayıtlı.", chat_id=chat_id)
