@@ -24,12 +24,8 @@ BOT_TOKEN = os.getenv("BOT_TOKEN")
 # Railway'de görünen gerçek admin chat id
 REAL_ADMIN_CHAT_ID = "441336964"
 
-# Web site API (tek endpoint) - Admin için diyarbakiremlakmarket.com
+# Web site API (tek endpoint)
 WEBSITE_API_URL = os.getenv("WEBSITE_API_URL", "https://www.diyarbakiremlakmarket.com/admin/bot_api.php")
-
-# İkinci Admin (diyarbakirsahibinden.com) ayarları
-SECOND_ADMIN_CHAT_ID = "7449598531"
-SECOND_WEBSITE_API_URL = "https://www.diyarbakirsahibinden.com/admin/bot_import.php"
 
 # Normal bildirim alacak chat'ler (REAL_ADMIN'e ayrı, butonlu mesaj atacağız)
 CHAT_IDS = [cid for cid in [os.getenv("CHAT_ID"), "7449598531"] if cid and str(cid) != REAL_ADMIN_CHAT_ID]
@@ -284,157 +280,6 @@ def _site_status_line(exists_resp: dict) -> str:
     return f"🌐 <b>Sitede:</b> BİLİNMİYOR ⚠️ (API HATA: {err})"
 
 
-# ============================================================
-# İKİNCİ SİTE (diyarbakirsahibinden.com) API FONKSİYONLARI
-# ============================================================
-
-def call_second_site_api(action: str, **params):
-    """İkinci site (diyarbakirsahibinden.com) bot_import.php API ile konuş."""
-    # add işlemi scraper çağırdığı için daha uzun timeout gerekiyor
-    timeout = 90 if action == "add" else 25
-    
-    def _post(url: str):
-        try:
-            r = requests.post(url, data={"action": action, **params}, timeout=timeout)
-            return r
-        except Exception as e:
-            return e
-
-    url = SECOND_WEBSITE_API_URL
-
-    # İlk deneme
-    r1 = _post(url)
-    # Exception
-    if isinstance(r1, Exception):
-        return {"success": False, "error": "request_failed", "detail": str(r1), "url": url}
-
-    # 404 ise ve URL'de /admin/ yoksa: /admin/bot_import.php ile bir kere daha dene
-    if r1.status_code == 404:
-        try:
-            pu = urlparse(url)
-            path = pu.path or "/"
-            if "/admin/" not in path:
-                if path.startswith("/"):
-                    new_path = "/admin" + path
-                else:
-                    new_path = "/admin/" + path
-                alt = urlunparse((pu.scheme, pu.netloc, new_path, pu.params, pu.query, pu.fragment))
-                r2 = _post(alt)
-                if not isinstance(r2, Exception):
-                    url = alt
-                    r1 = r2
-        except Exception:
-            pass
-
-    # JSON parse
-    try:
-        data = r1.json()
-    except Exception:
-        return {
-            "success": False,
-            "error": "non_json_response",
-            "http_status": r1.status_code,
-            "url": url,
-            "snippet": (r1.text or "")[:400]
-        }
-
-    if r1.status_code >= 400:
-        data["_http_status"] = r1.status_code
-        data["_url"] = url
-    return data
-
-
-def second_site_exists(ilan_kodu: str):
-    """İkinci sitede (diyarbakirsahibinden.com) ilan var mı kontrol et."""
-    r = call_second_site_api("exists", ilan_kodu=ilan_kodu)
-    if not isinstance(r, dict):
-        return {"exists": None, "error": "unexpected_response"}
-    if r.get("success") is False and r.get("error"):
-        return {"exists": None, **r}
-    return r
-
-
-def _second_site_status_line(exists_resp: dict) -> str:
-    """İkinci site için durum satırı oluştur."""
-    ex = exists_resp.get("exists", None)
-    if ex is True:
-        ilan_id = exists_resp.get("ilan_id")
-        table = exists_resp.get("table") or "ilanlar"
-        extra = f" (ID: {ilan_id})" if ilan_id is not None else ""
-        if table != "ilanlar":
-            extra += f" [{table}]"
-        return f"🌐 <b>DS Sitede:</b> VAR ✅{extra}"
-    if ex is False:
-        return "🌐 <b>DS Sitede:</b> YOK ❌"
-    # None / bilinmiyor
-    err = exists_resp.get("error") or "api_error"
-    status = exists_resp.get("_http_status")
-    if status:
-        return f"🌐 <b>DS Sitede:</b> BİLİNMİYOR ⚠️ (API HATA: {err}, HTTP {status})"
-    return f"🌐 <b>DS Sitede:</b> BİLİNMİYOR ⚠️ (API HATA: {err})"
-
-
-# ============================================================
-# İKİNCİ ADMİN İÇİN BİLDİRİM FONKSİYONLARI
-# ============================================================
-
-def send_second_admin_deleted(kod: str, title: str, fiyat: str):
-    """İkinci admin için: ilan silindiğinde bildirim gönder."""
-    ex = second_site_exists(kod)
-    msg = "🗑️ <b>İLAN SİLİNDİ</b>\n\n"
-    msg += f"📋 {kod}\n"
-    msg += f"🏷️ {title}\n"
-    msg += f"💰 {fiyat}\n\n"
-    msg += _second_site_status_line(ex)
-
-    if ex.get("exists") is True:
-        kb = _kb([[("✅ SİL", f"s2_del:{kod}"), ("❌ SİLME", f"s2_cancel:{kod}")]])
-        send_message(msg, chat_id=SECOND_ADMIN_CHAT_ID, reply_markup=kb)
-    else:
-        send_message(msg, chat_id=SECOND_ADMIN_CHAT_ID)
-
-
-def send_second_admin_price_change(kod: str, title: str, eski_fiyat: str, yeni_fiyat: str):
-    """İkinci admin için: fiyat değişikliği bildirimi."""
-    ex = second_site_exists(kod)
-    msg = "💸 <b>FİYAT DEĞİŞTİ</b>\n\n"
-    msg += f"📋 {kod}\n"
-    msg += f"🏷️ {title}\n"
-    msg += f"🔻 Eski: <b>{eski_fiyat}</b>\n"
-    msg += f"🔺 Yeni: <b>{yeni_fiyat}</b>\n\n"
-    msg += _second_site_status_line(ex)
-
-    if ex.get("exists") is True:
-        yeni_digits = normalize_price(yeni_fiyat)[:24]
-        kb = _kb([[("✅ DEĞİŞTİR", f"s2_price:{kod}:{yeni_digits}"),
-                   ("❌ DEĞİŞTİRME", f"s2_cancel:{kod}")]])
-        send_message(msg, chat_id=SECOND_ADMIN_CHAT_ID, reply_markup=kb)
-    else:
-        send_message(msg, chat_id=SECOND_ADMIN_CHAT_ID)
-
-
-def send_second_admin_new_listing(kod: str, title: str, fiyat: str, link: str):
-    """İkinci admin için: yeni ilan geldiğinde butonlu mesaj gönder."""
-    ex = second_site_exists(kod)
-    msg = "🏠 <b>YENİ İLAN</b>\n\n"
-    msg += f"📋 {kod}\n"
-    msg += f"🏷️ {title}\n"
-    msg += f"💰 {fiyat}\n\n"
-    msg += f"🔗 {link}\n\n"
-    msg += _second_site_status_line(ex)
-
-    if ex.get("exists") is False:
-        msg += "\n➕ <b>Siteye ekleme:</b> ONAY BEKLENİYOR ⏳"
-        kb = _kb([[("✅ EKLE", f"s2_add:{kod}"), ("❌ EKLEME", f"s2_cancel:{kod}")]])
-        send_message(msg, chat_id=SECOND_ADMIN_CHAT_ID, reply_markup=kb)
-        return
-
-    if ex.get("exists") is True:
-        msg += "\n➕ <b>Siteye ekleme:</b> Atlandı (zaten var) ✅"
-    else:
-        msg += "\n➕ <b>Siteye ekleme:</b> Atlandı (site durumu bilinmiyor) ⚠️"
-
-    send_message(msg, chat_id=SECOND_ADMIN_CHAT_ID)
 
 def send_real_admin_deleted(kod: str, title: str, fiyat: str):
     ex = site_exists(kod)
@@ -497,9 +342,6 @@ def handle_callback_query(cb: dict):
     
     ÖNEMLİ: Telegram callback query sadece BİR KEZ cevaplanabilir.
     İşlem sonrası bildirim için send_message kullanılmalı.
-    
-    site_ prefix: Admin (diyarbakiremlakmarket.com)
-    s2_ prefix: İkinci Admin (diyarbakirsahibinden.com)
     """
     cb_id = cb.get("id")
     callback_answered = False
@@ -518,20 +360,9 @@ def handle_callback_query(cb: dict):
         chat_id = str((msg_obj.get("chat") or {}).get("id", ""))
         message_id = msg_obj.get("message_id")
 
-        # Yetkilendirme kontrolü
-        # site_ prefix -> sadece REAL_ADMIN_CHAT_ID
-        # s2_ prefix -> sadece SECOND_ADMIN_CHAT_ID
-        if data.startswith("site_"):
-            if chat_id != str(REAL_ADMIN_CHAT_ID):
-                safe_answer("Bu buton sadece admin içindir.")
-                return
-        elif data.startswith("s2_"):
-            if chat_id != str(SECOND_ADMIN_CHAT_ID):
-                safe_answer("Bu buton size ait değil.")
-                return
-        else:
-            # Bilinmeyen prefix
-            safe_answer("Geçersiz işlem.")
+        # Sadece gerçek adminin butonlarını kabul et
+        if chat_id != str(REAL_ADMIN_CHAT_ID):
+            safe_answer("Bu buton sadece admin içindir.")
             return
 
         if not data:
@@ -549,19 +380,16 @@ def handle_callback_query(cb: dict):
             except Exception as e:
                 print(f"[CALLBACK] buton kaldırma hatası: {e}", flush=True)
 
-        # ============================================================
-        # ADMIN (diyarbakiremlakmarket.com) CALLBACK'LERİ - site_ prefix
-        # ============================================================
-        
         if action == "site_cancel":
             _clear_buttons()
             safe_answer("İşlem iptal edildi.")
             return
 
+        if kod == "":
+            safe_answer("İlan kodu yok.")
+            return
+
         if action == "site_add":
-            if kod == "":
-                safe_answer("İlan kodu yok.")
-                return
             # Önce hemen cevapla (10 saniye limiti için)
             safe_answer("Ekleniyor... ⏳")
             
@@ -572,24 +400,31 @@ def handle_callback_query(cb: dict):
                 kod_full = kod.upper()
             
             # NOT: URL gönderMİYORUZ - scraper kendisi arama yapıp yeni format URL'yi bulacak
+            # Eski format (ilandetay?ilan_kodu=) artık 404 veriyor
             r = call_site_api("add", ilan_kodu=kod_full, kimden="Web siteden")
             
             # Sonucu bildir
             if r.get("success"):
                 if r.get("inserted"):
-                    _clear_buttons()
+                    _clear_buttons()  # Sadece butonları kaldır, mesaj gönderme
                 elif r.get("already_exists"):
                     _clear_buttons()
                     send_message(f"⚠️ <b>İLAN ZATEN MEVCUT</b>\n\n📋 {kod_full}\n💡 Sitede zaten kayıtlı.", chat_id=chat_id)
                 else:
                     send_message(f"⚠️ <b>BEKLENMEDİK SONUÇ</b>\n\n📋 {kod_full}\n📄 Yanıt: {str(r)[:300]}", chat_id=chat_id)
             else:
+                # Hata detayını göster - DEBUG: tam yanıtı göster
                 error_msg = r.get("error", "bilinmiyor")
+                
+                # Tüm yanıtı string olarak al (debug için)
                 full_response = str(r)[:500]
                 
+                # Scraper hatası ise daha detaylı göster
                 if error_msg == "scraper_failed":
                     detail = r.get("detail", {})
                     scraper_resp = r.get("scraper", {})
+                    
+                    # Hata mesajını bul
                     error_text = ""
                     if isinstance(detail, dict):
                         error_text = detail.get("error", "") or detail.get("message", "")
@@ -599,20 +434,19 @@ def handle_callback_query(cb: dict):
                     elif isinstance(scraper_resp, dict):
                         error_text = scraper_resp.get("message", "") or scraper_resp.get("error", "")
                     
-                    send_message(f"❌ <b>EKLEME BAŞARISIZ</b>\n\n📋 {kod_full}\n⚠️ Scraper: {error_text}\n\n🔍 DEBUG:\n<code>{full_response}</code>", chat_id=chat_id)
+                    send_message(f"❌ <b>EKLEME BAŞARISIZ</b>\n\n📋 {kod_full}\n⚠️ Scraper: {error_text}\n\n� DEBUG:\n<code>{full_response}</code>", chat_id=chat_id)
                 else:
-                    send_message(f"❌ <b>EKLEME BAŞARISIZ</b>\n\n📋 {kod_full}\n⚠️ Hata: {error_msg}\n\n🔍 DEBUG:\n<code>{full_response}</code>", chat_id=chat_id)
+                    # Diğer hatalar
+                    send_message(f"❌ <b>EKLEME BAŞARISIZ</b>\n\n📋 {kod_full}\n⚠️ Hata: {error_msg}\n\n� DEBUG:\n<code>{full_response}</code>", chat_id=chat_id)
             return
 
         if action == "site_price":
-            if kod == "":
-                safe_answer("İlan kodu yok.")
-                return
             if len(parts) < 3:
                 safe_answer("Yeni fiyat yok.")
                 return
             new_price = parts[2]
             
+            # Önce hemen cevapla
             safe_answer("Fiyat güncelleniyor... ⏳")
             
             r = call_site_api("update_price", ilan_kodu=kod, new_price=new_price)
@@ -621,100 +455,12 @@ def handle_callback_query(cb: dict):
             return
 
         if action == "site_del":
-            if kod == "":
-                safe_answer("İlan kodu yok.")
-                return
+            # Önce hemen cevapla
             safe_answer("Siliniyor... ⏳")
             
             r = call_site_api("delete", ilan_kodu=kod, reason="Bot: ilan silindi")
             if r.get("success") and r.get("deleted"):
                 _clear_buttons()
-            return
-
-        # ============================================================
-        # İKİNCİ ADMİN (diyarbakirsahibinden.com) CALLBACK'LERİ - s2_ prefix
-        # ============================================================
-        
-        if action == "s2_cancel":
-            _clear_buttons()
-            safe_answer("İşlem iptal edildi.")
-            return
-
-        if action == "s2_add":
-            if kod == "":
-                safe_answer("İlan kodu yok.")
-                return
-            safe_answer("Ekleniyor... ⏳")
-            
-            # İlan kodunu düzgün formata çevir (ML-XXXX-XX)
-            if not kod.upper().startswith("ML-"):
-                kod_full = f"ML-{kod}"
-            else:
-                kod_full = kod.upper()
-            
-            r = call_second_site_api("add", ilan_kodu=kod_full, kimden="Web siteden")
-            
-            if r.get("success"):
-                if r.get("inserted"):
-                    _clear_buttons()
-                    send_message(f"✅ <b>İLAN EKLENDİ</b>\n\n📋 {kod_full}\n💡 DiyarbakirSahibinden.com'a eklendi.", chat_id=chat_id)
-                elif r.get("already_exists"):
-                    _clear_buttons()
-                    send_message(f"⚠️ <b>İLAN ZATEN MEVCUT</b>\n\n📋 {kod_full}\n💡 Sitede zaten kayıtlı.", chat_id=chat_id)
-                else:
-                    send_message(f"⚠️ <b>BEKLENMEDİK SONUÇ</b>\n\n📋 {kod_full}\n📄 Yanıt: {str(r)[:300]}", chat_id=chat_id)
-            else:
-                error_msg = r.get("error", "bilinmiyor")
-                full_response = str(r)[:500]
-                
-                if error_msg == "scraper_failed":
-                    detail = r.get("detail", {})
-                    scraper_resp = r.get("scraper", {})
-                    error_text = ""
-                    if isinstance(detail, dict):
-                        error_text = detail.get("error", "") or detail.get("message", "")
-                        resp = detail.get("resp", {})
-                        if isinstance(resp, dict) and resp.get("message"):
-                            error_text = resp.get("message")
-                    elif isinstance(scraper_resp, dict):
-                        error_text = scraper_resp.get("message", "") or scraper_resp.get("error", "")
-                    
-                    send_message(f"❌ <b>EKLEME BAŞARISIZ</b>\n\n📋 {kod_full}\n⚠️ Scraper: {error_text}\n\n🔍 DEBUG:\n<code>{full_response}</code>", chat_id=chat_id)
-                else:
-                    send_message(f"❌ <b>EKLEME BAŞARISIZ</b>\n\n📋 {kod_full}\n⚠️ Hata: {error_msg}\n\n🔍 DEBUG:\n<code>{full_response}</code>", chat_id=chat_id)
-            return
-
-        if action == "s2_price":
-            if kod == "":
-                safe_answer("İlan kodu yok.")
-                return
-            if len(parts) < 3:
-                safe_answer("Yeni fiyat yok.")
-                return
-            new_price = parts[2]
-            
-            safe_answer("Fiyat güncelleniyor... ⏳")
-            
-            r = call_second_site_api("update_price", ilan_kodu=kod, new_price=new_price)
-            if r.get("success") and r.get("updated"):
-                _clear_buttons()
-                send_message(f"✅ <b>FİYAT GÜNCELLENDİ</b>\n\n📋 {kod}\n💰 Yeni fiyat: {new_price} TL", chat_id=chat_id)
-            else:
-                send_message(f"❌ <b>FİYAT GÜNCELLEME BAŞARISIZ</b>\n\n📋 {kod}\n⚠️ Hata: {r.get('error', 'bilinmiyor')}", chat_id=chat_id)
-            return
-
-        if action == "s2_del":
-            if kod == "":
-                safe_answer("İlan kodu yok.")
-                return
-            safe_answer("Siliniyor... ⏳")
-            
-            r = call_second_site_api("delete", ilan_kodu=kod, reason="Bot: ilan silindi")
-            if r.get("success") and r.get("deleted"):
-                _clear_buttons()
-                send_message(f"✅ <b>İLAN SİLİNDİ</b>\n\n📋 {kod}\n💡 DiyarbakirSahibinden.com'dan silindi.", chat_id=chat_id)
-            else:
-                send_message(f"❌ <b>SİLME BAŞARISIZ</b>\n\n📋 {kod}\n⚠️ Hata: {r.get('error', 'bilinmiyor')}", chat_id=chat_id)
             return
 
         safe_answer("Bilinmeyen işlem.")
@@ -1413,8 +1159,10 @@ def handle_command(chat_id, command, message_text):
         send_message(f"📊 <b>{total} ilan bulundu</b>\n\nEkleme işlemi başladı...", chat_id)
         
         for idx, (kod, item) in enumerate(items.items(), 1):
-            # URL gönderMİYORUZ - scraper kendisi arama yapıp yeni format URL'yi bulacak
-            r = call_site_api("add", ilan_kodu=kod, kimden="Web siteden")
+            link = item.get("link", f"https://www.makrolife.com.tr/ilandetay?ilan_kodu={kod}")
+            
+            # Website API'ye ekle
+            r = call_site_api("add", ilan_kodu=kod, url=link, kimden="Web siteden")
             
             if r.get("success"):
                 if r.get("already_exists"):
@@ -1922,7 +1670,6 @@ def run_scan_with_timeout():
                 msg += "🔗 " + link
                 send_message(msg, include_real_admin=False)
                 send_real_admin_new_listing(kod, title, fiyat, link)
-                send_second_admin_new_listing(kod, title, fiyat, link)
                 time.sleep(0.3)
 
             else:
@@ -1959,7 +1706,6 @@ def run_scan_with_timeout():
                     msg += "🔗 " + state["items"][kod].get("link", "")
                     send_message(msg, include_real_admin=False)  # real admin de alsın (ayrıca butonlu mesaj da gider)
                     send_real_admin_price_change(kod, state["items"][kod].get("title", ""), eski, fiyat)
-                    send_second_admin_price_change(kod, state["items"][kod].get("title", ""), eski, fiyat)
                     time.sleep(0.3)
 
         deleted_count = 0
@@ -1980,7 +1726,6 @@ def run_scan_with_timeout():
                 msg += "💰 " + item.get("fiyat", "")
                 send_message(msg, include_real_admin=False)
                 send_real_admin_deleted(kod, item.get("title", ""), item.get("fiyat", ""))
-                send_second_admin_deleted(kod, item.get("title", ""), item.get("fiyat", ""))
 
                 del state["items"][kod]
                 deleted_count += 1
