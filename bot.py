@@ -399,8 +399,9 @@ def handle_callback_query(cb: dict):
             else:
                 kod_full = kod.upper()
             
-            link = f"https://www.makrolife.com.tr/ilandetay?ilan_kodu={kod_full}"
-            r = call_site_api("add", ilan_kodu=kod_full, url=link, kimden="Web siteden")
+            # NOT: URL gönderMİYORUZ - scraper kendisi arama yapıp yeni format URL'yi bulacak
+            # Eski format (ilandetay?ilan_kodu=) artık 404 veriyor
+            r = call_site_api("add", ilan_kodu=kod_full, kimden="Web siteden")
             
             # Sonucu bildir
             if r.get("success"):
