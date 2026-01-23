@@ -198,7 +198,7 @@ def edit_message_reply_markup(chat_id: str, message_id: int, reply_markup=None):
 def call_site_api(action: str, **params):
     """Web site bot_api.php ile konuş. Hata olursa detay döndür."""
     # add işlemi scraper çağırdığı için daha uzun timeout gerekiyor
-    timeout = 90 if action == "add" else 25
+    timeout = 60 if action == "add" else 25
     
     def _post(url: str):
         try:
