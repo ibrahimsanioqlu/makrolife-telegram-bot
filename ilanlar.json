@@ -6282,7 +6282,7 @@
       "first_seen_date": "2026-01-20"
     },
     "5479-35": {
-      "fiyat": "4.850.000 TL",
+      "fiyat": "4.650.000 TL",
       "tarih": "2026-01-20",
       "link": "https://www.makrolife.com.tr/ilan/diyarbakir-yenisehir-uckuyu-mah-satilik-daire-ML-5479-35",
       "title": "MAKRO LİFE GAYRİMENKUL'DEN ÜÇ KUYULAR'DA SIFIR DAİRE",
@@ -7077,10 +7077,10 @@
     },
     "2026-01-23": {
       "new": 0,
-      "price_changes": 0,
+      "price_changes": 1,
       "deleted": 0
     }
   },
-  "scan_sequence": 85,
-  "last_scan_timestamp": 1769149528.0763915
+  "scan_sequence": 86,
+  "last_scan_timestamp": 1769156466.2952313
 }
