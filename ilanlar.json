@@ -3462,7 +3462,7 @@
       "first_seen_date": "2026-01-20"
     },
     "5493-36": {
-      "fiyat": "1.300.000 TL",
+      "fiyat": "1.100.000 TL",
       "tarih": "2026-01-20",
       "link": "https://www.makrolife.com.tr/ilan/batman-satilik-daire-ML-5493-36",
       "title": "BATMANIN GÖZDE İLÇESİ CEVİZ VE BAL DİYARI SASONDA YATIRIMLIK FIRSAT 3+1 DAİRE",
@@ -7137,10 +7137,10 @@
     },
     "2026-01-23": {
       "new": 6,
-      "price_changes": 3,
+      "price_changes": 4,
       "deleted": 0
     }
   },
-  "scan_sequence": 88,
-  "last_scan_timestamp": 1769170354.5951219
+  "scan_sequence": 89,
+  "last_scan_timestamp": 1769177332.2564647
 }
