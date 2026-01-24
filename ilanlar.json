@@ -1292,7 +1292,7 @@
       "first_seen_date": "2026-01-20"
     },
     "5495-65": {
-      "fiyat": "6.950.000 TL",
+      "fiyat": "6.900.000 TL",
       "tarih": "2026-01-20",
       "link": "https://www.makrolife.com.tr/ilan/diyarbakir-kayapinar-talaytepe-mah-satilik-daire-ML-5495-65",
       "title": "STADYUM KARŞISINDA BULUNAN BARAN YAPI 3,5+1 LÜKS DAİRE",
@@ -7462,10 +7462,10 @@
     },
     "2026-01-24": {
       "new": 32,
-      "price_changes": 4,
+      "price_changes": 5,
       "deleted": 3
     }
   },
-  "scan_sequence": 97,
-  "last_scan_timestamp": 1769264107.6896272
+  "scan_sequence": 98,
+  "last_scan_timestamp": 1769278993.1268532
 }
