@@ -625,22 +625,24 @@ def github_save_file(filename, content, sha=None):
 
 
 def load_last_scan_time():
-    """Son tarama zamanini GitHub state'inden yukle (container restart'a dayanikli)"""
-    # Önce GitHub state'inden oku
+    """Son tarama zamanini hem GitHub hem lokalden kontrol et, en yenisini al."""
+    timestamps = []
+    
+    # 1. GitHub state
     state = load_state()
     github_timestamp = state.get("last_scan_timestamp", 0)
-    if github_timestamp > 0:
-        return github_timestamp
+    timestamps.append(github_timestamp)
     
-    # Fallback: lokal dosya
+    # 2. Lokal dosya
     if os.path.exists(LAST_SCAN_FILE):
         try:
             with open(LAST_SCAN_FILE, "r", encoding="utf-8") as f:
                 data = json.load(f)
-                return data.get("last_scan_time", 0)
+                timestamps.append(data.get("last_scan_time", 0))
         except:
             pass
-    return 0
+            
+    return max(timestamps) if timestamps else 0
 
 
 def save_last_scan_time(timestamp):
@@ -1560,7 +1562,10 @@ def run_scan_with_timeout():
             msg += f"⏰ Sonraki tarama: {next_interval} dakika sonra"
             send_message(msg)
             
-            # State'i DEĞİŞTİRMEDEN çık (ilanlar.json korunur)
+            # FIX: Sonsuz döngüyü engellemek için timestamp güncelle ve kaydet
+            state["last_scan_timestamp"] = time.time()
+            save_state(state)
+            
             ACTIVE_SCAN = False
             MANUAL_SCAN_LIMIT = None
             SCAN_STOP_REQUESTED = False
@@ -1593,6 +1598,10 @@ def run_scan_with_timeout():
             msg += f"⏰ Sonraki tarama: {next_interval} dakika sonra"
             send_message(msg)
             print(f"[KORUMA] Anormal tarama: {len(listings)}/{existing_count} ilan (min: {min_expected})", flush=True)
+            # FIX: Sonsuz döngüyü engellemek için timestamp güncelle ve kaydet
+            state["last_scan_timestamp"] = time.time()
+            save_state(state)
+
             ACTIVE_SCAN = False
             MANUAL_SCAN_LIMIT = None
             SCAN_STOP_REQUESTED = False
