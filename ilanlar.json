@@ -7322,7 +7322,7 @@
       "first_seen_date": "2026-01-24"
     },
     "6621-210": {
-      "fiyat": "4.170.000 TL",
+      "fiyat": "4.150.000 TL",
       "tarih": "2026-01-24",
       "link": "https://www.makrolife.com.tr/ilan/diyarbakir-baglar-bagcilar-mah-satilik-daire-ML-6621-210",
       "title": "ACİL SATILIK BAĞCILAR GÖLETLİ PARK KARŞISINDA FULL YAPILI DAİRE",
@@ -7457,10 +7457,10 @@
     },
     "2026-01-25": {
       "new": 4,
-      "price_changes": 5,
+      "price_changes": 6,
       "deleted": 5
     }
   },
-  "scan_sequence": 103,
-  "last_scan_timestamp": 1769333009.979811
+  "scan_sequence": 104,
+  "last_scan_timestamp": 1769338918.099028
 }
