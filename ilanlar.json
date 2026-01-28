@@ -7322,7 +7322,7 @@
       "first_seen_date": "2026-01-27"
     },
     "5436-12": {
-      "fiyat": "4.950.000 TL",
+      "fiyat": "4.840.000 TL",
       "tarih": "2026-01-27",
       "link": "https://www.makrolife.com.tr/ilan/diyarbakir-baglar-bagcilar-mah-satilik-daire-ML-5436-12",
       "title": "MAKROLİFE GAYRİMENKUL'DEN OTOGAR KAVŞAĞINA SIFIR SATILIK 4+1 FIRSAT DAİRE",
@@ -7582,10 +7582,10 @@
     },
     "2026-01-28": {
       "new": 15,
-      "price_changes": 4,
+      "price_changes": 5,
       "deleted": 5
     }
   },
-  "scan_sequence": 131,
-  "last_scan_timestamp": 1769594436.9623814
+  "scan_sequence": 132,
+  "last_scan_timestamp": 1769600276.9561567
 }
