@@ -272,7 +272,7 @@
       "first_seen_date": "2026-01-20"
     },
     "7394-22": {
-      "fiyat": "8.500.000 TL",
+      "fiyat": "8.350.000 TL",
       "tarih": "2026-01-20",
       "link": "https://www.makrolife.com.tr/ilan/diyarbakir-yenisehir-dokmetas-mah-satilik-villa-ML-7394-22",
       "title": "ÖZAY AYDIN VİLLARINDA LÜKS KONFORLU 4+1 VİLLA",
@@ -402,7 +402,7 @@
       "first_seen_date": "2026-01-20"
     },
     "7492-67": {
-      "fiyat": "9.250.000 TL",
+      "fiyat": "9.100.000 TL",
       "tarih": "2026-01-20",
       "link": "https://www.makrolife.com.tr/ilan/diyarbakir-kayapinar-medya-mah-satilik-isyeri-ML-7492-67",
       "title": "MASTFROŞ İŞLEK CADDE ÜZERİ SATILIK DÜKKAN",
@@ -7697,10 +7697,10 @@
     },
     "2026-01-29": {
       "new": 15,
-      "price_changes": 4,
+      "price_changes": 6,
       "deleted": 2
     }
   },
-  "scan_sequence": 141,
-  "last_scan_timestamp": 1769684389.0835078
+  "scan_sequence": 142,
+  "last_scan_timestamp": 1769690322.6772404
 }
