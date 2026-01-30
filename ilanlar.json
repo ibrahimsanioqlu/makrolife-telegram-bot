@@ -7634,8 +7634,13 @@
       "new": 365,
       "price_changes": 5,
       "deleted": 367
+    },
+    "2026-01-31": {
+      "new": 0,
+      "price_changes": 0,
+      "deleted": 0
     }
   },
-  "scan_sequence": 154,
-  "last_scan_timestamp": 1769798807.4177861
+  "scan_sequence": 155,
+  "last_scan_timestamp": 1769813617.0794826
 }
