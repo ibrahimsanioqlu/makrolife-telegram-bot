@@ -2062,7 +2062,7 @@
       "first_seen_date": "2026-01-20"
     },
     "6954-102": {
-      "fiyat": "9.850.000 TL",
+      "fiyat": "10.700.000 TL",
       "tarih": "2026-01-20",
       "link": "https://www.makrolife.com.tr/ilan/diyarbakir-kayapinar-talaytepe-mah-satilik-daire-ML-6954-102",
       "title": "ÇEYSA YAPI KALİTESİ İLE 4.5+1 SATILIK LÜKS DAİRE",
@@ -7597,10 +7597,10 @@
     },
     "2026-01-31": {
       "new": 2,
-      "price_changes": 5,
+      "price_changes": 6,
       "deleted": 6
     }
   },
-  "scan_sequence": 162,
-  "last_scan_timestamp": 1769868841.5156925
+  "scan_sequence": 163,
+  "last_scan_timestamp": 1769883721.7850618
 }
