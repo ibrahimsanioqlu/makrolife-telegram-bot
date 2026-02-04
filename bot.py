@@ -211,11 +211,13 @@ def fetch_listings_via_flaresolverr():
             except:
                 baslik = f"İlan ML-{kod}"
             
-            results.append({
-                "kod": kod,
-                "baslik": baslik,
-                "link": f"https://www.makrolife.com.tr{href}" if href.startswith("/") else href
-            })
+            results.append((
+                kod,
+                "Fiyat Yok",  # TODO: Regex ile fiyat çekme eklenecek
+                f"https://www.makrolife.com.tr{href}" if href.startswith("/") else href,
+                baslik,
+                page_num
+            ))
             page_listings += 1
         
         print(f"[FLARESOLVERR SAYFA {page_num}] {page_listings} yeni ilan (toplam: {len(results)})", flush=True)
@@ -329,11 +331,13 @@ def fetch_listings_via_google_proxy():
             except:
                 baslik = f"İlan ML-{kod}"
             
-            results.append({
-                "kod": kod,
-                "baslik": baslik,
-                "link": f"https://www.makrolife.com.tr{href}" if href.startswith("/") else href
-            })
+            results.append((
+                kod,
+                "Fiyat Yok",
+                f"https://www.makrolife.com.tr{href}" if href.startswith("/") else href,
+                baslik,
+                page_num
+            ))
             page_listings += 1
         
         print(f"[GOOGLE_PROXY SAYFA {page_num}] {page_listings} yeni ilan bulundu (toplam: {len(results)})", flush=True)
