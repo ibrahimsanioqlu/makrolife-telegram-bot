@@ -10,12 +10,13 @@ from concurrent.futures import ThreadPoolExecutor, TimeoutError as FuturesTimeou
 
 import requests
 from playwright.sync_api import sync_playwright, TimeoutError
+from playwright_stealth import stealth_sync
 # Data klasoru
 os.makedirs("/data", exist_ok=True)
 
 print("=" * 60, flush=True)
 print("BOT BASLATILIYOR...", flush=True)
-print(">>> CLOUDFLARE BYPASS v2.0 <<<", flush=True)
+print(">>> CLOUDFLARE BYPASS v3.0 (STEALTH) <<<", flush=True)
 print("Python version: " + sys.version, flush=True)
 print("Calisma zamani: " + datetime.utcnow().isoformat(), flush=True)
 print("=" * 60, flush=True)
@@ -1347,6 +1348,8 @@ def fetch_listings_playwright():
 
         context = new_context()
         page = context.new_page()
+        stealth_sync(page)  # Apply stealth mode to bypass detection
+        print("[PLAYWRIGHT] Stealth mode uygulandi", flush=True)
 
         while True:
             if SCAN_STOP_REQUESTED:
@@ -1394,6 +1397,7 @@ def fetch_listings_playwright():
                             context.close()
                             context = new_context()
                             page = context.new_page()
+                            stealth_sync(page)  # Apply stealth to new page
                         except:
                             pass
                     else:
