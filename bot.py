@@ -221,17 +221,23 @@ def fetch_listings_via_flaresolverr():
             if link_pos == -1:
                 link_pos = 0
             
-            # Chunk al (link çevresindeki metin)
+            # Chunk al - Kart yapısı geniş, fiyat linkin ~3500 karakter sonrasında
             search_start = max(0, link_pos - 500)
-            search_end = min(len(html), link_pos + 2000)
+            search_end = min(len(html), link_pos + 5000)  # 5000'e çıkarıldı
             chunk = html[search_start:search_end]
             
             # 1. Başlık Çıkarma
             baslik = None
             # Heading tagleri
-            title_match = re.search(r'<h[1-6][^>]*>(?:\s*<a[^>]+>)?\s*([^<]+?)\s*(?:</a>)?\s*</h[1-6]>', chunk, re.IGNORECASE)
+            title_match = re.search(r'<h[1-6][^>]*>\s*([^<]+?)\s*-\s*ML-\d+-\d+\s*</h[1-6]>', chunk, re.IGNORECASE)
             if title_match:
                 baslik = title_match.group(1).strip()
+            
+            # data-target-title attribute (daha güvenilir)
+            if not baslik:
+                data_title = re.search(r'data-target-title="([^"]+)"', chunk, re.IGNORECASE)
+                if data_title:
+                    baslik = data_title.group(1).strip()
             
             # card-title class
             if not baslik:
@@ -252,13 +258,22 @@ def fetch_listings_via_flaresolverr():
                 baslik = baslik.replace("&amp;", "&").replace("&quot;", '"').replace("&#039;", "'").replace("&nbsp;", " ")
                 baslik = re.sub(r'\s*-\s*ML-\d+-\d+\s*$', '', baslik, flags=re.IGNORECASE)
             
-            # 2. Fiyat Çıkarma
+            # 2. Fiyat Çıkarma - Makrolife'ın HTML yapısına özel
             fiyat = "Fiyat Yok"
-            price_match = re.search(r'([\d\.,]+)(?:\s*(?:<[^>]+>)*\s*)(TL|₺)', chunk)
+            # Öncelik 1: <span class="h5 text-primary m-0">26.000 TL</span>
+            price_match = re.search(r'<span[^>]*class="[^"]*h5[^"]*text-primary[^"]*"[^>]*>\s*([\d\.,]+)\s*(TL|₺)', chunk, re.IGNORECASE)
             if price_match:
                 amount = price_match.group(1)
                 if sum(c.isdigit() for c in amount) >= 3:
                     fiyat = f"{amount.strip()} TL"
+            
+            # Öncelik 2: Genel fiyat pattern'i
+            if fiyat == "Fiyat Yok":
+                price_match2 = re.search(r'>\s*([\d\.]+(?:[\.,]\d{3})*)\s*(TL|₺)\s*<', chunk)
+                if price_match2:
+                    amount = price_match2.group(1)
+                    if sum(c.isdigit() for c in amount) >= 3:
+                        fiyat = f"{amount.strip()} TL"
             
             results.append((
                 kod,
