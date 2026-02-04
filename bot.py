@@ -148,9 +148,8 @@ def fetch_listings_via_flaresolverr():
     """FlareSolverr üzerinden tüm ilanları çek ve fiyatları parse et"""
     import re
     
-    results = []  # Final list
-    results_dict = {} # Deduplication dict: kod -> (fiyat, link, baslik, page_num)
-    # seen_codes removed
+    results = []
+    seen_codes = set()  # Sayfa arası deduplication
 
     page_num = 0
     consecutive_failures = 0
@@ -190,64 +189,55 @@ def fetch_listings_via_flaresolverr():
         consecutive_failures = 0
         html = result["content"]
         
-        # HTML'i ilan linklerine göre parçala
-        # Link yapısı: href="/ilan/..."
+        # HTML'den ilan linklerini çıkar - ÖNCE BENZERSİZ KODLARI BUL
         ilan_pattern = r'href="(/ilan/[^"]*-ML-(\d+-\d+)[^"]*)"'
-        matches = list(re.finditer(ilan_pattern, html, re.IGNORECASE))
+        all_matches = re.findall(ilan_pattern, html, re.IGNORECASE)
         
-        if not matches:
+        if not all_matches:
             if page_num <= MIN_VALID_PAGES:
                 print(f"[FLARESOLVERR] Sayfa {page_num} boş - hata", flush=True)
                 return None
             print(f"[FLARESOLVERR SAYFA {page_num}] Son sayfa geçildi", flush=True)
             break
         
-        page_listings = 0
-        for i, match in enumerate(matches):
-            href = match.group(1)
-            kod = match.group(2)
+        # Benzersiz kodları ve ilk linklerini al (dict ile otomatik dedupe)
+        unique_listings = {}
+        for href, kod in all_matches:
+            if kod not in unique_listings and kod not in seen_codes:
+                unique_listings[kod] = href
+        
+        if not unique_listings:
+            # Bu sayfada yeni ilan yok, muhtemelen son sayfa
+            print(f"[FLARESOLVERR SAYFA {page_num}] Yeni ilan yok - son sayfa", flush=True)
+            break
+        
+        # Sadece benzersiz ilanları işle
+        page_new = 0
+        for kod, href in unique_listings.items():
+            seen_codes.add(kod)
             
-            # if kod in seen_codes: continue  <-- REMOVED to allow reprocessing same code for better context
-
+            # Link pozisyonunu bul
+            link_pos = html.find(f'href="{href}"')
+            if link_pos == -1:
+                link_pos = 0
             
-            # --- FİYAT VE BAŞLIK AYRIŞTIRMA ---
-            # Strateji: Şu anki linkin başlangıç pozisyonundan, bir sonraki linkin 
-            # başlangıç pozisyonuna kadar olan (veya sayfa sonuna kadar) metni al.
-            # Bu "chunk" içinde fiyat ve başlık ara.
-            
-            start_pos = match.start()
-            # Bir sonraki maç var mı? Varsa onun başlangıcını, yoksa HTML sonunu al
-            # Ancak bazen HTML yapısı linkten ÖNCE de bilgi içerebilir. 
-            # Güvenlik için: Linkten önceki 500 ve sonraki 1500 karakteri alalım.
-            
-            search_start = max(0, start_pos - 1000)
-            if i < len(matches) - 1:
-                search_end = matches[i+1].start()
-            else:
-                search_end = min(len(html), start_pos + 5000)
-                
+            # Chunk al (link çevresindeki metin)
+            search_start = max(0, link_pos - 500)
+            search_end = min(len(html), link_pos + 2000)
             chunk = html[search_start:search_end]
             
             # 1. Başlık Çıkarma
             baslik = None
-            # HTML içinden gerçek başlığı bulmayı dene
-            # 1. Deneme: Heading tagleri (h1-h6) içinde link veya doğrudan text
-            # Örnek: <h2 class="h5 pb-0 mb-0">BAŞLIK - ML-123</h2>
+            # Heading tagleri
             title_match = re.search(r'<h[1-6][^>]*>(?:\s*<a[^>]+>)?\s*([^<]+?)\s*(?:</a>)?\s*</h[1-6]>', chunk, re.IGNORECASE)
             if title_match:
                 baslik = title_match.group(1).strip()
             
-            # 2. Deneme: card-title class'ı
+            # card-title class
             if not baslik:
                 class_match = re.search(r'class="[^"]*card-title[^"]*"[^>]*>(?:\s*<a[^>]+>)?\s*([^<]+?)\s*(?:</a>)?\s*</', chunk, re.IGNORECASE)
                 if class_match:
                     baslik = class_match.group(1).strip()
-
-            # 3. Deneme: Link title niteliği
-            if not baslik:
-                link_title_match = re.search(r'<a[^>]+title="([^"]{5,100})"', chunk, re.IGNORECASE)
-                if link_title_match:
-                    baslik = link_title_match.group(1).strip()
 
             # Fallback: URL'den çıkar
             if not baslik:
@@ -257,69 +247,35 @@ def fetch_listings_via_flaresolverr():
                 except:
                     baslik = f"İlan ML-{kod}"
             
-            # HTML entity temizliği ve İlan Kodu Temizliği
+            # Temizlik
             if baslik:
                 baslik = baslik.replace("&amp;", "&").replace("&quot;", '"').replace("&#039;", "'").replace("&nbsp;", " ")
-                # "- ML-XXXX-XX" kısmını temizle
                 baslik = re.sub(r'\s*-\s*ML-\d+-\d+\s*$', '', baslik, flags=re.IGNORECASE)
-                
-            # 2. Fiyat Çıkarma (Regex)
-            # Genellikle: 10.500.000 TL veya 10,500,000 TL
-            # Desen: Sayı (nokta/virgüllü) + Boşluk(opsiyonel) + "TL" veya "₺"
+            
+            # 2. Fiyat Çıkarma
             fiyat = "Fiyat Yok"
-            # Bu regex HTML tagları arasında kalmış fiyatı da bulur: 10.000 <span>TL</span> ve >10.000 TL<
-            price_match = re.search(r'([\d\.,]+)(?:\s*(?:<[^>]+>)*\s*)(TL|₺|USD|EUR|GBP)', chunk)
+            price_match = re.search(r'([\d\.,]+)(?:\s*(?:<[^>]+>)*\s*)(TL|₺)', chunk)
             if price_match:
-                # Bulunan fiyatın "temiz" olup olmadığını kontrol et (örneğin sadece yıl "2023 TL" olmamalı)
                 amount = price_match.group(1)
-                currency = price_match.group(2)
-                candidate = amount
-                # Basit doğrulama: içinde en az 3 rakam olsun
-                if sum(c.isdigit() for c in candidate) >= 3:
-                     # Currency temizliği
-                    currency = currency.replace('₺', 'TL').replace('&#8378;', 'TL')
-                    fiyat = f"{amount.strip()} {currency}"
-
-            # Store in dictionary to allow overwriting (e.g. Title link overwrites Image link)
-            # This ensures we get price/title from the link that has better context (usually the second one)
-            current_result = (
+                if sum(c.isdigit() for c in amount) >= 3:
+                    fiyat = f"{amount.strip()} TL"
+            
+            results.append((
+                kod,
                 fiyat,
                 f"https://www.makrolife.com.tr{href}" if href.startswith("/") else href,
                 baslik,
                 page_num
-            )
-            
-            # Logic: If we already have this code, only overwrite if the new one has a valid price
-            # OR if the existing one has "Fiyat Yok".
-            # Actually, the 2nd link (Title link) usually covers the price area better.
-            # So simple overwrite is generally better, but let's be safe:
-            if kod not in results_dict:
-                results_dict[kod] = current_result
-            else:
-                # If existing has no price but new one does, overwrite
-                existing_fiyat = results_dict[kod][0]
-                if existing_fiyat == "Fiyat Yok" and fiyat != "Fiyat Yok":
-                    results_dict[kod] = current_result
-                # If both have price or both don't, overwrite (assuming later match is better context)
-                elif existing_fiyat == "Fiyat Yok" and fiyat == "Fiyat Yok":
-                    results_dict[kod] = current_result
-                elif existing_fiyat != "Fiyat Yok" and fiyat != "Fiyat Yok":
-                    results_dict[kod] = current_result
-            
-            page_listings += 1
+            ))
+            page_new += 1
         
-        # Convert dict to list
-        # results list of (kod, fiyat, url, baslik, page_num)
-        results = []
-        for kod, val in results_dict.items():
-            results.append((kod, val[0], val[1], val[2], val[3]))
-            
-        print(f"[FLARESOLVERR SAYFA {page_num}] {page_listings} link tarandı (benzersiz: {len(results)})", flush=True)
-        # FlareSolverr'a aşırı yüklenmemek için bekleme (Optimize edildi)
+        print(f"[FLARESOLVERR SAYFA {page_num}] {page_new} ilan bulundu (toplam: {len(results)})", flush=True)
+        
+        # Bekleme
         if page_num % 10 == 0:
-            import time; time.sleep(3) # Her 10 sayfada bir dinlenme
+            time.sleep(3)
         else:
-            import time; time.sleep(1.0) # Normal bekleme suresi 1sn'ye dusuruldu
+            time.sleep(1.0)
     
     if len(results) == 0:
         print("[FLARESOLVERR] Hiç ilan bulunamadı", flush=True)
