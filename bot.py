@@ -16,7 +16,7 @@ os.makedirs("/data", exist_ok=True)
 
 print("=" * 60, flush=True)
 print("BOT BASLATILIYOR...", flush=True)
-print(">>> CLOUDFLARE BYPASS v6.1 (FLARESOLVERR FIX) <<<", flush=True)
+print(">>> CLOUDFLARE BYPASS v6.2 (FLARESOLVERR FIX 2) <<<", flush=True)
 print("Python version: " + sys.version, flush=True)
 print("Calisma zamani: " + datetime.utcnow().isoformat(), flush=True)
 print("=" * 60, flush=True)
@@ -40,9 +40,6 @@ GITHUB_REPO = os.getenv("GITHUB_REPO", "emlak-web-sitem/emlak-web-sitem-bot")
 
 print("BOT_TOKEN mevcut: " + str(bool(BOT_TOKEN)), flush=True)
 print("CHAT_ID mevcut: " + str(bool(os.getenv("CHAT_ID"))), flush=True)
-print(f"GITHUB_TOKEN mevcut: {bool(GITHUB_TOKEN)}", flush=True)
-print(f"FLARESOLVERR_URL: {FLARESOLVERR_URL}", flush=True)
-print(f"USE_FLARESOLVERR: {USE_FLARESOLVERR}", flush=True)
 print("__main__ basliyor...", flush=True)
 # 2026-01-20: Makrolife yeni URL yapısı
 URL = "https://www.makrolife.com.tr/ilanlar"
@@ -73,6 +70,9 @@ USE_GOOGLE_PROXY = os.getenv("USE_GOOGLE_PROXY", "false").lower() == "true"  # D
 # === FLARESOLVERR (Cloudflare Turnstile Bypass) ===
 FLARESOLVERR_URL = os.getenv("FLARESOLVERR_URL", "")
 USE_FLARESOLVERR = os.getenv("USE_FLARESOLVERR", "true").lower() == "true"
+
+print(f"FLARESOLVERR_URL: {FLARESOLVERR_URL}", flush=True)
+print(f"USE_FLARESOLVERR: {USE_FLARESOLVERR}", flush=True)
 
 def fetch_via_flaresolverr(url, max_timeout=120000):
     """FlareSolverr üzerinden sayfa içeriği al (Cloudflare Turnstile bypass)"""
