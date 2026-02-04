@@ -228,26 +228,52 @@ def fetch_listings_via_flaresolverr():
             chunk = html[search_start:search_end]
             
             # 1. Başlık Çıkarma
-            try:
-                path_parts = href.split("/ilan/")[1].rsplit("-ML-", 1)[0]
-                baslik = " ".join(word.capitalize() for word in path_parts.replace("-", " ").split())
-            except:
-                baslik = f"İlan ML-{kod}"
+            baslik = None
+            # HTML içinden gerçek başlığı bulmayı dene (Örn: <h5 class="card-title">...</h5> veya title="...")
+            # 1. Deneme: Heading tagleri içinde link
+            title_match = re.search(r'<h[3456][^>]*>(?:\s*<a[^>]+>)?\s*([^<]+?)\s*(?:</a>)?\s*</h[3456]>', chunk, re.IGNORECASE)
+            if title_match:
+                baslik = title_match.group(1).strip()
+            
+            # 2. Deneme: card-title class'ı
+            if not baslik:
+                class_match = re.search(r'class="[^"]*card-title[^"]*"[^>]*>(?:\s*<a[^>]+>)?\s*([^<]+?)\s*(?:</a>)?\s*</', chunk, re.IGNORECASE)
+                if class_match:
+                    baslik = class_match.group(1).strip()
+
+            # 3. Deneme: Herhangi bir linkin title niteliği
+            if not baslik:
+                link_title_match = re.search(r'<a[^>]+title="([^"]{5,100})"', chunk, re.IGNORECASE)
+                if link_title_match:
+                    baslik = link_title_match.group(1).strip()
+
+            # Fallback: URL'den çıkar
+            if not baslik:
+                try:
+                    path_parts = href.split("/ilan/")[1].rsplit("-ML-", 1)[0]
+                    baslik = " ".join(word.capitalize() for word in path_parts.replace("-", " ").split())
+                except:
+                    baslik = f"İlan ML-{kod}"
+            
+            # HTML entity temizliği
+            baslik = baslik.replace("&amp;", "&").replace("&quot;", '"').replace("&#039;", "'")
                 
             # 2. Fiyat Çıkarma (Regex)
             # Genellikle: 10.500.000 TL veya 10,500,000 TL
             # Desen: Sayı (nokta/virgüllü) + Boşluk(opsiyonel) + "TL" veya "₺"
             fiyat = "Fiyat Yok"
-            # Bu regex HTML tagları arasında kalmış fiyatı da bulur: >10.000 TL<
-            price_match = re.search(r'([\d\.,]+\s*(?:TL|₺|USD|EUR|GBP))', chunk)
+            # Bu regex HTML tagları arasında kalmış fiyatı da bulur: 10.000 <span>TL</span> ve >10.000 TL<
+            price_match = re.search(r'([\d\.,]+)(?:\s*(?:<[^>]+>)*\s*)(TL|₺|USD|EUR|GBP)', chunk)
             if price_match:
                 # Bulunan fiyatın "temiz" olup olmadığını kontrol et (örneğin sadece yıl "2023 TL" olmamalı)
-                candidate = price_match.group(1)
+                amount = price_match.group(1)
+                currency = price_match.group(2)
+                candidate = amount
                 # Basit doğrulama: içinde en az 3 rakam olsun
                 if sum(c.isdigit() for c in candidate) >= 3:
-                    fiyat = candidate.strip()
-                    # HTML entity temizliği (gerekirse)
-                    fiyat = fiyat.replace('₺', 'TL').replace('&#8378;', 'TL')
+                     # Currency temizliği
+                    currency = currency.replace('₺', 'TL').replace('&#8378;', 'TL')
+                    fiyat = f"{amount.strip()} {currency}"
 
             results.append((
                 kod,
@@ -377,20 +403,31 @@ def fetch_listings_via_google_proxy():
             chunk = html[search_start:search_end]
             
             # 1. Başlık
-            try:
-                path_parts = href.split("/ilan/")[1].rsplit("-ML-", 1)[0]
-                baslik = " ".join(word.capitalize() for word in path_parts.replace("-", " ").split())
-            except:
-                baslik = f"İlan ML-{kod}"
+            baslik = None
+            # 1. Deneme: Heading tagleri
+            title_match = re.search(r'<h[3456][^>]*>(?:\s*<a[^>]+>)?\s*([^<]+?)\s*(?:</a>)?\s*</h[3456]>', chunk, re.IGNORECASE)
+            if title_match:
+                baslik = title_match.group(1).strip()
+            
+            if not baslik:
+                try:
+                    path_parts = href.split("/ilan/")[1].rsplit("-ML-", 1)[0]
+                    baslik = " ".join(word.capitalize() for word in path_parts.replace("-", " ").split())
+                except:
+                    baslik = f"İlan ML-{kod}"
+            
+            baslik = baslik.replace("&amp;", "&").replace("&quot;", '"').replace("&#039;", "'")
                 
             # 2. Fiyat
             fiyat = "Fiyat Yok"
-            price_match = re.search(r'([\d\.,]+\s*(?:TL|₺|USD|EUR|GBP))', chunk)
+            price_match = re.search(r'([\d\.,]+)(?:\s*(?:<[^>]+>)*\s*)(TL|₺|USD|EUR|GBP)', chunk)
             if price_match:
-                candidate = price_match.group(1)
+                amount = price_match.group(1)
+                currency = price_match.group(2)
+                candidate = amount
                 if sum(c.isdigit() for c in candidate) >= 3:
-                    fiyat = candidate.strip()
-                    fiyat = fiyat.replace('₺', 'TL').replace('&#8378;', 'TL')
+                    currency = currency.replace('₺', 'TL').replace('&#8378;', 'TL')
+                    fiyat = f"{amount.strip()} {currency}"
             
             results.append((
                 kod,
