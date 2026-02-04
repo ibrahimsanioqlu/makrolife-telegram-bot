@@ -15,6 +15,7 @@ os.makedirs("/data", exist_ok=True)
 
 print("=" * 60, flush=True)
 print("BOT BASLATILIYOR...", flush=True)
+print(">>> CLOUDFLARE BYPASS v2.0 <<<", flush=True)
 print("Python version: " + sys.version, flush=True)
 print("Calisma zamani: " + datetime.utcnow().isoformat(), flush=True)
 print("=" * 60, flush=True)
