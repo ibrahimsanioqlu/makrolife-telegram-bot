@@ -69,6 +69,7 @@ MIN_VALID_PAGES = 10
 def wait_for_cloudflare(page, timeout=45000):
     """Cloudflare JS Challenge'ının tamamlanmasını bekle - AGRESİF YAKLAŞIM"""
     import time as _time
+    import random as _random
     
     print("[CF] Sayfa içeriği kontrol ediliyor...", flush=True)
     
@@ -80,6 +81,61 @@ def wait_for_cloudflare(page, timeout=45000):
         print(f"[CF] İçerik önizleme: {page_content[:500]}...", flush=True)
     except Exception as e:
         print(f"[CF] İçerik okunamadı: {e}", flush=True)
+    
+    # Human-like davranış: rastgele mouse hareketi
+    def simulate_human_behavior():
+        try:
+            # Rastgele mouse hareketi
+            for _ in range(3):
+                x = _random.randint(100, 800)
+                y = _random.randint(100, 600)
+                page.mouse.move(x, y)
+                _time.sleep(_random.uniform(0.1, 0.3))
+            
+            # Turnstile checkbox'ı ara ve tıkla
+            turnstile_selectors = [
+                'iframe[src*="challenges.cloudflare.com"]',
+                'iframe[title*="challenge"]',
+                '#turnstile-wrapper iframe',
+                '.cf-turnstile iframe',
+            ]
+            for selector in turnstile_selectors:
+                try:
+                    frames = page.frames
+                    for frame in frames:
+                        if 'challenges.cloudflare.com' in frame.url:
+                            print(f"[CF] Turnstile iframe bulundu: {frame.url}", flush=True)
+                            # Checkbox'ı bul ve tıkla
+                            checkbox = frame.locator('input[type="checkbox"]')
+                            if checkbox.count() > 0:
+                                print("[CF] Turnstile checkbox tıklanıyor...", flush=True)
+                                checkbox.click()
+                                _time.sleep(2)
+                                return True
+                except:
+                    pass
+            
+            # Alternatif: doğrudan iframe'e tıkla
+            for selector in turnstile_selectors:
+                try:
+                    iframe_elem = page.locator(selector)
+                    if iframe_elem.count() > 0:
+                        print(f"[CF] Iframe bulundu: {selector}", flush=True)
+                        box = iframe_elem.bounding_box()
+                        if box:
+                            # Checkbox genellikle sol tarafta olur
+                            click_x = box['x'] + 30
+                            click_y = box['y'] + box['height'] / 2
+                            page.mouse.click(click_x, click_y)
+                            print(f"[CF] Iframe tıklandı: ({click_x}, {click_y})", flush=True)
+                            _time.sleep(2)
+                            return True
+                except Exception as e:
+                    print(f"[CF] Iframe tıklama hatası: {e}", flush=True)
+            
+        except Exception as e:
+            print(f"[CF] Human simulation hatası: {e}", flush=True)
+        return False
     
     # İlan linkleri var mı kontrol et
     try:
@@ -95,10 +151,18 @@ def wait_for_cloudflare(page, timeout=45000):
     # İlan yoksa bekle (Cloudflare challenge olabilir)
     print("[CF] İlan bulunamadı, Cloudflare challenge bekleniyor...", flush=True)
     
-    # 45 saniye boyunca 3 saniyede bir kontrol et
-    max_attempts = 15
+    # İlk deneme: human davranışı simüle et
+    simulate_human_behavior()
+    
+    # 60 saniye boyunca 3 saniyede bir kontrol et (20 deneme)
+    max_attempts = 20
     for attempt in range(max_attempts):
         _time.sleep(3)
+        
+        # Her 5 denemede bir mouse hareketi yap
+        if attempt > 0 and attempt % 5 == 0:
+            simulate_human_behavior()
+        
         try:
             ilan_count = page.locator('a[href*="/ilan/"]').count()
             print(f"[CF] Deneme {attempt + 1}/{max_attempts}: {ilan_count} ilan linki", flush=True)
@@ -114,6 +178,8 @@ def wait_for_cloudflare(page, timeout=45000):
     try:
         page.reload(wait_until="networkidle", timeout=60000)
         _time.sleep(5)
+        simulate_human_behavior()
+        _time.sleep(3)
         ilan_count = page.locator('a[href*="/ilan/"]').count()
         if ilan_count > 0:
             print(f"[CF] Yenileme sonrası başarılı! {ilan_count} ilan", flush=True)
@@ -1328,6 +1394,20 @@ def fetch_listings_playwright():
                 "--disable-blink-features=AutomationControlled",
                 "--no-sandbox",
                 "--disable-dev-shm-usage",
+                "--disable-web-security",
+                "--disable-features=IsolateOrigins,site-per-process",
+                "--disable-site-isolation-trials",
+                "--disable-features=BlockInsecurePrivateNetworkRequests",
+                "--ignore-certificate-errors",
+                "--allow-running-insecure-content",
+                "--disable-extensions",
+                "--disable-plugins-discovery",
+                "--disable-background-networking",
+                "--disable-sync",
+                "--disable-translate",
+                "--metrics-recording-only",
+                "--no-first-run",
+                "--safebrowsing-disable-auto-update",
             ],
         )
 
