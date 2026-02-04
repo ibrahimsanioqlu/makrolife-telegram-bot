@@ -16,7 +16,7 @@ os.makedirs("/data", exist_ok=True)
 
 print("=" * 60, flush=True)
 print("BOT BASLATILIYOR...", flush=True)
-print(">>> CLOUDFLARE BYPASS v5.0 (GOOGLE PROXY) <<<", flush=True)
+print(">>> CLOUDFLARE BYPASS v6.0 (FLARESOLVERR) <<<", flush=True)
 print("Python version: " + sys.version, flush=True)
 print("Calisma zamani: " + datetime.utcnow().isoformat(), flush=True)
 print("=" * 60, flush=True)
@@ -66,7 +66,147 @@ MIN_VALID_PAGES = 10
 
 # === GOOGLE APPS SCRIPT PROXY (Cloudflare Bypass) ===
 GOOGLE_SCRIPT_URL = os.getenv("GOOGLE_SCRIPT_URL", "https://script.google.com/macros/s/AKfycbzSZ3QfDNIk7ARRgpV0olOXvgij0TJJCQdAtk5NmkUZ_pcgin3dzHt7_J03IZa_m_f4/exec")
-USE_GOOGLE_PROXY = os.getenv("USE_GOOGLE_PROXY", "true").lower() == "true"
+USE_GOOGLE_PROXY = os.getenv("USE_GOOGLE_PROXY", "false").lower() == "true"  # Disabled - blocked by Cloudflare
+
+# === FLARESOLVERR (Cloudflare Turnstile Bypass) ===
+FLARESOLVERR_URL = os.getenv("FLARESOLVERR_URL", "")
+USE_FLARESOLVERR = os.getenv("USE_FLARESOLVERR", "true").lower() == "true"
+
+def fetch_via_flaresolverr(url, max_timeout=120000):
+    """FlareSolverr üzerinden sayfa içeriği al (Cloudflare Turnstile bypass)"""
+    if not FLARESOLVERR_URL:
+        print("[FLARESOLVERR] URL ayarlanmamış! Railway'de FLARESOLVERR_URL ekleyin.", flush=True)
+        return None
+    
+    api_url = FLARESOLVERR_URL.rstrip("/")
+    if not api_url.endswith("/v1"):
+        api_url = api_url + "/v1"
+    
+    print(f"[FLARESOLVERR] Fetch: {url}", flush=True)
+    
+    payload = {
+        "cmd": "request.get",
+        "url": url,
+        "maxTimeout": max_timeout
+    }
+    
+    try:
+        response = requests.post(api_url, json=payload, timeout=max_timeout/1000 + 30)
+        
+        if response.status_code != 200:
+            print(f"[FLARESOLVERR] HTTP hata: {response.status_code}", flush=True)
+            return None
+        
+        data = response.json()
+        status = data.get("status", "")
+        
+        if status != "ok":
+            message = data.get("message", "Bilinmeyen hata")
+            print(f"[FLARESOLVERR] Hata: {message}", flush=True)
+            return None
+        
+        solution = data.get("solution", {})
+        html = solution.get("response", "")
+        final_url = solution.get("url", url)
+        cookies = solution.get("cookies", [])
+        
+        print(f"[FLARESOLVERR] Başarılı! İçerik uzunluğu: {len(html)}, Cookies: {len(cookies)}", flush=True)
+        
+        if html:
+            return {"content": html, "final_url": final_url, "cookies": cookies}
+        return None
+        
+    except requests.exceptions.Timeout:
+        print("[FLARESOLVERR] Timeout - FlareSolverr çok uzun sürdü", flush=True)
+        return None
+    except Exception as e:
+        print(f"[FLARESOLVERR] Hata: {e}", flush=True)
+        return None
+
+
+def fetch_listings_via_flaresolverr():
+    """FlareSolverr üzerinden tüm ilanları çek"""
+    import re
+    
+    results = []
+    seen_codes = set()
+    page_num = 0
+    consecutive_failures = 0
+    MAX_FAILURES = 3
+    MAX_PAGES = 100
+    
+    print("[FLARESOLVERR] İlan taraması başlıyor...", flush=True)
+    
+    while page_num < MAX_PAGES:
+        if SCAN_STOP_REQUESTED:
+            print("[FLARESOLVERR] Kullanıcı durdurdu", flush=True)
+            break
+        
+        page_num += 1
+        if page_num == 1:
+            page_url = URL
+        else:
+            page_url = URL + "?pager_p=" + str(page_num)
+        
+        print(f"[FLARESOLVERR SAYFA {page_num}] {page_url}", flush=True)
+        
+        result = fetch_via_flaresolverr(page_url)
+        
+        if not result or not result.get("content"):
+            consecutive_failures += 1
+            print(f"[FLARESOLVERR SAYFA {page_num}] İçerik alınamadı", flush=True)
+            
+            if page_num <= 3:
+                print("[FLARESOLVERR] İlk 3 sayfada hata - tarama iptal", flush=True)
+                return None
+            
+            if consecutive_failures >= MAX_FAILURES:
+                print("[FLARESOLVERR] Art arda 3 hata - tarama durduruluyor", flush=True)
+                break
+            continue
+        
+        consecutive_failures = 0
+        html = result["content"]
+        
+        # HTML'den ilan linklerini çıkar
+        ilan_pattern = r'href="(/ilan/[^"]*-ML-(\d+-\d+)[^"]*)"'
+        matches = re.findall(ilan_pattern, html, re.IGNORECASE)
+        
+        if not matches:
+            if page_num <= MIN_VALID_PAGES:
+                print(f"[FLARESOLVERR] Sayfa {page_num} boş - hata", flush=True)
+                return None
+            print(f"[FLARESOLVERR SAYFA {page_num}] Son sayfa geçildi", flush=True)
+            break
+        
+        page_listings = 0
+        for href, kod in matches:
+            if kod in seen_codes:
+                continue
+            seen_codes.add(kod)
+            
+            try:
+                path_parts = href.split("/ilan/")[1].rsplit("-ML-", 1)[0]
+                baslik = " ".join(word.capitalize() for word in path_parts.replace("-", " ").split())
+            except:
+                baslik = f"İlan ML-{kod}"
+            
+            results.append({
+                "kod": kod,
+                "baslik": baslik,
+                "link": f"https://www.makrolife.com.tr{href}" if href.startswith("/") else href
+            })
+            page_listings += 1
+        
+        print(f"[FLARESOLVERR SAYFA {page_num}] {page_listings} yeni ilan (toplam: {len(results)})", flush=True)
+        time.sleep(2)  # FlareSolverr'a yük bindirmemek için
+    
+    if len(results) == 0:
+        print("[FLARESOLVERR] Hiç ilan bulunamadı", flush=True)
+        return None
+    
+    print(f"[FLARESOLVERR] Toplam {len(results)} ilan bulundu", flush=True)
+    return results
 
 def fetch_via_google_proxy(url):
     """Google Apps Script üzerinden sayfa içeriği al (Cloudflare bypass)"""
@@ -1503,9 +1643,18 @@ def fetch_listings_playwright():
 
     scan_start = time.time()
 
-    # === GOOGLE PROXY İLE DENEME (Cloudflare Bypass) ===
+    # === 1. FLARESOLVERR İLE DENEME (En güçlü yöntem) ===
+    if USE_FLARESOLVERR and FLARESOLVERR_URL:
+        print("[FLARESOLVERR] Öncelikli yöntem olarak deneniyor...", flush=True)
+        flare_result = fetch_listings_via_flaresolverr()
+        if flare_result is not None:
+            ACTIVE_SCAN = False
+            return flare_result
+        print("[FLARESOLVERR] Başarısız, Google Proxy deneniyor...", flush=True)
+
+    # === 2. GOOGLE PROXY İLE DENEME (Cloudflare Bypass) ===
     if USE_GOOGLE_PROXY:
-        print("[GOOGLE_PROXY] Öncelikli yöntem olarak deneniyor...", flush=True)
+        print("[GOOGLE_PROXY] Deneniyor...", flush=True)
         google_result = fetch_listings_via_google_proxy()
         if google_result is not None:
             ACTIVE_SCAN = False
