@@ -47,8 +47,8 @@ DATA_FILE = "/data/ilanlar.json"
 HISTORY_FILE = "/data/history.json"
 LAST_SCAN_FILE = "/data/last_scan_time.json"
 
-# Timeout (saniye) - 40 dakika (70 sayfa ~26 dk sürüyor)
-SCAN_TIMEOUT = 40 * 60
+# Timeout (saniye) - 60 dakika (77 sayfa icin guvenli sure)
+SCAN_TIMEOUT = 60 * 60
 
 # === YENİ GLOBAL KONTROLLER ===
 SCAN_STOP_REQUESTED = False
@@ -259,12 +259,11 @@ def fetch_listings_via_flaresolverr():
             page_listings += 1
         
         print(f"[FLARESOLVERR SAYFA {page_num}] {page_listings} yeni ilan (toplam: {len(results)})", flush=True)
-        # FlareSolverr'a aşırı yüklenmemek için kısa bekleme
-        raw_sleep = 2.0
-        # Hızlandırma: Eğer çok az ilan varsa (sonlara doğru) daha az bekle
-        if page_listings < 5: 
-            raw_sleep = 0.5
-        import time; time.sleep(raw_sleep)
+        # FlareSolverr'a aşırı yüklenmemek için bekleme (Optimize edildi)
+        if page_num % 10 == 0:
+            import time; time.sleep(3) # Her 10 sayfada bir dinlenme
+        else:
+            import time; time.sleep(1.0) # Normal bekleme suresi 1sn'ye dusuruldu
     
     if len(results) == 0:
         print("[FLARESOLVERR] Hiç ilan bulunamadı", flush=True)
