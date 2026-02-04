@@ -16,7 +16,7 @@ os.makedirs("/data", exist_ok=True)
 
 print("=" * 60, flush=True)
 print("BOT BASLATILIYOR...", flush=True)
-print(">>> CLOUDFLARE BYPASS v6.2 (FLARESOLVERR FIX 2) <<<", flush=True)
+print(">>> CLOUDFLARE BYPASS v6.3 (URL FIX) <<<", flush=True)
 print("Python version: " + sys.version, flush=True)
 print("Calisma zamani: " + datetime.utcnow().isoformat(), flush=True)
 print("=" * 60, flush=True)
@@ -81,6 +81,9 @@ def fetch_via_flaresolverr(url, max_timeout=120000):
         return None
     
     api_url = FLARESOLVERR_URL.rstrip("/")
+    if not api_url.startswith("http"):
+        api_url = "https://" + api_url
+        
     if not api_url.endswith("/v1"):
         api_url = api_url + "/v1"
     
