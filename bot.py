@@ -595,12 +595,46 @@ def wait_for_cloudflare(page, timeout=45000):
 def get_turkey_time():
     return datetime.utcnow() + timedelta(hours=3)
 
+# Sabit tarama saatleri (Türkiye saati)
+SCHEDULED_SCAN_HOURS = [10, 13, 16, 19]
+
+def get_scheduled_hours():
+    """Tarama saatlerini döndür"""
+    return SCHEDULED_SCAN_HOURS
+
+def get_next_scan_time():
+    """Bir sonraki tarama saatine kadar kalan süreyi saniye olarak döndür"""
+    now = get_turkey_time()
+    current_hour = now.hour
+    current_minute = now.minute
+    
+    # Bugün için kalan tarama saatlerini bul
+    for hour in SCHEDULED_SCAN_HOURS:
+        if hour > current_hour or (hour == current_hour and current_minute < 5):
+            # Bu saatten önceyiz, bu saate kadar bekle
+            minutes_until = (hour - current_hour) * 60 - current_minute
+            return max(minutes_until * 60, 60)  # En az 1 dakika
+    
+    # Bugünkü tüm saatler geçti, yarının ilk saatine kadar bekle
+    hours_until_midnight = 24 - current_hour
+    hours_from_midnight = SCHEDULED_SCAN_HOURS[0]
+    total_hours = hours_until_midnight + hours_from_midnight
+    minutes_until = total_hours * 60 - current_minute
+    return minutes_until * 60
+
+def should_scan_now():
+    """Şu an tarama saati mi kontrol et (±5 dakika tolerans)"""
+    now = get_turkey_time()
+    current_hour = now.hour
+    current_minute = now.minute
+    
+    if current_hour in SCHEDULED_SCAN_HOURS and current_minute < 5:
+        return True
+    return False
+
 def get_scan_interval():
-    hour = get_turkey_time().hour
-    if 9 <= hour < 18:
-        return 90 * 60   # Gündüz (09:00-18:00): 1.5 saat
-    else:
-        return 240 * 60  # Gece (18:00-09:00): 4 saat
+    """Geriye uyumluluk için - bir sonraki taramaya kalan süre"""
+    return get_next_scan_time()
 
 # Istatistikler
 bot_stats = {
@@ -2455,10 +2489,10 @@ def main():
                 print("#" * 50, flush=True)
                 
                 # TARAMA BASLADI MESAJI
-                interval = get_scan_interval() // 60
+                schedule_str = ", ".join([f"{h}:00" for h in SCHEDULED_SCAN_HOURS])
                 github_status = "Aktif" if GITHUB_TOKEN else "Kapali"
                 msg = "🔄 <b>Tarama Başladı!</b>\n\n"
-                msg += "⏰ Tarama aralığı: " + str(interval) + " dk\n"
+                msg += "⏰ Tarama saatleri: " + schedule_str + "\n"
                 msg += "💾 Bellekteki ilan: " + str(len(load_state().get("items", {}))) + "\n"
                 msg += "☁️ GitHub yedek: " + github_status
                 send_message(msg)
@@ -2468,8 +2502,13 @@ def main():
                 # Tarama sonrasi zamani kaydet
                 save_last_scan_time(current_time)
                 
-                next_interval = get_scan_interval() // 60
-                print("[BEKLIYOR] Sonraki tarama " + str(next_interval) + " dk sonra", flush=True)
+                next_minutes = get_scan_interval() // 60
+                next_hours = next_minutes // 60
+                remaining_mins = next_minutes % 60
+                if next_hours > 0:
+                    print(f"[BEKLIYOR] Sonraki tarama {next_hours} saat {remaining_mins} dk sonra", flush=True)
+                else:
+                    print(f"[BEKLIYOR] Sonraki tarama {remaining_mins} dk sonra", flush=True)
             
             time.sleep(1)
             
