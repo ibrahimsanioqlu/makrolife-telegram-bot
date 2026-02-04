@@ -16,7 +16,7 @@ os.makedirs("/data", exist_ok=True)
 
 print("=" * 60, flush=True)
 print("BOT BASLATILIYOR...", flush=True)
-print(">>> CLOUDFLARE BYPASS v4.0 (ADVANCED) <<<", flush=True)
+print(">>> CLOUDFLARE BYPASS v5.0 (GOOGLE PROXY) <<<", flush=True)
 print("Python version: " + sys.version, flush=True)
 print("Calisma zamani: " + datetime.utcnow().isoformat(), flush=True)
 print("=" * 60, flush=True)
@@ -63,6 +63,130 @@ WAITING_PAGE_CHOICE = False
 MIN_LISTING_RATIO = 0.4  # %40
 # İlk N sayfa boş gelirse site hatası olarak değerlendir
 MIN_VALID_PAGES = 10
+
+# === GOOGLE APPS SCRIPT PROXY (Cloudflare Bypass) ===
+GOOGLE_SCRIPT_URL = os.getenv("GOOGLE_SCRIPT_URL", "https://script.google.com/macros/s/AKfycbzSZ3QfDNIk7ARRgpV0olOXvgij0TJJCQdAtk5NmkUZ_pcgin3dzHt7_J03IZa_m_f4/exec")
+USE_GOOGLE_PROXY = os.getenv("USE_GOOGLE_PROXY", "true").lower() == "true"
+
+def fetch_via_google_proxy(url):
+    """Google Apps Script üzerinden sayfa içeriği al (Cloudflare bypass)"""
+    if not GOOGLE_SCRIPT_URL:
+        print("[GOOGLE_PROXY] URL ayarlanmamış!", flush=True)
+        return None
+    
+    proxy_url = f"{GOOGLE_SCRIPT_URL}?url={requests.utils.quote(url)}"
+    print(f"[GOOGLE_PROXY] Fetch: {url}", flush=True)
+    
+    try:
+        response = requests.get(proxy_url, timeout=90, headers={"Accept": "application/json"})
+        if response.status_code != 200:
+            print(f"[GOOGLE_PROXY] HTTP hata: {response.status_code}", flush=True)
+            return None
+        
+        data = response.json()
+        http_code = data.get("http_code", 0)
+        content = data.get("content", "")
+        final_url = data.get("final_url", url)
+        
+        print(f"[GOOGLE_PROXY] Başarılı! HTTP: {http_code}, İçerik uzunluğu: {len(content)}", flush=True)
+        
+        if http_code == 200 and content:
+            return {"content": content, "final_url": final_url}
+        return None
+        
+    except Exception as e:
+        print(f"[GOOGLE_PROXY] Hata: {e}", flush=True)
+        return None
+
+
+def fetch_listings_via_google_proxy():
+    """Google Proxy üzerinden tüm ilanları çek"""
+    import re
+    
+    results = []
+    seen_codes = set()
+    page_num = 0
+    consecutive_failures = 0
+    MAX_FAILURES = 3
+    MAX_PAGES = 100
+    
+    print("[GOOGLE_PROXY] İlan taraması başlıyor...", flush=True)
+    
+    while page_num < MAX_PAGES:
+        if SCAN_STOP_REQUESTED:
+            print("[GOOGLE_PROXY] Kullanıcı durdurdu", flush=True)
+            break
+        
+        page_num += 1
+        if page_num == 1:
+            page_url = URL
+        else:
+            page_url = URL + "?pager_p=" + str(page_num)
+        
+        print(f"[GOOGLE_PROXY SAYFA {page_num}] {page_url}", flush=True)
+        
+        proxy_result = fetch_via_google_proxy(page_url)
+        
+        if not proxy_result or not proxy_result.get("content"):
+            consecutive_failures += 1
+            print(f"[GOOGLE_PROXY SAYFA {page_num}] İçerik alınamadı", flush=True)
+            
+            if page_num <= 3:
+                print("[GOOGLE_PROXY] İlk 3 sayfada hata - tarama iptal", flush=True)
+                return None
+            
+            if consecutive_failures >= MAX_FAILURES:
+                print("[GOOGLE_PROXY] Art arda 3 hata - tarama durduruluyor", flush=True)
+                break
+            continue
+        
+        consecutive_failures = 0
+        html = proxy_result["content"]
+        
+        # HTML'den ilan linklerini çıkar: /ilan/...-ML-XXXX-XX formatı
+        ilan_pattern = r'href="(/ilan/[^"]*-ML-(\d+-\d+)[^"]*)"'
+        matches = re.findall(ilan_pattern, html, re.IGNORECASE)
+        
+        if not matches:
+            # Son sayfa kontrolü
+            if page_num <= MIN_VALID_PAGES:
+                print(f"[GOOGLE_PROXY] Sayfa {page_num} boş - ilk {MIN_VALID_PAGES} sayfada boş olamaz", flush=True)
+                return None
+            print(f"[GOOGLE_PROXY SAYFA {page_num}] İlan yok - son sayfa geçildi", flush=True)
+            break
+        
+        page_listings = 0
+        for href, kod in matches:
+            if kod in seen_codes:
+                continue
+            seen_codes.add(kod)
+            
+            # Başlık çıkar (link içindeki metinden)
+            # /ilan/diyarbakir-yenisehir-satilik-daire-ML-9985-14 -> Diyarbakir Yenisehir Satilik Daire
+            try:
+                path_parts = href.split("/ilan/")[1].rsplit("-ML-", 1)[0]
+                baslik = " ".join(word.capitalize() for word in path_parts.replace("-", " ").split())
+            except:
+                baslik = f"İlan ML-{kod}"
+            
+            results.append({
+                "kod": kod,
+                "baslik": baslik,
+                "link": f"https://www.makrolife.com.tr{href}" if href.startswith("/") else href
+            })
+            page_listings += 1
+        
+        print(f"[GOOGLE_PROXY SAYFA {page_num}] {page_listings} yeni ilan bulundu (toplam: {len(results)})", flush=True)
+        
+        # Kısa bekleme
+        time.sleep(1)
+    
+    if len(results) == 0:
+        print("[GOOGLE_PROXY] Hiç ilan bulunamadı", flush=True)
+        return None
+    
+    print(f"[GOOGLE_PROXY] Toplam {len(results)} ilan bulundu", flush=True)
+    return results
 
 
 # === CLOUDFLARE BYPASS HELPER ===
@@ -1378,6 +1502,15 @@ def fetch_listings_playwright():
     SCAN_STOP_REQUESTED = False
 
     scan_start = time.time()
+
+    # === GOOGLE PROXY İLE DENEME (Cloudflare Bypass) ===
+    if USE_GOOGLE_PROXY:
+        print("[GOOGLE_PROXY] Öncelikli yöntem olarak deneniyor...", flush=True)
+        google_result = fetch_listings_via_google_proxy()
+        if google_result is not None:
+            ACTIVE_SCAN = False
+            return google_result
+        print("[GOOGLE_PROXY] Başarısız, Playwright'a geçiliyor...", flush=True)
 
     print("[PLAYWRIGHT] Baslatiliyor...", flush=True)
 
