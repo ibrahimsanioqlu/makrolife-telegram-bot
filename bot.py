@@ -64,43 +64,63 @@ MIN_VALID_PAGES = 10
 
 
 # === CLOUDFLARE BYPASS HELPER ===
-def wait_for_cloudflare(page, timeout=30000):
-    """Cloudflare JS Challenge'ının tamamlanmasını bekle"""
+def wait_for_cloudflare(page, timeout=45000):
+    """Cloudflare JS Challenge'ının tamamlanmasını bekle - AGRESİF YAKLAŞIM"""
+    import time as _time
+    
+    print("[CF] Sayfa içeriği kontrol ediliyor...", flush=True)
+    
+    # Sayfa içeriğinin ilk 500 karakterini logla (debug için)
     try:
-        # Cloudflare challenge indicator'larını kontrol et
-        page_content = page.content().lower()
-        cf_detected = False
-        
-        cf_keywords = [
-            "checking your browser",
-            "just a moment",
-            "doğrulanıyor",
-            "verify you are human",
-            "cf-spinner",
-            "challenge-running"
-        ]
-        
-        for keyword in cf_keywords:
-            if keyword in page_content:
-                cf_detected = True
-                print(f"[CF] Cloudflare challenge tespit edildi: '{keyword}'", flush=True)
-                break
-        
-        if cf_detected:
-            print("[CF] Challenge geçmesi bekleniyor (max 30sn)...", flush=True)
-            # Challenge geçene kadar bekle - gerçek ilan içeriği yüklenene kadar
-            try:
-                page.wait_for_selector('a[href*="/ilan/"]', timeout=timeout)
-                print("[CF] Cloudflare bypass başarılı!", flush=True)
-                return True
-            except:
-                print("[CF] Challenge geçilemedi - timeout", flush=True)
-                return False
-        
-        return True  # Challenge yoktu, devam et
+        page_content = page.content()
+        page_title = page.title()
+        print(f"[CF] Sayfa başlığı: {page_title}", flush=True)
+        print(f"[CF] İçerik önizleme: {page_content[:500]}...", flush=True)
     except Exception as e:
-        print(f"[CF] Kontrol hatası: {e}", flush=True)
-        return True  # Hata olsa bile devam etmeyi dene
+        print(f"[CF] İçerik okunamadı: {e}", flush=True)
+    
+    # İlan linkleri var mı kontrol et
+    try:
+        ilan_count = page.locator('a[href*="/ilan/"]').count()
+        print(f"[CF] Mevcut ilan linki sayısı: {ilan_count}", flush=True)
+        
+        if ilan_count > 0:
+            print("[CF] İlanlar zaten yüklü, devam ediliyor", flush=True)
+            return True
+    except Exception as e:
+        print(f"[CF] Locator hatası: {e}", flush=True)
+    
+    # İlan yoksa bekle (Cloudflare challenge olabilir)
+    print("[CF] İlan bulunamadı, Cloudflare challenge bekleniyor...", flush=True)
+    
+    # 45 saniye boyunca 3 saniyede bir kontrol et
+    max_attempts = 15
+    for attempt in range(max_attempts):
+        _time.sleep(3)
+        try:
+            ilan_count = page.locator('a[href*="/ilan/"]').count()
+            print(f"[CF] Deneme {attempt + 1}/{max_attempts}: {ilan_count} ilan linki", flush=True)
+            
+            if ilan_count > 0:
+                print(f"[CF] Cloudflare bypass BAŞARILI! ({(attempt + 1) * 3} saniye sonra)", flush=True)
+                return True
+        except Exception as e:
+            print(f"[CF] Deneme {attempt + 1} hatası: {e}", flush=True)
+    
+    # Son çare: sayfayı yenile ve tekrar dene
+    print("[CF] Son çare: Sayfa yenileniyor...", flush=True)
+    try:
+        page.reload(wait_until="networkidle", timeout=60000)
+        _time.sleep(5)
+        ilan_count = page.locator('a[href*="/ilan/"]').count()
+        if ilan_count > 0:
+            print(f"[CF] Yenileme sonrası başarılı! {ilan_count} ilan", flush=True)
+            return True
+    except Exception as e:
+        print(f"[CF] Yenileme hatası: {e}", flush=True)
+    
+    print("[CF] Cloudflare bypass BAŞARISIZ - tüm denemeler tükendi", flush=True)
+    return False
 
 
 def get_turkey_time():
