@@ -34,7 +34,7 @@ CHAT_IDS = [cid for cid in [os.getenv("CHAT_ID"), "7449598531"] if cid and str(c
 ADMIN_CHAT_IDS = [cid for cid in {os.getenv("CHAT_ID"), "7449598531", REAL_ADMIN_CHAT_ID} if cid]
 # GitHub ayarlari (veri yedekleme icin)
 GITHUB_TOKEN = os.getenv("GITHUB_TOKEN")
-GITHUB_REPO = os.getenv("GITHUB_REPO", "emlak-web-sitem/emlak-web-sitem-bot")
+GITHUB_REPO = os.getenv("GITHUB_REPO", "ibrahimsanioqlu/makrolife-telegram-bot")
 
 print("BOT_TOKEN mevcut: " + str(bool(BOT_TOKEN)), flush=True)
 print("CHAT_ID mevcut: " + str(bool(os.getenv("CHAT_ID"))), flush=True)
@@ -61,6 +61,46 @@ WAITING_PAGE_CHOICE = False
 MIN_LISTING_RATIO = 0.4  # %40
 # İlk N sayfa boş gelirse site hatası olarak değerlendir
 MIN_VALID_PAGES = 10
+
+
+# === CLOUDFLARE BYPASS HELPER ===
+def wait_for_cloudflare(page, timeout=30000):
+    """Cloudflare JS Challenge'ının tamamlanmasını bekle"""
+    try:
+        # Cloudflare challenge indicator'larını kontrol et
+        page_content = page.content().lower()
+        cf_detected = False
+        
+        cf_keywords = [
+            "checking your browser",
+            "just a moment",
+            "doğrulanıyor",
+            "verify you are human",
+            "cf-spinner",
+            "challenge-running"
+        ]
+        
+        for keyword in cf_keywords:
+            if keyword in page_content:
+                cf_detected = True
+                print(f"[CF] Cloudflare challenge tespit edildi: '{keyword}'", flush=True)
+                break
+        
+        if cf_detected:
+            print("[CF] Challenge geçmesi bekleniyor (max 30sn)...", flush=True)
+            # Challenge geçene kadar bekle - gerçek ilan içeriği yüklenene kadar
+            try:
+                page.wait_for_selector('a[href*="/ilan/"]', timeout=timeout)
+                print("[CF] Cloudflare bypass başarılı!", flush=True)
+                return True
+            except:
+                print("[CF] Challenge geçilemedi - timeout", flush=True)
+                return False
+        
+        return True  # Challenge yoktu, devam et
+    except Exception as e:
+        print(f"[CF] Kontrol hatası: {e}", flush=True)
+        return True  # Hata olsa bile devam etmeyi dene
 
 
 def get_turkey_time():
@@ -1273,6 +1313,15 @@ def fetch_listings_playwright():
             return browser.new_context(
                 viewport={"width": 1920, "height": 1080},
                 user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+                locale="tr-TR",
+                timezone_id="Europe/Istanbul",
+                extra_http_headers={
+                    "Accept-Language": "tr-TR,tr;q=0.9,en-US;q=0.8,en;q=0.7",
+                    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8",
+                    "Accept-Encoding": "gzip, deflate, br",
+                    "Connection": "keep-alive",
+                    "Upgrade-Insecure-Requests": "1",
+                }
             )
 
         context = new_context()
@@ -1306,6 +1355,12 @@ def fetch_listings_playwright():
                 try:
                     # Timeout: 90 saniye (önceki 60'tan artırıldı)
                     page.goto(page_url, timeout=90000, wait_until="networkidle")
+                    
+                    # Cloudflare challenge kontrolü ve beklemesi
+                    if not wait_for_cloudflare(page):
+                        print(f"[SAYFA {page_num}] Cloudflare challenge geçilemedi", flush=True)
+                        raise TimeoutError("Cloudflare challenge timeout")
+                    
                     page_loaded = True
                     break
                 except TimeoutError:
