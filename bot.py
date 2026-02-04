@@ -16,7 +16,7 @@ os.makedirs("/data", exist_ok=True)
 
 print("=" * 60, flush=True)
 print("BOT BASLATILIYOR...", flush=True)
-print(">>> CLOUDFLARE BYPASS v6.0 (FLARESOLVERR) <<<", flush=True)
+print(">>> CLOUDFLARE BYPASS v6.1 (FLARESOLVERR FIX) <<<", flush=True)
 print("Python version: " + sys.version, flush=True)
 print("Calisma zamani: " + datetime.utcnow().isoformat(), flush=True)
 print("=" * 60, flush=True)
@@ -40,8 +40,10 @@ GITHUB_REPO = os.getenv("GITHUB_REPO", "emlak-web-sitem/emlak-web-sitem-bot")
 
 print("BOT_TOKEN mevcut: " + str(bool(BOT_TOKEN)), flush=True)
 print("CHAT_ID mevcut: " + str(bool(os.getenv("CHAT_ID"))), flush=True)
-print("GITHUB_TOKEN mevcut: " + str(bool(GITHUB_TOKEN)), flush=True)
-
+print(f"GITHUB_TOKEN mevcut: {bool(GITHUB_TOKEN)}", flush=True)
+print(f"FLARESOLVERR_URL: {FLARESOLVERR_URL}", flush=True)
+print(f"USE_FLARESOLVERR: {USE_FLARESOLVERR}", flush=True)
+print("__main__ basliyor...", flush=True)
 # 2026-01-20: Makrolife yeni URL yapısı
 URL = "https://www.makrolife.com.tr/ilanlar"
 DATA_FILE = "/data/ilanlar.json"
@@ -82,46 +84,61 @@ def fetch_via_flaresolverr(url, max_timeout=120000):
     if not api_url.endswith("/v1"):
         api_url = api_url + "/v1"
     
-    print(f"[FLARESOLVERR] Fetch: {url}", flush=True)
+    # Retry mekanizması (Connection refused için)
+    import time as _time
+    max_retries = 3
     
-    payload = {
-        "cmd": "request.get",
-        "url": url,
-        "maxTimeout": max_timeout
-    }
-    
-    try:
-        response = requests.post(api_url, json=payload, timeout=max_timeout/1000 + 30)
-        
-        if response.status_code != 200:
-            print(f"[FLARESOLVERR] HTTP hata: {response.status_code}", flush=True)
+    for attempt in range(max_retries):
+        try:
+            if attempt > 0:
+                print(f"[FLARESOLVERR] Deneme {attempt+1}/{max_retries}...", flush=True)
+            
+            print(f"[FLARESOLVERR] Fetch: {url}", flush=True)
+            
+            payload = {
+                "cmd": "request.get",
+                "url": url,
+                "maxTimeout": max_timeout
+            }
+            
+            response = requests.post(api_url, json=payload, timeout=max_timeout/1000 + 30)
+            
+            if response.status_code != 200:
+                print(f"[FLARESOLVERR] HTTP hata: {response.status_code}", flush=True)
+                return None
+            
+            data = response.json()
+            status = data.get("status", "")
+            
+            if status != "ok":
+                message = data.get("message", "Bilinmeyen hata")
+                print(f"[FLARESOLVERR] Hata: {message}", flush=True)
+                return None
+            
+            solution = data.get("solution", {})
+            html = solution.get("response", "")
+            final_url = solution.get("url", url)
+            cookies = solution.get("cookies", [])
+            
+            print(f"[FLARESOLVERR] Başarılı! İçerik uzunluğu: {len(html)}, Cookies: {len(cookies)}", flush=True)
+            
+            if html:
+                return {"content": html, "final_url": final_url, "cookies": cookies}
             return None
-        
-        data = response.json()
-        status = data.get("status", "")
-        
-        if status != "ok":
-            message = data.get("message", "Bilinmeyen hata")
-            print(f"[FLARESOLVERR] Hata: {message}", flush=True)
+
+        except requests.exceptions.ConnectionError:
+            print(f"[FLARESOLVERR] Bağlantı reddedildi (Connection refused). Servis henüz hazır olmayabilir.", flush=True)
+            if attempt < max_retries - 1:
+                _time.sleep(5)  # 5 saniye bekle ve tekrar dene
+        except requests.exceptions.Timeout:
+            print("[FLARESOLVERR] Timeout - FlareSolverr çok uzun sürdü", flush=True)
             return None
-        
-        solution = data.get("solution", {})
-        html = solution.get("response", "")
-        final_url = solution.get("url", url)
-        cookies = solution.get("cookies", [])
-        
-        print(f"[FLARESOLVERR] Başarılı! İçerik uzunluğu: {len(html)}, Cookies: {len(cookies)}", flush=True)
-        
-        if html:
-            return {"content": html, "final_url": final_url, "cookies": cookies}
-        return None
-        
-    except requests.exceptions.Timeout:
-        print("[FLARESOLVERR] Timeout - FlareSolverr çok uzun sürdü", flush=True)
-        return None
-    except Exception as e:
-        print(f"[FLARESOLVERR] Hata: {e}", flush=True)
-        return None
+        except Exception as e:
+            print(f"[FLARESOLVERR] Beklenmeyen Hata: {e}", flush=True)
+            return None
+            
+    print("[FLARESOLVERR] Tüm denemeler başarısız oldu.", flush=True)
+    return None
 
 
 def fetch_listings_via_flaresolverr():
