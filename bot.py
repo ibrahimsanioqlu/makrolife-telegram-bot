@@ -145,7 +145,7 @@ def fetch_via_flaresolverr(url, max_timeout=120000):
 
 
 def fetch_listings_via_flaresolverr():
-    """FlareSolverr üzerinden tüm ilanları çek"""
+    """FlareSolverr üzerinden tüm ilanları çek ve fiyatları parse et"""
     import re
     
     results = []
@@ -153,7 +153,7 @@ def fetch_listings_via_flaresolverr():
     page_num = 0
     consecutive_failures = 0
     MAX_FAILURES = 3
-    MAX_PAGES = 100
+    MAX_PAGES = 100 # Güvenlik limiti
     
     print("[FLARESOLVERR] İlan taraması başlıyor...", flush=True)
     
@@ -188,9 +188,10 @@ def fetch_listings_via_flaresolverr():
         consecutive_failures = 0
         html = result["content"]
         
-        # HTML'den ilan linklerini çıkar
+        # HTML'i ilan linklerine göre parçala
+        # Link yapısı: href="/ilan/..."
         ilan_pattern = r'href="(/ilan/[^"]*-ML-(\d+-\d+)[^"]*)"'
-        matches = re.findall(ilan_pattern, html, re.IGNORECASE)
+        matches = list(re.finditer(ilan_pattern, html, re.IGNORECASE))
         
         if not matches:
             if page_num <= MIN_VALID_PAGES:
@@ -200,20 +201,57 @@ def fetch_listings_via_flaresolverr():
             break
         
         page_listings = 0
-        for href, kod in matches:
+        for i, match in enumerate(matches):
+            href = match.group(1)
+            kod = match.group(2)
+            
             if kod in seen_codes:
                 continue
             seen_codes.add(kod)
             
+            # --- FİYAT VE BAŞLIK AYRIŞTIRMA ---
+            # Strateji: Şu anki linkin başlangıç pozisyonundan, bir sonraki linkin 
+            # başlangıç pozisyonuna kadar olan (veya sayfa sonuna kadar) metni al.
+            # Bu "chunk" içinde fiyat ve başlık ara.
+            
+            start_pos = match.start()
+            # Bir sonraki maç var mı? Varsa onun başlangıcını, yoksa HTML sonunu al
+            # Ancak bazen HTML yapısı linkten ÖNCE de bilgi içerebilir. 
+            # Güvenlik için: Linkten önceki 500 ve sonraki 1500 karakteri alalım.
+            
+            search_start = max(0, start_pos - 1000)
+            if i < len(matches) - 1:
+                search_end = matches[i+1].start()
+            else:
+                search_end = min(len(html), start_pos + 5000)
+                
+            chunk = html[search_start:search_end]
+            
+            # 1. Başlık Çıkarma
             try:
                 path_parts = href.split("/ilan/")[1].rsplit("-ML-", 1)[0]
                 baslik = " ".join(word.capitalize() for word in path_parts.replace("-", " ").split())
             except:
                 baslik = f"İlan ML-{kod}"
-            
+                
+            # 2. Fiyat Çıkarma (Regex)
+            # Genellikle: 10.500.000 TL veya 10,500,000 TL
+            # Desen: Sayı (nokta/virgüllü) + Boşluk(opsiyonel) + "TL" veya "₺"
+            fiyat = "Fiyat Yok"
+            # Bu regex HTML tagları arasında kalmış fiyatı da bulur: >10.000 TL<
+            price_match = re.search(r'([\d\.,]+\s*(?:TL|₺|USD|EUR|GBP))', chunk)
+            if price_match:
+                # Bulunan fiyatın "temiz" olup olmadığını kontrol et (örneğin sadece yıl "2023 TL" olmamalı)
+                candidate = price_match.group(1)
+                # Basit doğrulama: içinde en az 3 rakam olsun
+                if sum(c.isdigit() for c in candidate) >= 3:
+                    fiyat = candidate.strip()
+                    # HTML entity temizliği (gerekirse)
+                    fiyat = fiyat.replace('₺', 'TL').replace('&#8378;', 'TL')
+
             results.append((
                 kod,
-                "Fiyat Yok",  # TODO: Regex ile fiyat çekme eklenecek
+                fiyat,
                 f"https://www.makrolife.com.tr{href}" if href.startswith("/") else href,
                 baslik,
                 page_num
@@ -221,7 +259,12 @@ def fetch_listings_via_flaresolverr():
             page_listings += 1
         
         print(f"[FLARESOLVERR SAYFA {page_num}] {page_listings} yeni ilan (toplam: {len(results)})", flush=True)
-        time.sleep(2)  # FlareSolverr'a yük bindirmemek için
+        # FlareSolverr'a aşırı yüklenmemek için kısa bekleme
+        raw_sleep = 2.0
+        # Hızlandırma: Eğer çok az ilan varsa (sonlara doğru) daha az bekle
+        if page_listings < 5: 
+            raw_sleep = 0.5
+        import time; time.sleep(raw_sleep)
     
     if len(results) == 0:
         print("[FLARESOLVERR] Hiç ilan bulunamadı", flush=True)
@@ -305,12 +348,11 @@ def fetch_listings_via_google_proxy():
         consecutive_failures = 0
         html = proxy_result["content"]
         
-        # HTML'den ilan linklerini çıkar: /ilan/...-ML-XXXX-XX formatı
+        # HTML'i ilan linklerine göre parçala
         ilan_pattern = r'href="(/ilan/[^"]*-ML-(\d+-\d+)[^"]*)"'
-        matches = re.findall(ilan_pattern, html, re.IGNORECASE)
+        matches = list(re.finditer(ilan_pattern, html, re.IGNORECASE))
         
         if not matches:
-            # Son sayfa kontrolü
             if page_num <= MIN_VALID_PAGES:
                 print(f"[GOOGLE_PROXY] Sayfa {page_num} boş - ilk {MIN_VALID_PAGES} sayfada boş olamaz", flush=True)
                 return None
@@ -318,22 +360,42 @@ def fetch_listings_via_google_proxy():
             break
         
         page_listings = 0
-        for href, kod in matches:
+        for i, match in enumerate(matches):
+            href = match.group(1)
+            kod = match.group(2)
+            
             if kod in seen_codes:
                 continue
             seen_codes.add(kod)
             
-            # Başlık çıkar (link içindeki metinden)
-            # /ilan/diyarbakir-yenisehir-satilik-daire-ML-9985-14 -> Diyarbakir Yenisehir Satilik Daire
+            start_pos = match.start()
+            search_start = max(0, start_pos - 1000)
+            if i < len(matches) - 1:
+                search_end = matches[i+1].start()
+            else:
+                search_end = min(len(html), start_pos + 5000)
+                
+            chunk = html[search_start:search_end]
+            
+            # 1. Başlık
             try:
                 path_parts = href.split("/ilan/")[1].rsplit("-ML-", 1)[0]
                 baslik = " ".join(word.capitalize() for word in path_parts.replace("-", " ").split())
             except:
                 baslik = f"İlan ML-{kod}"
+                
+            # 2. Fiyat
+            fiyat = "Fiyat Yok"
+            price_match = re.search(r'([\d\.,]+\s*(?:TL|₺|USD|EUR|GBP))', chunk)
+            if price_match:
+                candidate = price_match.group(1)
+                if sum(c.isdigit() for c in candidate) >= 3:
+                    fiyat = candidate.strip()
+                    fiyat = fiyat.replace('₺', 'TL').replace('&#8378;', 'TL')
             
             results.append((
                 kod,
-                "Fiyat Yok",
+                fiyat,
                 f"https://www.makrolife.com.tr{href}" if href.startswith("/") else href,
                 baslik,
                 page_num
@@ -341,8 +403,6 @@ def fetch_listings_via_google_proxy():
             page_listings += 1
         
         print(f"[GOOGLE_PROXY SAYFA {page_num}] {page_listings} yeni ilan bulundu (toplam: {len(results)})", flush=True)
-        
-        # Kısa bekleme
         time.sleep(1)
     
     if len(results) == 0:
