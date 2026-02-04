@@ -259,7 +259,7 @@ def fetch_listings_via_flaresolverr():
             
             # HTML entity temizliği ve İlan Kodu Temizliği
             if baslik:
-                baslik = baslik.replace("&amp;", "&").replace("&quot;", '"').replace("&#039;", "'")
+                baslik = baslik.replace("&amp;", "&").replace("&quot;", '"').replace("&#039;", "'").replace("&nbsp;", " ")
                 # "- ML-XXXX-XX" kısmını temizle
                 baslik = re.sub(r'\s*-\s*ML-\d+-\d+\s*$', '', baslik, flags=re.IGNORECASE)
                 
@@ -445,7 +445,7 @@ def fetch_listings_via_google_proxy():
                     baslik = f"İlan ML-{kod}"
             
             if baslik:
-                baslik = baslik.replace("&amp;", "&").replace("&quot;", '"').replace("&#039;", "'")
+                baslik = baslik.replace("&amp;", "&").replace("&quot;", '"').replace("&#039;", "'").replace("&nbsp;", " ")
                 baslik = re.sub(r'\s*-\s*ML-\d+-\d+\s*$', '', baslik, flags=re.IGNORECASE)
                 
             # 2. Fiyat
