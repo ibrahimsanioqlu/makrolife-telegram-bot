@@ -2468,7 +2468,6 @@ def main():
             force_scan = (cmd_result == "SCAN")
             
             current_time = time.time()
-            scan_interval = get_scan_interval()
             
             # Son tarama zamanini yukle
             last_scan_time = load_last_scan_time()
@@ -2481,7 +2480,13 @@ def main():
                 time.sleep(1)
                 continue
 
-            if force_scan or (current_time - last_scan_time >= scan_interval):
+            # Tarama saati kontrolü: Sadece belirlenen saatlerde (10:00, 13:00, 16:00, 19:00) tara
+            # Son taramadan bu yana en az 30 dakika geçmiş olmalı (aynı saatte tekrar taramayı önle)
+            should_scan = False
+            if should_scan_now() and (current_time - last_scan_time >= 1800):  # 30 dakika = 1800 saniye
+                should_scan = True
+                
+            if force_scan or should_scan:
                 print("\n" + "#" * 50, flush=True)
                 scan_type = "(MANUEL)" if force_scan else ""
                 print("# TARAMA #" + str(bot_stats["total_scans"] + 1) + " " + scan_type, flush=True)
