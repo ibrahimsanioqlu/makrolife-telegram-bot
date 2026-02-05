@@ -53,7 +53,7 @@ SCAN_TIMEOUT = 60 * 60
 # === YENİ GLOBAL KONTROLLER ===
 SCAN_STOP_REQUESTED = False
 ACTIVE_SCAN = False
-AUTO_SCAN_ENABLED = True  # Varsayılan: Aktif
+AUTO_SCAN_ENABLED = None  # Başlangıçta state'ten yüklenecek (None = henüz yüklenmedi)
 MANUAL_SCAN_LIMIT = None  # None = tüm sayfalar
 WAITING_PAGE_CHOICE = False
 
@@ -1432,10 +1432,16 @@ def handle_command(chat_id, command, message_text):
     
     if command == "/aktif":
         AUTO_SCAN_ENABLED = True
+        # State'e kaydet (kalıcı olsun)
+        state["auto_scan_enabled"] = True
+        save_state(state)
         send_message("✅ <b>Otomatik Tarama AKTİF edildi.</b>\nBot belirtilen aralıklarla tarama yapmaya devam edecek.", chat_id)
         
     elif command == "/pasif" or command == "/dur":
         AUTO_SCAN_ENABLED = False
+        # State'e kaydet (kalıcı olsun)
+        state["auto_scan_enabled"] = False
+        save_state(state)
         send_message("⛔ <b>Otomatik Tarama PASİF edildi.</b>\nSiz tekrar /aktif diyene kadar veya /tara ile manuel komut verene kadar tarama yapılmayacak.", chat_id)
 
     elif command == "/start":
@@ -2455,6 +2461,11 @@ def main():
     
     state = load_state()
     item_count = len(state.get("items", {}))
+    
+    # AUTO_SCAN_ENABLED durumunu state'ten yükle (container restart koruması)
+    AUTO_SCAN_ENABLED = state.get("auto_scan_enabled", True)  # Varsayılan: True
+    auto_scan_status = "AKTİF" if AUTO_SCAN_ENABLED else "PASİF"
+    print(f"[BASLANGIC] Otomatik tarama: {auto_scan_status}", flush=True)
     
     # Son tarama zamanini yukle
     last_scan_time = load_last_scan_time()
