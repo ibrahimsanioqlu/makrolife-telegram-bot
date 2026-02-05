@@ -7767,5 +7767,6 @@
     }
   },
   "scan_sequence": 214,
-  "last_scan_timestamp": 1770274495.3188944
+  "last_scan_timestamp": 1770274495.3188944,
+  "auto_scan_enabled": true
 }
