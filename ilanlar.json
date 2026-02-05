@@ -7640,6 +7640,16 @@
       "timestamp": 1770230170.8659625,
       "position": 16,
       "first_seen_date": "2026-02-04"
+    },
+    "7117-15": {
+      "fiyat": "3.200.000 TL",
+      "tarih": "2026-02-05",
+      "link": "https://www.makrolife.com.tr/ilan/diyarbakir-yenisehir-kooperatifler-mah-satilik-daire-ML-7117-15",
+      "title": "OFİS RIZVAN AĞA CADDESİNDE ACİL SIFIR YAPI SATILIK 2+1 DAİRE",
+      "scan_seq": 211,
+      "timestamp": 1770256098.3429072,
+      "position": 18,
+      "first_seen_date": "2026-02-05"
     }
   },
   "reported_days": [],
@@ -7749,8 +7759,13 @@
       "new": 30,
       "price_changes": 1500,
       "deleted": 5
+    },
+    "2026-02-05": {
+      "new": 1,
+      "price_changes": 0,
+      "deleted": 0
     }
   },
-  "scan_sequence": 210,
-  "last_scan_timestamp": 1770235152.1822066
+  "scan_sequence": 211,
+  "last_scan_timestamp": 1770256100.1013932
 }
