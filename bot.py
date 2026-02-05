@@ -10,11 +10,13 @@ from concurrent.futures import ThreadPoolExecutor, TimeoutError as FuturesTimeou
 
 import requests
 from playwright.sync_api import sync_playwright, TimeoutError
+from playwright_stealth import stealth_sync
 # Data klasoru
 os.makedirs("/data", exist_ok=True)
 
 print("=" * 60, flush=True)
 print("BOT BASLATILIYOR...", flush=True)
+print(">>> CLOUDFLARE BYPASS v6.3 (URL FIX) <<<", flush=True)
 print("Python version: " + sys.version, flush=True)
 print("Calisma zamani: " + datetime.utcnow().isoformat(), flush=True)
 print("=" * 60, flush=True)
@@ -38,21 +40,20 @@ GITHUB_REPO = os.getenv("GITHUB_REPO", "emlak-web-sitem/emlak-web-sitem-bot")
 
 print("BOT_TOKEN mevcut: " + str(bool(BOT_TOKEN)), flush=True)
 print("CHAT_ID mevcut: " + str(bool(os.getenv("CHAT_ID"))), flush=True)
-print("GITHUB_TOKEN mevcut: " + str(bool(GITHUB_TOKEN)), flush=True)
-
+print("__main__ basliyor...", flush=True)
 # 2026-01-20: Makrolife yeni URL yapısı
 URL = "https://www.makrolife.com.tr/ilanlar"
 DATA_FILE = "/data/ilanlar.json"
 HISTORY_FILE = "/data/history.json"
 LAST_SCAN_FILE = "/data/last_scan_time.json"
 
-# Timeout (saniye) - 40 dakika (70 sayfa ~26 dk sürüyor)
-SCAN_TIMEOUT = 40 * 60
+# Timeout (saniye) - 60 dakika (77 sayfa icin guvenli sure)
+SCAN_TIMEOUT = 60 * 60
 
 # === YENİ GLOBAL KONTROLLER ===
 SCAN_STOP_REQUESTED = False
 ACTIVE_SCAN = False
-AUTO_SCAN_ENABLED = True  # Varsayılan: Aktif
+AUTO_SCAN_ENABLED = None  # Başlangıçta state'ten yüklenecek (None = henüz yüklenmedi)
 MANUAL_SCAN_LIMIT = None  # None = tüm sayfalar
 WAITING_PAGE_CHOICE = False
 
@@ -62,16 +63,578 @@ MIN_LISTING_RATIO = 0.4  # %40
 # İlk N sayfa boş gelirse site hatası olarak değerlendir
 MIN_VALID_PAGES = 10
 
+# === GOOGLE APPS SCRIPT PROXY (Cloudflare Bypass) ===
+GOOGLE_SCRIPT_URL = os.getenv("GOOGLE_SCRIPT_URL", "https://script.google.com/macros/s/AKfycbzSZ3QfDNIk7ARRgpV0olOXvgij0TJJCQdAtk5NmkUZ_pcgin3dzHt7_J03IZa_m_f4/exec")
+USE_GOOGLE_PROXY = os.getenv("USE_GOOGLE_PROXY", "false").lower() == "true"  # Disabled - blocked by Cloudflare
+
+# === FLARESOLVERR (Cloudflare Turnstile Bypass) ===
+FLARESOLVERR_URL = os.getenv("FLARESOLVERR_URL", "")
+USE_FLARESOLVERR = os.getenv("USE_FLARESOLVERR", "true").lower() == "true"
+
+print(f"FLARESOLVERR_URL: {FLARESOLVERR_URL}", flush=True)
+print(f"USE_FLARESOLVERR: {USE_FLARESOLVERR}", flush=True)
+
+def fetch_via_flaresolverr(url, max_timeout=120000):
+    """FlareSolverr üzerinden sayfa içeriği al (Cloudflare Turnstile bypass)"""
+    if not FLARESOLVERR_URL:
+        print("[FLARESOLVERR] URL ayarlanmamış! Railway'de FLARESOLVERR_URL ekleyin.", flush=True)
+        return None
+    
+    api_url = FLARESOLVERR_URL.rstrip("/")
+    if not api_url.startswith("http"):
+        api_url = "https://" + api_url
+        
+    if not api_url.endswith("/v1"):
+        api_url = api_url + "/v1"
+    
+    # Retry mekanizması (Connection refused için)
+    import time as _time
+    max_retries = 3
+    
+    for attempt in range(max_retries):
+        try:
+            if attempt > 0:
+                print(f"[FLARESOLVERR] Deneme {attempt+1}/{max_retries}...", flush=True)
+            
+            print(f"[FLARESOLVERR] Fetch: {url}", flush=True)
+            
+            payload = {
+                "cmd": "request.get",
+                "url": url,
+                "maxTimeout": max_timeout
+            }
+            
+            response = requests.post(api_url, json=payload, timeout=max_timeout/1000 + 30)
+            
+            if response.status_code != 200:
+                print(f"[FLARESOLVERR] HTTP hata: {response.status_code}", flush=True)
+                return None
+            
+            data = response.json()
+            status = data.get("status", "")
+            
+            if status != "ok":
+                message = data.get("message", "Bilinmeyen hata")
+                print(f"[FLARESOLVERR] Hata: {message}", flush=True)
+                return None
+            
+            solution = data.get("solution", {})
+            html = solution.get("response", "")
+            final_url = solution.get("url", url)
+            cookies = solution.get("cookies", [])
+            
+            print(f"[FLARESOLVERR] Başarılı! İçerik uzunluğu: {len(html)}, Cookies: {len(cookies)}", flush=True)
+            
+            if html:
+                return {"content": html, "final_url": final_url, "cookies": cookies}
+            return None
+
+        except requests.exceptions.ConnectionError:
+            print(f"[FLARESOLVERR] Bağlantı reddedildi (Connection refused). Servis henüz hazır olmayabilir.", flush=True)
+            if attempt < max_retries - 1:
+                _time.sleep(5)  # 5 saniye bekle ve tekrar dene
+        except requests.exceptions.Timeout:
+            print("[FLARESOLVERR] Timeout - FlareSolverr çok uzun sürdü", flush=True)
+            return None
+        except Exception as e:
+            print(f"[FLARESOLVERR] Beklenmeyen Hata: {e}", flush=True)
+            return None
+            
+    print("[FLARESOLVERR] Tüm denemeler başarısız oldu.", flush=True)
+    return None
+
+
+def fetch_listings_via_flaresolverr():
+    """FlareSolverr üzerinden tüm ilanları çek ve fiyatları parse et"""
+    import re
+    
+    results = []
+    seen_codes = set()  # Sayfa arası deduplication
+
+    page_num = 0
+    consecutive_failures = 0
+    MAX_FAILURES = 3
+    MAX_PAGES = 100 # Güvenlik limiti
+    
+    print("[FLARESOLVERR] İlan taraması başlıyor...", flush=True)
+    
+    while page_num < MAX_PAGES:
+        if SCAN_STOP_REQUESTED:
+            print("[FLARESOLVERR] Kullanıcı durdurdu", flush=True)
+            break
+        
+        page_num += 1
+        if page_num == 1:
+            page_url = URL
+        else:
+            page_url = URL + "?pager_p=" + str(page_num)
+        
+        print(f"[FLARESOLVERR SAYFA {page_num}] {page_url}", flush=True)
+        
+        result = fetch_via_flaresolverr(page_url)
+        
+        if not result or not result.get("content"):
+            consecutive_failures += 1
+            print(f"[FLARESOLVERR SAYFA {page_num}] İçerik alınamadı", flush=True)
+            
+            if page_num <= 3:
+                print("[FLARESOLVERR] İlk 3 sayfada hata - tarama iptal", flush=True)
+                return None
+            
+            if consecutive_failures >= MAX_FAILURES:
+                print("[FLARESOLVERR] Art arda 3 hata - tarama durduruluyor", flush=True)
+                break
+            continue
+        
+        consecutive_failures = 0
+        html = result["content"]
+        
+        # HTML'den ilan linklerini çıkar - ÖNCE BENZERSİZ KODLARI BUL
+        ilan_pattern = r'href="(/ilan/[^"]*-ML-(\d+-\d+)[^"]*)"'
+        all_matches = re.findall(ilan_pattern, html, re.IGNORECASE)
+        
+        if not all_matches:
+            if page_num <= MIN_VALID_PAGES:
+                print(f"[FLARESOLVERR] Sayfa {page_num} boş - hata", flush=True)
+                return None
+            print(f"[FLARESOLVERR SAYFA {page_num}] Son sayfa geçildi", flush=True)
+            break
+        
+        # Benzersiz kodları ve ilk linklerini al (dict ile otomatik dedupe)
+        unique_listings = {}
+        for href, kod in all_matches:
+            if kod not in unique_listings and kod not in seen_codes:
+                unique_listings[kod] = href
+        
+        if not unique_listings:
+            # Bu sayfada yeni ilan yok, muhtemelen son sayfa
+            print(f"[FLARESOLVERR SAYFA {page_num}] Yeni ilan yok - son sayfa", flush=True)
+            break
+        
+        # Sadece benzersiz ilanları işle
+        page_new = 0
+        for kod, href in unique_listings.items():
+            seen_codes.add(kod)
+            
+            # Link pozisyonunu bul
+            link_pos = html.find(f'href="{href}"')
+            if link_pos == -1:
+                link_pos = 0
+            
+            # Chunk al - Kart yapısı geniş, fiyat linkin ~3500 karakter sonrasında
+            search_start = max(0, link_pos - 500)
+            search_end = min(len(html), link_pos + 5000)  # 5000'e çıkarıldı
+            chunk = html[search_start:search_end]
+            
+            # 1. Başlık Çıkarma
+            baslik = None
+            # Heading tagleri
+            title_match = re.search(r'<h[1-6][^>]*>\s*([^<]+?)\s*-\s*ML-\d+-\d+\s*</h[1-6]>', chunk, re.IGNORECASE)
+            if title_match:
+                baslik = title_match.group(1).strip()
+            
+            # data-target-title attribute (daha güvenilir)
+            if not baslik:
+                data_title = re.search(r'data-target-title="([^"]+)"', chunk, re.IGNORECASE)
+                if data_title:
+                    baslik = data_title.group(1).strip()
+            
+            # card-title class
+            if not baslik:
+                class_match = re.search(r'class="[^"]*card-title[^"]*"[^>]*>(?:\s*<a[^>]+>)?\s*([^<]+?)\s*(?:</a>)?\s*</', chunk, re.IGNORECASE)
+                if class_match:
+                    baslik = class_match.group(1).strip()
+
+            # Fallback: URL'den çıkar
+            if not baslik:
+                try:
+                    path_parts = href.split("/ilan/")[1].rsplit("-ML-", 1)[0]
+                    baslik = " ".join(word.capitalize() for word in path_parts.replace("-", " ").split())
+                except:
+                    baslik = f"İlan ML-{kod}"
+            
+            # Temizlik
+            if baslik:
+                baslik = baslik.replace("&amp;", "&").replace("&quot;", '"').replace("&#039;", "'").replace("&nbsp;", " ")
+                baslik = re.sub(r'\s*-\s*ML-\d+-\d+\s*$', '', baslik, flags=re.IGNORECASE)
+            
+            # 2. Fiyat Çıkarma - Makrolife'ın HTML yapısına özel
+            fiyat = "Fiyat Yok"
+            # Öncelik 1: <span class="h5 text-primary m-0">26.000 TL</span>
+            price_match = re.search(r'<span[^>]*class="[^"]*h5[^"]*text-primary[^"]*"[^>]*>\s*([\d\.,]+)\s*(TL|₺)', chunk, re.IGNORECASE)
+            if price_match:
+                amount = price_match.group(1)
+                if sum(c.isdigit() for c in amount) >= 3:
+                    fiyat = f"{amount.strip()} TL"
+            
+            # Öncelik 2: Genel fiyat pattern'i
+            if fiyat == "Fiyat Yok":
+                price_match2 = re.search(r'>\s*([\d\.]+(?:[\.,]\d{3})*)\s*(TL|₺)\s*<', chunk)
+                if price_match2:
+                    amount = price_match2.group(1)
+                    if sum(c.isdigit() for c in amount) >= 3:
+                        fiyat = f"{amount.strip()} TL"
+            
+            results.append((
+                kod,
+                fiyat,
+                f"https://www.makrolife.com.tr{href}" if href.startswith("/") else href,
+                baslik,
+                page_num
+            ))
+            page_new += 1
+        
+        print(f"[FLARESOLVERR SAYFA {page_num}] {page_new} ilan bulundu (toplam: {len(results)})", flush=True)
+        
+        # Bekleme
+        if page_num % 10 == 0:
+            time.sleep(3)
+        else:
+            time.sleep(1.0)
+    
+    if len(results) == 0:
+        print("[FLARESOLVERR] Hiç ilan bulunamadı", flush=True)
+        return None
+    
+    print(f"[FLARESOLVERR] Toplam {len(results)} ilan bulundu", flush=True)
+    return results
+
+def fetch_via_google_proxy(url):
+    """Google Apps Script üzerinden sayfa içeriği al (Cloudflare bypass)"""
+    if not GOOGLE_SCRIPT_URL:
+        print("[GOOGLE_PROXY] URL ayarlanmamış!", flush=True)
+        return None
+    
+    proxy_url = f"{GOOGLE_SCRIPT_URL}?url={requests.utils.quote(url)}"
+    print(f"[GOOGLE_PROXY] Fetch: {url}", flush=True)
+    
+    try:
+        response = requests.get(proxy_url, timeout=90, headers={"Accept": "application/json"})
+        if response.status_code != 200:
+            print(f"[GOOGLE_PROXY] HTTP hata: {response.status_code}", flush=True)
+            return None
+        
+        data = response.json()
+        http_code = data.get("http_code", 0)
+        content = data.get("content", "")
+        final_url = data.get("final_url", url)
+        
+        print(f"[GOOGLE_PROXY] Başarılı! HTTP: {http_code}, İçerik uzunluğu: {len(content)}", flush=True)
+        
+        if http_code == 200 and content:
+            return {"content": content, "final_url": final_url}
+        return None
+        
+    except Exception as e:
+        print(f"[GOOGLE_PROXY] Hata: {e}", flush=True)
+        return None
+
+
+def fetch_listings_via_google_proxy():
+    """Google Proxy üzerinden tüm ilanları çek"""
+    import re
+    
+    results = []
+    seen_codes = set()
+    page_num = 0
+    consecutive_failures = 0
+    MAX_FAILURES = 3
+    MAX_PAGES = 100
+    
+    print("[GOOGLE_PROXY] İlan taraması başlıyor...", flush=True)
+    
+    while page_num < MAX_PAGES:
+        if SCAN_STOP_REQUESTED:
+            print("[GOOGLE_PROXY] Kullanıcı durdurdu", flush=True)
+            break
+        
+        page_num += 1
+        if page_num == 1:
+            page_url = URL
+        else:
+            page_url = URL + "?pager_p=" + str(page_num)
+        
+        print(f"[GOOGLE_PROXY SAYFA {page_num}] {page_url}", flush=True)
+        
+        proxy_result = fetch_via_google_proxy(page_url)
+        
+        if not proxy_result or not proxy_result.get("content"):
+            consecutive_failures += 1
+            print(f"[GOOGLE_PROXY SAYFA {page_num}] İçerik alınamadı", flush=True)
+            
+            if page_num <= 3:
+                print("[GOOGLE_PROXY] İlk 3 sayfada hata - tarama iptal", flush=True)
+                return None
+            
+            if consecutive_failures >= MAX_FAILURES:
+                print("[GOOGLE_PROXY] Art arda 3 hata - tarama durduruluyor", flush=True)
+                break
+            continue
+        
+        consecutive_failures = 0
+        html = proxy_result["content"]
+        
+        # HTML'i ilan linklerine göre parçala
+        ilan_pattern = r'href="(/ilan/[^"]*-ML-(\d+-\d+)[^"]*)"'
+        matches = list(re.finditer(ilan_pattern, html, re.IGNORECASE))
+        
+        if not matches:
+            if page_num <= MIN_VALID_PAGES:
+                print(f"[GOOGLE_PROXY] Sayfa {page_num} boş - ilk {MIN_VALID_PAGES} sayfada boş olamaz", flush=True)
+                return None
+            print(f"[GOOGLE_PROXY SAYFA {page_num}] İlan yok - son sayfa geçildi", flush=True)
+            break
+        
+        page_listings = 0
+        for i, match in enumerate(matches):
+            href = match.group(1)
+            kod = match.group(2)
+            
+            # if kod in seen_codes: continue <-- REMOVED
+            
+            start_pos = match.start()
+            search_start = max(0, start_pos - 1000)
+            if i < len(matches) - 1:
+                search_end = matches[i+1].start()
+            else:
+                search_end = min(len(html), start_pos + 5000)
+                
+            chunk = html[search_start:search_end]
+            
+            # 1. Başlık
+            baslik = None
+            # 1. Deneme: Heading tagleri (h1-h6)
+            title_match = re.search(r'<h[1-6][^>]*>(?:\s*<a[^>]+>)?\s*([^<]+?)\s*(?:</a>)?\s*</h[1-6]>', chunk, re.IGNORECASE)
+            if title_match:
+                baslik = title_match.group(1).strip()
+            
+            if not baslik:
+                try:
+                    path_parts = href.split("/ilan/")[1].rsplit("-ML-", 1)[0]
+                    baslik = " ".join(word.capitalize() for word in path_parts.replace("-", " ").split())
+                except:
+                    baslik = f"İlan ML-{kod}"
+            
+            if baslik:
+                baslik = baslik.replace("&amp;", "&").replace("&quot;", '"').replace("&#039;", "'").replace("&nbsp;", " ")
+                baslik = re.sub(r'\s*-\s*ML-\d+-\d+\s*$', '', baslik, flags=re.IGNORECASE)
+                
+            # 2. Fiyat
+            fiyat = "Fiyat Yok"
+            price_match = re.search(r'([\d\.,]+)(?:\s*(?:<[^>]+>)*\s*)(TL|₺|USD|EUR|GBP)', chunk)
+            if price_match:
+                amount = price_match.group(1)
+                currency = price_match.group(2)
+                candidate = amount
+                if sum(c.isdigit() for c in candidate) >= 3:
+                    currency = currency.replace('₺', 'TL').replace('&#8378;', 'TL')
+                    fiyat = f"{amount.strip()} {currency}"
+            
+            current_result = (
+                fiyat,
+                f"https://www.makrolife.com.tr{href}" if href.startswith("/") else href,
+                baslik,
+                page_num
+            )
+
+            if kod not in results_dict:
+                results_dict[kod] = current_result
+            else:
+                existing_fiyat = results_dict[kod][0]
+                if existing_fiyat == "Fiyat Yok" and fiyat != "Fiyat Yok":
+                    results_dict[kod] = current_result
+                elif existing_fiyat == "Fiyat Yok" and fiyat == "Fiyat Yok":
+                    results_dict[kod] = current_result
+                elif existing_fiyat != "Fiyat Yok" and fiyat != "Fiyat Yok":
+                    results_dict[kod] = current_result
+            
+            page_listings += 1
+
+        # Convert dict to list
+        results = []
+        for kod, val in results_dict.items():
+            results.append((kod, val[0], val[1], val[2], val[3]))
+        
+        print(f"[GOOGLE_PROXY SAYFA {page_num}] {page_listings} link tarandı (benzersiz: {len(results)})", flush=True)
+        time.sleep(1)
+    
+    if len(results) == 0:
+        print("[GOOGLE_PROXY] Hiç ilan bulunamadı", flush=True)
+        return None
+    
+    print(f"[GOOGLE_PROXY] Toplam {len(results)} ilan bulundu", flush=True)
+    return results
+
+
+# === CLOUDFLARE BYPASS HELPER ===
+def wait_for_cloudflare(page, timeout=45000):
+    """Cloudflare JS Challenge'ının tamamlanmasını bekle - AGRESİF YAKLAŞIM"""
+    import time as _time
+    import random as _random
+    
+    print("[CF] Sayfa içeriği kontrol ediliyor...", flush=True)
+    
+    # Sayfa içeriğinin ilk 500 karakterini logla (debug için)
+    try:
+        page_content = page.content()
+        page_title = page.title()
+        print(f"[CF] Sayfa başlığı: {page_title}", flush=True)
+        print(f"[CF] İçerik önizleme: {page_content[:500]}...", flush=True)
+    except Exception as e:
+        print(f"[CF] İçerik okunamadı: {e}", flush=True)
+    
+    # Human-like davranış: rastgele mouse hareketi
+    def simulate_human_behavior():
+        try:
+            # Rastgele mouse hareketi
+            for _ in range(3):
+                x = _random.randint(100, 800)
+                y = _random.randint(100, 600)
+                page.mouse.move(x, y)
+                _time.sleep(_random.uniform(0.1, 0.3))
+            
+            # Turnstile checkbox'ı ara ve tıkla
+            turnstile_selectors = [
+                'iframe[src*="challenges.cloudflare.com"]',
+                'iframe[title*="challenge"]',
+                '#turnstile-wrapper iframe',
+                '.cf-turnstile iframe',
+            ]
+            for selector in turnstile_selectors:
+                try:
+                    frames = page.frames
+                    for frame in frames:
+                        if 'challenges.cloudflare.com' in frame.url:
+                            print(f"[CF] Turnstile iframe bulundu: {frame.url}", flush=True)
+                            # Checkbox'ı bul ve tıkla
+                            checkbox = frame.locator('input[type="checkbox"]')
+                            if checkbox.count() > 0:
+                                print("[CF] Turnstile checkbox tıklanıyor...", flush=True)
+                                checkbox.click()
+                                _time.sleep(2)
+                                return True
+                except:
+                    pass
+            
+            # Alternatif: doğrudan iframe'e tıkla
+            for selector in turnstile_selectors:
+                try:
+                    iframe_elem = page.locator(selector)
+                    if iframe_elem.count() > 0:
+                        print(f"[CF] Iframe bulundu: {selector}", flush=True)
+                        box = iframe_elem.bounding_box()
+                        if box:
+                            # Checkbox genellikle sol tarafta olur
+                            click_x = box['x'] + 30
+                            click_y = box['y'] + box['height'] / 2
+                            page.mouse.click(click_x, click_y)
+                            print(f"[CF] Iframe tıklandı: ({click_x}, {click_y})", flush=True)
+                            _time.sleep(2)
+                            return True
+                except Exception as e:
+                    print(f"[CF] Iframe tıklama hatası: {e}", flush=True)
+            
+        except Exception as e:
+            print(f"[CF] Human simulation hatası: {e}", flush=True)
+        return False
+    
+    # İlan linkleri var mı kontrol et
+    try:
+        ilan_count = page.locator('a[href*="/ilan/"]').count()
+        print(f"[CF] Mevcut ilan linki sayısı: {ilan_count}", flush=True)
+        
+        if ilan_count > 0:
+            print("[CF] İlanlar zaten yüklü, devam ediliyor", flush=True)
+            return True
+    except Exception as e:
+        print(f"[CF] Locator hatası: {e}", flush=True)
+    
+    # İlan yoksa bekle (Cloudflare challenge olabilir)
+    print("[CF] İlan bulunamadı, Cloudflare challenge bekleniyor...", flush=True)
+    
+    # İlk deneme: human davranışı simüle et
+    simulate_human_behavior()
+    
+    # 60 saniye boyunca 3 saniyede bir kontrol et (20 deneme)
+    max_attempts = 20
+    for attempt in range(max_attempts):
+        _time.sleep(3)
+        
+        # Her 5 denemede bir mouse hareketi yap
+        if attempt > 0 and attempt % 5 == 0:
+            simulate_human_behavior()
+        
+        try:
+            ilan_count = page.locator('a[href*="/ilan/"]').count()
+            print(f"[CF] Deneme {attempt + 1}/{max_attempts}: {ilan_count} ilan linki", flush=True)
+            
+            if ilan_count > 0:
+                print(f"[CF] Cloudflare bypass BAŞARILI! ({(attempt + 1) * 3} saniye sonra)", flush=True)
+                return True
+        except Exception as e:
+            print(f"[CF] Deneme {attempt + 1} hatası: {e}", flush=True)
+    
+    # Son çare: sayfayı yenile ve tekrar dene
+    print("[CF] Son çare: Sayfa yenileniyor...", flush=True)
+    try:
+        page.reload(wait_until="networkidle", timeout=60000)
+        _time.sleep(5)
+        simulate_human_behavior()
+        _time.sleep(3)
+        ilan_count = page.locator('a[href*="/ilan/"]').count()
+        if ilan_count > 0:
+            print(f"[CF] Yenileme sonrası başarılı! {ilan_count} ilan", flush=True)
+            return True
+    except Exception as e:
+        print(f"[CF] Yenileme hatası: {e}", flush=True)
+    
+    print("[CF] Cloudflare bypass BAŞARISIZ - tüm denemeler tükendi", flush=True)
+    return False
+
 
 def get_turkey_time():
     return datetime.utcnow() + timedelta(hours=3)
 
+# Sabit tarama saatleri (Türkiye saati)
+SCHEDULED_SCAN_HOURS = [10, 13, 16, 19]
+
+def get_scheduled_hours():
+    """Tarama saatlerini döndür"""
+    return SCHEDULED_SCAN_HOURS
+
+def get_next_scan_time():
+    """Bir sonraki tarama saatine kadar kalan süreyi saniye olarak döndür"""
+    now = get_turkey_time()
+    current_hour = now.hour
+    current_minute = now.minute
+    
+    # Bugün için kalan tarama saatlerini bul
+    for hour in SCHEDULED_SCAN_HOURS:
+        if hour > current_hour or (hour == current_hour and current_minute < 5):
+            # Bu saatten önceyiz, bu saate kadar bekle
+            minutes_until = (hour - current_hour) * 60 - current_minute
+            return max(minutes_until * 60, 60)  # En az 1 dakika
+    
+    # Bugünkü tüm saatler geçti, yarının ilk saatine kadar bekle
+    hours_until_midnight = 24 - current_hour
+    hours_from_midnight = SCHEDULED_SCAN_HOURS[0]
+    total_hours = hours_until_midnight + hours_from_midnight
+    minutes_until = total_hours * 60 - current_minute
+    return minutes_until * 60
+
+def should_scan_now():
+    """Şu an tarama saati mi kontrol et (±5 dakika tolerans)"""
+    now = get_turkey_time()
+    current_hour = now.hour
+    current_minute = now.minute
+    
+    if current_hour in SCHEDULED_SCAN_HOURS and current_minute < 5:
+        return True
+    return False
+
 def get_scan_interval():
-    hour = get_turkey_time().hour
-    if 9 <= hour < 18:
-        return 90 * 60   # Gündüz (09:00-18:00): 1.5 saat
-    else:
-        return 240 * 60  # Gece (18:00-09:00): 4 saat
+    """Geriye uyumluluk için - bir sonraki taramaya kalan süre"""
+    return get_next_scan_time()
 
 # Istatistikler
 bot_stats = {
@@ -869,10 +1432,16 @@ def handle_command(chat_id, command, message_text):
     
     if command == "/aktif":
         AUTO_SCAN_ENABLED = True
+        # State'e kaydet (kalıcı olsun)
+        state["auto_scan_enabled"] = True
+        save_state(state)
         send_message("✅ <b>Otomatik Tarama AKTİF edildi.</b>\nBot belirtilen aralıklarla tarama yapmaya devam edecek.", chat_id)
         
     elif command == "/pasif" or command == "/dur":
         AUTO_SCAN_ENABLED = False
+        # State'e kaydet (kalıcı olsun)
+        state["auto_scan_enabled"] = False
+        save_state(state)
         send_message("⛔ <b>Otomatik Tarama PASİF edildi.</b>\nSiz tekrar /aktif diyene kadar veya /tara ile manuel komut verene kadar tarama yapılmayacak.", chat_id)
 
     elif command == "/start":
@@ -1251,6 +1820,24 @@ def fetch_listings_playwright():
 
     scan_start = time.time()
 
+    # === 1. FLARESOLVERR İLE DENEME (En güçlü yöntem) ===
+    if USE_FLARESOLVERR and FLARESOLVERR_URL:
+        print("[FLARESOLVERR] Öncelikli yöntem olarak deneniyor...", flush=True)
+        flare_result = fetch_listings_via_flaresolverr()
+        if flare_result is not None:
+            ACTIVE_SCAN = False
+            return flare_result
+        print("[FLARESOLVERR] Başarısız, Google Proxy deneniyor...", flush=True)
+
+    # === 2. GOOGLE PROXY İLE DENEME (Cloudflare Bypass) ===
+    if USE_GOOGLE_PROXY:
+        print("[GOOGLE_PROXY] Deneniyor...", flush=True)
+        google_result = fetch_listings_via_google_proxy()
+        if google_result is not None:
+            ACTIVE_SCAN = False
+            return google_result
+        print("[GOOGLE_PROXY] Başarısız, Playwright'a geçiliyor...", flush=True)
+
     print("[PLAYWRIGHT] Baslatiliyor...", flush=True)
 
     results = []
@@ -1266,6 +1853,20 @@ def fetch_listings_playwright():
                 "--disable-blink-features=AutomationControlled",
                 "--no-sandbox",
                 "--disable-dev-shm-usage",
+                "--disable-web-security",
+                "--disable-features=IsolateOrigins,site-per-process",
+                "--disable-site-isolation-trials",
+                "--disable-features=BlockInsecurePrivateNetworkRequests",
+                "--ignore-certificate-errors",
+                "--allow-running-insecure-content",
+                "--disable-extensions",
+                "--disable-plugins-discovery",
+                "--disable-background-networking",
+                "--disable-sync",
+                "--disable-translate",
+                "--metrics-recording-only",
+                "--no-first-run",
+                "--safebrowsing-disable-auto-update",
             ],
         )
 
@@ -1273,10 +1874,21 @@ def fetch_listings_playwright():
             return browser.new_context(
                 viewport={"width": 1920, "height": 1080},
                 user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+                locale="tr-TR",
+                timezone_id="Europe/Istanbul",
+                extra_http_headers={
+                    "Accept-Language": "tr-TR,tr;q=0.9,en-US;q=0.8,en;q=0.7",
+                    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8",
+                    "Accept-Encoding": "gzip, deflate, br",
+                    "Connection": "keep-alive",
+                    "Upgrade-Insecure-Requests": "1",
+                }
             )
 
         context = new_context()
         page = context.new_page()
+        stealth_sync(page)  # Apply stealth mode to bypass detection
+        print("[PLAYWRIGHT] Stealth mode uygulandi", flush=True)
 
         while True:
             if SCAN_STOP_REQUESTED:
@@ -1306,6 +1918,12 @@ def fetch_listings_playwright():
                 try:
                     # Timeout: 90 saniye (önceki 60'tan artırıldı)
                     page.goto(page_url, timeout=90000, wait_until="networkidle")
+                    
+                    # Cloudflare challenge kontrolü ve beklemesi
+                    if not wait_for_cloudflare(page):
+                        print(f"[SAYFA {page_num}] Cloudflare challenge geçilemedi", flush=True)
+                        raise TimeoutError("Cloudflare challenge timeout")
+                    
                     page_loaded = True
                     break
                 except TimeoutError:
@@ -1318,6 +1936,7 @@ def fetch_listings_playwright():
                             context.close()
                             context = new_context()
                             page = context.new_page()
+                            stealth_sync(page)  # Apply stealth to new page
                         except:
                             pass
                     else:
@@ -1843,6 +2462,11 @@ def main():
     state = load_state()
     item_count = len(state.get("items", {}))
     
+    # AUTO_SCAN_ENABLED durumunu state'ten yükle (container restart koruması)
+    AUTO_SCAN_ENABLED = state.get("auto_scan_enabled", True)  # Varsayılan: True
+    auto_scan_status = "AKTİF" if AUTO_SCAN_ENABLED else "PASİF"
+    print(f"[BASLANGIC] Otomatik tarama: {auto_scan_status}", flush=True)
+    
     # Son tarama zamanini yukle
     last_scan_time = load_last_scan_time()
     if last_scan_time > 0:
@@ -1855,7 +2479,6 @@ def main():
             force_scan = (cmd_result == "SCAN")
             
             current_time = time.time()
-            scan_interval = get_scan_interval()
             
             # Son tarama zamanini yukle
             last_scan_time = load_last_scan_time()
@@ -1868,7 +2491,13 @@ def main():
                 time.sleep(1)
                 continue
 
-            if force_scan or (current_time - last_scan_time >= scan_interval):
+            # Tarama saati kontrolü: Sadece belirlenen saatlerde (10:00, 13:00, 16:00, 19:00) tara
+            # Son taramadan bu yana en az 30 dakika geçmiş olmalı (aynı saatte tekrar taramayı önle)
+            should_scan = False
+            if should_scan_now() and (current_time - last_scan_time >= 1800):  # 30 dakika = 1800 saniye
+                should_scan = True
+                
+            if force_scan or should_scan:
                 print("\n" + "#" * 50, flush=True)
                 scan_type = "(MANUEL)" if force_scan else ""
                 print("# TARAMA #" + str(bot_stats["total_scans"] + 1) + " " + scan_type, flush=True)
@@ -1876,10 +2505,10 @@ def main():
                 print("#" * 50, flush=True)
                 
                 # TARAMA BASLADI MESAJI
-                interval = get_scan_interval() // 60
+                schedule_str = ", ".join([f"{h}:00" for h in SCHEDULED_SCAN_HOURS])
                 github_status = "Aktif" if GITHUB_TOKEN else "Kapali"
                 msg = "🔄 <b>Tarama Başladı!</b>\n\n"
-                msg += "⏰ Tarama aralığı: " + str(interval) + " dk\n"
+                msg += "⏰ Tarama saatleri: " + schedule_str + "\n"
                 msg += "💾 Bellekteki ilan: " + str(len(load_state().get("items", {}))) + "\n"
                 msg += "☁️ GitHub yedek: " + github_status
                 send_message(msg)
@@ -1889,8 +2518,13 @@ def main():
                 # Tarama sonrasi zamani kaydet
                 save_last_scan_time(current_time)
                 
-                next_interval = get_scan_interval() // 60
-                print("[BEKLIYOR] Sonraki tarama " + str(next_interval) + " dk sonra", flush=True)
+                next_minutes = get_scan_interval() // 60
+                next_hours = next_minutes // 60
+                remaining_mins = next_minutes % 60
+                if next_hours > 0:
+                    print(f"[BEKLIYOR] Sonraki tarama {next_hours} saat {remaining_mins} dk sonra", flush=True)
+                else:
+                    print(f"[BEKLIYOR] Sonraki tarama {remaining_mins} dk sonra", flush=True)
             
             time.sleep(1)
             
