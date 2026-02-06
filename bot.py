@@ -150,55 +150,27 @@ def fetch_listings_via_flaresolverr():
     
     results = []
     seen_codes = set()  # Sayfa arası deduplication
+    failed_pages = []  # Başarısız sayfaları kaydet
 
     page_num = 0
     consecutive_failures = 0
-    MAX_FAILURES = 3
+    MAX_FAILURES = 5  # Art arda hata limiti artırıldı
     MAX_PAGES = 100 # Güvenlik limiti
+    RETRY_ATTEMPTS = 3  # Her başarısız sayfa için retry sayısı
+    RETRY_WAIT = 30  # Retry öncesi bekleme süresi (saniye)
     
     print("[FLARESOLVERR] İlan taraması başlıyor...", flush=True)
     
-    while page_num < MAX_PAGES:
-        if SCAN_STOP_REQUESTED:
-            print("[FLARESOLVERR] Kullanıcı durdurdu", flush=True)
-            break
-        
-        page_num += 1
-        if page_num == 1:
-            page_url = URL
-        else:
-            page_url = URL + "?pager_p=" + str(page_num)
-        
-        print(f"[FLARESOLVERR SAYFA {page_num}] {page_url}", flush=True)
-        
-        result = fetch_via_flaresolverr(page_url)
-        
-        if not result or not result.get("content"):
-            consecutive_failures += 1
-            print(f"[FLARESOLVERR SAYFA {page_num}] İçerik alınamadı", flush=True)
-            
-            if page_num <= 3:
-                print("[FLARESOLVERR] İlk 3 sayfada hata - tarama iptal", flush=True)
-                return None
-            
-            if consecutive_failures >= MAX_FAILURES:
-                print("[FLARESOLVERR] Art arda 3 hata - tarama durduruluyor", flush=True)
-                break
-            continue
-        
-        consecutive_failures = 0
-        html = result["content"]
+    def process_page_html(html, page_num):
+        """Sayfa HTML'inden ilanları çıkar ve results/seen_codes'a ekle"""
+        nonlocal results, seen_codes
         
         # HTML'den ilan linklerini çıkar - ÖNCE BENZERSİZ KODLARI BUL
         ilan_pattern = r'href="(/ilan/[^"]*-ML-(\d+-\d+)[^"]*)"'
         all_matches = re.findall(ilan_pattern, html, re.IGNORECASE)
         
         if not all_matches:
-            if page_num <= MIN_VALID_PAGES:
-                print(f"[FLARESOLVERR] Sayfa {page_num} boş - hata", flush=True)
-                return None
-            print(f"[FLARESOLVERR SAYFA {page_num}] Son sayfa geçildi", flush=True)
-            break
+            return 0, False  # 0 ilan, devam et
         
         # Benzersiz kodları ve ilk linklerini al (dict ile otomatik dedupe)
         unique_listings = {}
@@ -207,9 +179,7 @@ def fetch_listings_via_flaresolverr():
                 unique_listings[kod] = href
         
         if not unique_listings:
-            # Bu sayfada yeni ilan yok, muhtemelen son sayfa
-            print(f"[FLARESOLVERR SAYFA {page_num}] Yeni ilan yok - son sayfa", flush=True)
-            break
+            return 0, False  # 0 yeni ilan
         
         # Sadece benzersiz ilanları işle
         page_new = 0
@@ -284,6 +254,62 @@ def fetch_listings_via_flaresolverr():
             ))
             page_new += 1
         
+        return page_new, True
+    
+    # ============ ANA TARAMA DÖNGÜSÜ ============
+    while page_num < MAX_PAGES:
+        if SCAN_STOP_REQUESTED:
+            print("[FLARESOLVERR] Kullanıcı durdurdu", flush=True)
+            break
+        
+        page_num += 1
+        if page_num == 1:
+            page_url = URL
+        else:
+            page_url = URL + "?pager_p=" + str(page_num)
+        
+        print(f"[FLARESOLVERR SAYFA {page_num}] {page_url}", flush=True)
+        
+        result = fetch_via_flaresolverr(page_url)
+        
+        if not result or not result.get("content"):
+            consecutive_failures += 1
+            print(f"[FLARESOLVERR SAYFA {page_num}] İçerik alınamadı", flush=True)
+            
+            if page_num <= 3:
+                print("[FLARESOLVERR] İlk 3 sayfada hata - tarama iptal", flush=True)
+                return None
+            
+            # Başarısız sayfayı kaydet
+            failed_pages.append(page_num)
+            print(f"[FLARESOLVERR] Sayfa {page_num} retry listesine eklendi", flush=True)
+            
+            if consecutive_failures >= MAX_FAILURES:
+                print(f"[FLARESOLVERR] Art arda {MAX_FAILURES} hata - ana taramaya devam ediliyor", flush=True)
+                # Devam et ama art arda hata sayacını sıfırlama
+            continue
+        
+        consecutive_failures = 0
+        html = result["content"]
+        
+        # HTML'den ilan linklerini çıkar - ÖNCE BENZERSİZ KODLARI BUL
+        ilan_pattern = r'href="(/ilan/[^"]*-ML-(\d+-\d+)[^"]*)"'
+        all_matches = re.findall(ilan_pattern, html, re.IGNORECASE)
+        
+        if not all_matches:
+            if page_num <= MIN_VALID_PAGES:
+                print(f"[FLARESOLVERR] Sayfa {page_num} boş - hata", flush=True)
+                return None
+            print(f"[FLARESOLVERR SAYFA {page_num}] Son sayfa geçildi", flush=True)
+            break
+        
+        page_new, _ = process_page_html(html, page_num)
+        
+        if page_new == 0:
+            # Bu sayfada yeni ilan yok, muhtemelen son sayfa
+            print(f"[FLARESOLVERR SAYFA {page_num}] Yeni ilan yok - son sayfa", flush=True)
+            break
+        
         print(f"[FLARESOLVERR SAYFA {page_num}] {page_new} ilan bulundu (toplam: {len(results)})", flush=True)
         
         # Bekleme
@@ -291,6 +317,55 @@ def fetch_listings_via_flaresolverr():
             time.sleep(3)
         else:
             time.sleep(1.0)
+    
+    # ============ BAŞARISIZ SAYFALAR İÇİN RETRY ============
+    if failed_pages and not SCAN_STOP_REQUESTED:
+        print(f"\n[FLARESOLVERR] === RETRY BAŞLIYOR ===", flush=True)
+        print(f"[FLARESOLVERR] Başarısız sayfalar: {failed_pages}", flush=True)
+        
+        for retry_attempt in range(1, RETRY_ATTEMPTS + 1):
+            if not failed_pages or SCAN_STOP_REQUESTED:
+                break
+            
+            print(f"\n[FLARESOLVERR] Retry {retry_attempt}/{RETRY_ATTEMPTS} - {len(failed_pages)} sayfa kaldı", flush=True)
+            print(f"[FLARESOLVERR] {RETRY_WAIT} saniye bekleniyor...", flush=True)
+            time.sleep(RETRY_WAIT)
+            
+            still_failed = []
+            
+            for failed_page in failed_pages:
+                if SCAN_STOP_REQUESTED:
+                    break
+                
+                if failed_page == 1:
+                    page_url = URL
+                else:
+                    page_url = URL + "?pager_p=" + str(failed_page)
+                
+                print(f"[FLARESOLVERR RETRY] Sayfa {failed_page} tekrar deneniyor...", flush=True)
+                
+                result = fetch_via_flaresolverr(page_url)
+                
+                if result and result.get("content"):
+                    html = result["content"]
+                    page_new, success = process_page_html(html, failed_page)
+                    
+                    if success:
+                        print(f"[FLARESOLVERR RETRY] Sayfa {failed_page} BAŞARILI! {page_new} ilan eklendi (toplam: {len(results)})", flush=True)
+                    else:
+                        print(f"[FLARESOLVERR RETRY] Sayfa {failed_page} içerik alındı ama ilan yok", flush=True)
+                else:
+                    print(f"[FLARESOLVERR RETRY] Sayfa {failed_page} hala başarısız", flush=True)
+                    still_failed.append(failed_page)
+                
+                time.sleep(2)  # Retry'lar arası bekleme
+            
+            failed_pages = still_failed
+        
+        if failed_pages:
+            print(f"\n[FLARESOLVERR] Retry sonrası hala başarısız sayfalar: {failed_pages}", flush=True)
+        else:
+            print(f"\n[FLARESOLVERR] Tüm başarısız sayfalar kurtarıldı!", flush=True)
     
     if len(results) == 0:
         print("[FLARESOLVERR] Hiç ilan bulunamadı", flush=True)
